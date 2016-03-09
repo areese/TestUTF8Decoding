@@ -16,6 +16,7 @@ JNIEXPORT void JNICALL Java_com_yahoo_example_testutf8_JNITest_dumpDecodedBytes
     size_t len = jenv->GetStringUTFLength(jstr);
     printf ("jni\n");
 
+    printf ("cstr: %s\n", cstr);
     for (size_t i=0;i<len;i++) {
         printf("%x",(unsigned char)cstr[i]);
     }

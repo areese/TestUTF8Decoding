@@ -16,6 +16,7 @@ public class TestUTF8 {
                         "%E6%8C%91%E6%88%B0%E5%85%A8%E5%8F%B0%E6%9C%80%E4%BD%8E%E5%83%B9%F0%9F%8D%85%E4%BA%BA%E6%B0%A3";
         String decoded = URLDecoder.decode(encoded, "UTF-8");
 
+        System.out.println("java str:" + decoded);
         testUTF8Decoder(decoded);
         testJava(decoded);
         testJNI(decoded);
