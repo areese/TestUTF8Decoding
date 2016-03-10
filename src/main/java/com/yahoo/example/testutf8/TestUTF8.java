@@ -12,8 +12,22 @@ import java.nio.charset.StandardCharsets;
 
 public class TestUTF8 {
     public static void main(String[] args) throws Exception {
-        String encoded =
-                        "%E6%8C%91%E6%88%B0%E5%85%A8%E5%8F%B0%E6%9C%80%E4%BD%8E%E5%83%B9%F0%9F%8D%85%E4%BA%BA%E6%B0%A3";
+        String encoded1 =
+                        "%E6%8C%91%E6%88%B0%E5%85%A8%E5%8F%B0%E6%9C%80%E4%BD%8E%E5%83%B9"
+                                        + "%F0%9F%8D%85%E4%BA%BA%E6%B0%A3";
+        String encoded2 =
+                        "%E6%8C%91%E6%88%B0%E5%85%A8%E5%8F%B0%E6%9C%80%E4%BD%8E%E5%83%B9"
+                                        + "%9F%8D%85%E4%BA%BA%E6%B0%A3";
+
+        System.out.println("test1");
+//        testString(encoded1);
+        // test 2.
+        System.out.println("test2");
+        testString(encoded2);
+
+    }
+
+    private static void testString(String encoded) throws Exception {
         String decoded = URLDecoder.decode(encoded, "UTF-8");
 
         System.out.println("java str:" + decoded);
