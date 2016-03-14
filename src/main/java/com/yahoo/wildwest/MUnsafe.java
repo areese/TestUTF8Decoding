@@ -74,10 +74,10 @@ public class MUnsafe {
     // Cribbed from DiretByteBuffer
     public static long allocate(long cap) {
         boolean isDirectMemoryPageAligned = VM.isDirectMemoryPageAligned();
-        int pageSize = MUnsafe.unsafe.pageSize();
+        int pageSize = unsafe.pageSize();
         long size = Math.max(1L, (long) cap + (isDirectMemoryPageAligned ? pageSize : 0));
-        long base = MUnsafe.unsafe.allocateMemory(size);
-        MUnsafe.unsafe.setMemory(base, size, (byte) 0);
+        long base = unsafe.allocateMemory(size);
+        unsafe.setMemory(base, size, (byte) 0);
 
         long address = 0;
         if (isDirectMemoryPageAligned && (base % pageSize != 0)) {
@@ -97,5 +97,13 @@ public class MUnsafe {
 
     private static long index(long address, int i) {
         return address + ((long) i << 0);
+    }
+
+    public static void freeMemory(long address, long length) {
+        if (0 != address) {
+            unsafe.freeMemory(address);
+            address = 0;
+            length = 0;
+        }
     }
 }

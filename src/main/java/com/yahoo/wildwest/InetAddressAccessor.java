@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.Objects;
 
 @SuppressWarnings("restriction")
@@ -187,8 +186,8 @@ public class InetAddressAccessor {
     }
 
 
-    public static AddressWrapper powersaw(InetAddress address) {
-        Objects.nonNull(address);
+    public static MissingFingers powersaw(InetAddress address) {
+        Objects.requireNonNull(address);
 
         long addressLong = 0;
         long len = 0;
@@ -204,24 +203,8 @@ public class InetAddressAccessor {
             MUnsafe.copyMemory(addressLong, len, addressBytes);
         }
 
-        return new AddressWrapper(addressLong, len);
+        return new MissingFingers(addressLong, len);
     }
 
-    public static final class AddressWrapper implements AutoCloseable {
-        public final long unsafeMemory;
-        public final long len;
-
-        public AddressWrapper(long address, long len) {
-            this.unsafeMemory = address;
-            this.len = len;
-        }
-
-        @Override
-        public void close() {
-            if (0 != len && 0 != unsafeMemory) {
-                MUnsafe.getUnsafe().freeMemory(unsafeMemory);
-            }
-        }
-    }
 
 }

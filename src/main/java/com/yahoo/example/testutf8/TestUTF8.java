@@ -20,7 +20,7 @@ public class TestUTF8 {
                                         + "%9F%8D%85%E4%BA%BA%E6%B0%A3";
 
         System.out.println("test1");
-//        testString(encoded1);
+        // testString(encoded1);
         // test 2.
         System.out.println("test2");
         testString(encoded2);
