@@ -17,27 +17,52 @@ public class DecodeTest {
     public static void main(String[] args) throws Exception {
         testLong();
         testInt();
+        testShort();
+        testByte();
     }
 
+    static final long data = 0xDEADBEEFCAFEC010L;
+
+    private static void put(long data, long len) throws Exception {}
+
     private static void testLong() throws Exception {
-        long l = 0xDEADBEEFCAFEC010L;
         long len = 8;
         long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putLong(address, l);
-        System.err.println("Putting " + Long.toHexString(l));
+        MUnsafe.unsafe.putLong(address, data);
+        System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
         MUnsafe.unsafe.freeMemory(address);
     }
 
-
     private static void testInt() throws Exception {
-        int l = (int) 0xDEADBEEFCAFEC010L;
         long len = 4;
         long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putLong(address, l);
-        System.err.println("Putting " + Long.toHexString(l));
+        MUnsafe.unsafe.putInt(address, (int) data);
+        System.err.println("Putting " + Long.toHexString(data));
+        if (!dumpEncoded(address, len)) {
+            throw new Exception();
+        }
+        MUnsafe.unsafe.freeMemory(address);
+    }
+
+    private static void testShort() throws Exception {
+        long len = 2;
+        long address = MUnsafe.unsafe.allocateMemory(len);
+        MUnsafe.unsafe.putShort(address, (short) data);
+        System.err.println("Putting " + Long.toHexString(data));
+        if (!dumpEncoded(address, len)) {
+            throw new Exception();
+        }
+        MUnsafe.unsafe.freeMemory(address);
+    }
+
+    private static void testByte() throws Exception {
+        long len = 1;
+        long address = MUnsafe.unsafe.allocateMemory(len);
+        MUnsafe.unsafe.putByte(address, (byte) data);
+        System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
