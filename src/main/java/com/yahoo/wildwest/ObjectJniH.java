@@ -85,7 +85,7 @@ public class ObjectJniH {
 
         StringBuilder structString = new StringBuilder();
 
-        structString.append("struct " + objectClass.getName() + "Struct {\n");
+        structString.append("typedef struct " + objectClass.getName() + "Struct {\n");
 
         for (Field f : objectClass.getDeclaredFields()) {
             String fieldName = f.getName();
@@ -122,7 +122,7 @@ public class ObjectJniH {
             // fields.add(f);
         }
 
-        structString.append("};\n");
+        structString.append("} " + objectClass.getName() + ";\n");
 
         return structString.toString();
 

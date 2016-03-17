@@ -67,3 +67,20 @@ JNIEXPORT void JNICALL Java_com_yahoo_example_test_DecodeTest_encodeInto
 {
 
 }
+
+/*
+ * Class:     com_yahoo_example_test_DecodeTest
+ * Method:    dump
+ * Signature: (JJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_yahoo_example_test_DecodeTest_dump(
+        JNIEnv *jenv, jclass, jlong address, jlong len) {
+    uint64_t *bytes = (uint64_t*) address;
+    fprintf(stderr, "addess: %p len: %ld\n", bytes, len);
+    for (jlong i = 0; i < len / 8; i++) {
+        fprintf(stderr, "Getting %p at %0llx\n", &bytes[i], bytes[i]);
+    }
+    fprintf(stderr, "\n");
+
+    return JNI_TRUE;
+}

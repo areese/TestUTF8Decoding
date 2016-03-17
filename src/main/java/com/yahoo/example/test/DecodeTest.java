@@ -10,15 +10,18 @@ public class DecodeTest {
         JniLibraryLoader.load();
     }
 
+    public static final native boolean dump(long address, long len);
+
     public static final native boolean dumpEncoded(long address, long len);
 
     public static final native void encodeInto(long address, long len);
 
     public static void main(String[] args) throws Exception {
-        testLong();
-        testInt();
-        testShort();
-        testByte();
+        // testLong();
+        // testInt();
+        // testShort();
+        // testByte();
+        testLotsOfLongs();
     }
 
     static final long data = 0xDEADBEEFCAFEC010L;
@@ -67,5 +70,58 @@ public class DecodeTest {
             throw new Exception();
         }
         MUnsafe.unsafe.freeMemory(address);
+    }
+
+    private static void testLotsOfLongs() throws Exception {
+        long len = 120;
+        long a = 1; // int
+        long b = 2; // int
+        long c = 3; // int
+        long d = 4; // long
+        long e = 5; // int
+        long f = 6; // int
+        long g = 7; // long
+        long hBytes = 8;
+        long hLen = 9;
+        long iBytes = 10;
+        long iLen = 11;
+        long jBytes = 12;
+        long jLen = 13;
+        long kBytes = 14;
+        long kLen = 15;
+
+        long[] longs = new long[] {a, //
+                        b, //
+                        c, //
+                        d, //
+                        e, //
+                        f, //
+                        g, //
+                        hBytes, //
+                        hLen, //
+                        iBytes, //
+                        iLen, //
+                        jBytes, //
+                        jLen, //
+                        kBytes, //
+                        kLen, //
+
+        };
+
+        long scale = MUnsafe.unsafe.arrayIndexScale(long[].class);
+
+        long address = MUnsafe.unsafe.allocateMemory(len);
+        for (int i = 0, j = 0; i < longs.length && j < len; i++) {
+            // System.err.println("Putting " + longs[i] + " at " + Long.toHexString(address) + j);
+            System.err.println("Putting " + Long.toHexString(address + j) + " at " + longs[i]);
+            MUnsafe.unsafe.putLong(address + j, longs[i]);
+            j += 8;
+        }
+
+        if (!dump(address, len)) {
+            throw new Exception();
+        }
+        MUnsafe.unsafe.freeMemory(address);
+
     }
 }

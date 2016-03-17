@@ -7,6 +7,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_yahoo_example_test_DecodeTest_data
+#define com_yahoo_example_test_DecodeTest_data -2401053089206452208LL
+/*
+ * Class:     com_yahoo_example_test_DecodeTest
+ * Method:    dump
+ * Signature: (JJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_yahoo_example_test_DecodeTest_dump
+  (JNIEnv *, jclass, jlong, jlong);
+
 /*
  * Class:     com_yahoo_example_test_DecodeTest
  * Method:    dumpEncoded
