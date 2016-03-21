@@ -11,7 +11,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Objects;
 
-@SuppressWarnings("restriction")
 public class InetAddressAccessor {
     // public static void main(String[] args) throws Exception {
     // testInet4AddressHolder();

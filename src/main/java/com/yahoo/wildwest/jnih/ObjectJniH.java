@@ -125,8 +125,11 @@ public class ObjectJniH {
 
                 case LONG:
                 case INT:
+                    // yes we waste 32 bits.
 
-                    structString.append("    uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                case BYTE:
+                    // yes we waste 56 bits.
+                        structString.append("    uint64_t " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
                 default:
@@ -137,7 +140,7 @@ public class ObjectJniH {
 
             // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
             // fields.add(f);
-                    });
+        });
 
         structString.append("} " + structName + ";\n");
 
@@ -188,6 +191,13 @@ public class ObjectJniH {
                     variablesString.append("    int " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
+                case BYTE:
+                    variablesString.append("    byte " + field.getName() + "; // " + type.getName() + "\n");
+                    break;
+
+                default:
+                    variablesString.append("// TOOD: support " + type.getName());
+                    break;
             }
 
             // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
@@ -295,8 +305,8 @@ public class ObjectJniH {
     public static void main(String[] args) throws Exception {
 
         Class<?> classToDump;
-        boolean cstruct = false;
-        boolean java = false;
+        boolean generateCCode = false;
+        boolean generateJavaCode = false;
 
         if (args.length > 0) {
             classToDump = Class.forName(args[0]);
@@ -306,21 +316,25 @@ public class ObjectJniH {
 
         if (args.length > 1) {
             if ("-cstruct".equals(args[1])) {
-                cstruct = true;
+                generateCCode = true;
             }
             if ("-java".equals(args[1])) {
-                java = true;
+                generateJavaCode = true;
             }
         }
 
         ObjectJniH ojh = new ObjectJniH(classToDump);
-        // create the c struct
-        String cstructString = ojh.createCStruct();
-        System.out.println(cstructString);
 
-        String javaString = ojh.createJavaCodeBlock();
-        System.out.println(javaString);
+        if (generateCCode) {
+            // create the c struct
+            String cstructString = ojh.createCStruct();
+            System.out.println(cstructString);
+        }
 
+        if (generateJavaCode) {
+            String javaString = ojh.createJavaCodeBlock();
+            System.out.println(javaString);
+        }
 
         // create the java read code, we can use the setters we've found
 
