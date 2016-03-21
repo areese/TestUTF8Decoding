@@ -21,6 +21,9 @@ import com.yahoo.example.test.DumpTest;
  */
 public class ObjectJniH {
 
+    static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
+    static final String FOUR_SPACE_TAB = "    ";
+
     private final Set<String> blacklistedMethods = generateBlackList();
     private final Class<?> objectClass;
     private final String objectClassName;
@@ -119,8 +122,8 @@ public class ObjectJniH {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    structString.append("    uint64_t " + field.getName() + "Bytes;\n");
-                    structString.append("    uint64_t " + field.getName() + "Len;\n");
+                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "Bytes;\n");
+                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "Len;\n");
                     break;
 
                 case LONG:
@@ -129,11 +132,13 @@ public class ObjectJniH {
 
                 case BYTE:
                     // yes we waste 56 bits.
-                        structString.append("    uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                        structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "; // " + type.getName()
+                                        + "\n");
                     break;
 
                 default:
-                    structString.append("    DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
+                    structString.append(FOUR_SPACE_TAB + "DATASTRUCT " + field.getName() + "; // " + type.getName()
+                                    + "\n");
                     break;
 
             }
@@ -162,121 +167,136 @@ public class ObjectJniH {
         }
     }
 
-    static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
-
     private void setupJavaVariablesBlock(PrintWriter pw) {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        StringBuilder variablesString = new StringBuilder();
-
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    variablesString.append("    long " + field.getName() + "Len;\n");
-                    variablesString.append("    byte[] " + field.getName() + "Bytes;\n");
+                    pw.println(FOUR_SPACE_TAB + "// TOOD: support String");
+                    pw.println(FOUR_SPACE_TAB + "long " + field.getName() + "Len;");
+                    pw.println(FOUR_SPACE_TAB + "byte[] " + field.getName() + "Bytes;");
                     // = new byte["+ field.getName() + "Len];\n");
 
-                        variablesString.append("    String " + field.getName() + ";\n");
-                    // variablesString.append(" = new String(" + field.getName()
+                        pw.println(FOUR_SPACE_TAB + "String " + field.getName() + ";");
+                    // pw.println(" = new String(" + field.getName()
                     // + "Bytes, StandardCharsets.UTF_8);\n");
                         break;
 
                 case LONG:
-                    variablesString.append("    long " + field.getName() + "; // " + type.getName() + "\n");
+                    pw.println(FOUR_SPACE_TAB + "long " + field.getName() + "; // " + type.getName());
                     break;
 
                 case INT:
-                    variablesString.append("    int " + field.getName() + "; // " + type.getName() + "\n");
+                    pw.println(FOUR_SPACE_TAB + "int " + field.getName() + "; // " + type.getName());
                     break;
 
                 case BYTE:
-                    variablesString.append("    byte " + field.getName() + "; // " + type.getName() + "\n");
+                    pw.println(FOUR_SPACE_TAB + "byte " + field.getName() + "; // " + type.getName());
                     break;
 
                 default:
-                    variablesString.append("// TOOD: support " + type.getName());
+                    pw.println(FOUR_SPACE_TAB + "// TOOD: support " + type.getName());
                     break;
             }
-
-            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-            // fields.add(f);
         });
 
-        pw.println(variablesString.toString());
+        pw.println();
     }
 
     private void createConstructorInvocation(PrintWriter pw) {
 
         StringBuilder constructorString = new StringBuilder();
         // really shouldn't name things so terribly
-        constructorString.append(objectClassName + " newObject = new " + objectClassName + "(");
+        constructorString.append(FOUR_SPACE_TAB + objectClassName + " newObject = new " + objectClassName + "(");
+        constructorString.append("\n");
+
+        String trailer = ", // \n";
 
         parseObject(objectClass, (ctype, field, type) -> {
             // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
             // wasting bits.
-                        constructorString.append(field.getName()).append(",");
+                        constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + field.getName()).append(trailer);
                     });
 
         // remove the extra comma
-        constructorString.deleteCharAt(constructorString.length() - 1);
+        int index = constructorString.lastIndexOf(",");
+        if (-1 != index) {
+            constructorString.delete(index, constructorString.length());
+        }
         constructorString.append(");\n");
 
         pw.println(constructorString.toString());
-        pw.println("return newObject;");
+        pw.println(FOUR_SPACE_TAB + "return newObject;");
     }
 
 
     private void createBitSpitter(PrintWriter pw) {
-        StringBuilder getsBitsString = new StringBuilder();
         // assume address, len
-        getsBitsString.append("long offset = 0;\n");
+        pw.println("long offset = 0;");
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
-        parseObject(objectClass, (ctype, field, type) -> {
-            int offsetBy = 0;
-            switch (ctype) {
-                case STRING:
-                    offsetBy = 16;
-                    // variablesString.append("" + field.getName() + "Len = " + getValueString + "\n");
-                    // // this won't end well. crap.
-                    // // it's probably shit.
-                    // variablesString.append("    byte[] " + field.getName() + "Bytes;\n");
-                    // // = new byte["+ field.getName() + "Len];\n");
-                    //
-                    // variablesString.append("    String " + field.getName() + ";\n");
-                    // // variablesString.append(" = new String(" + field.getName()
-                    // // + "Bytes, StandardCharsets.UTF_8);\n");
-                        break;
+        parseObject(objectClass,
+                        (ctype, field, type) -> {
+                            String fieldName = field.getName();
+                            int offsetBy = 0;
+                            switch (ctype) {
+                                case STRING:
+                                    offsetBy = 8;
+                                    pw.println(FOUR_SPACE_TAB + fieldName + "Bytes = " + GET_LONG_VALUE_STRING);
+                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
+                                                    + " type " + type.getName());
+                                    pw.println();
 
-                case LONG:
-                    offsetBy = 8;
-                    getsBitsString.append(field.getName() + " = " + GET_LONG_VALUE_STRING + "\n");
-                    break;
+                                    pw.println(FOUR_SPACE_TAB + fieldName + "Len = " + GET_LONG_VALUE_STRING);
+                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
+                                                    + " type " + type.getName());
+                                    pw.println();
+                                    pw.println(FOUR_SPACE_TAB + "if (null != " + fieldName + "Bytes && null != "
+                                                    + fieldName + "Len) {");
+                                    pw.println(FOUR_SPACE_TAB + FOUR_SPACE_TAB + fieldName + " = new String("
+                                                    + fieldName + "Bytes, 0, " + fieldName
+                                                    + "Len, StandardCharsets.UTF_8);");
+                                    pw.println(FOUR_SPACE_TAB + "} else {");
+                                    pw.println(FOUR_SPACE_TAB + FOUR_SPACE_TAB + fieldName + " = null;");
+                                    pw.println(FOUR_SPACE_TAB + "}");
+                                    pw.println();
+                                    break;
 
-                case INT:
-                    offsetBy = 8;
-                    getsBitsString.append(field.getName() + " = (int)" + GET_LONG_VALUE_STRING + "\n");
-                    break;
+                                case LONG:
+                                    offsetBy = 8;
+                                    pw.println(FOUR_SPACE_TAB + fieldName + " = " + GET_LONG_VALUE_STRING);
+                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
+                                                    + " type " + type.getName());
+                                    break;
+
+                                case INT:
+                                    offsetBy = 8;
+                                    pw.println(FOUR_SPACE_TAB + fieldName + " = (int)" + GET_LONG_VALUE_STRING);
+                                    pw.println("offset += " + offsetBy + "; // just read " + fieldName + " type "
+                                                    + type.getName());
+                                    break;
 
 
-                case BYTE:
-                    offsetBy = 8;
-                    getsBitsString.append(field.getName() + " = (byte)" + GET_LONG_VALUE_STRING + "\n");
-                    break;
+                                case BYTE:
+                                    offsetBy = 8;
+                                    pw.println(FOUR_SPACE_TAB + fieldName + " = (byte)" + GET_LONG_VALUE_STRING);
+                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
+                                                    + " type " + type.getName());
+                                    break;
 
-            }
+                            }
 
-            getsBitsString.append("offset += " + offsetBy + "; // just read " + field.getName() + " type "
-                            + type.getName() + "\n");
+                            pw.println();
 
-            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-            // fields.add(f);
-        });
+                            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
+                            // fields.add(f);
+                        });
 
-        pw.println(getsBitsString.toString());
+        pw.println();
     }
 
     /**
@@ -327,7 +347,7 @@ public class ObjectJniH {
 
         if (generateCCode) {
             // create the c struct
-            String cstructString = ojh.createCStruct();
+            String cstructString = ojh.createCCodeBlock();
             System.out.println(cstructString);
         }
 
@@ -343,5 +363,11 @@ public class ObjectJniH {
         // a) a list of getLongs()
         // b) a list of longs assigned from getLong
 
+    }
+
+
+    private String createCCodeBlock() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
