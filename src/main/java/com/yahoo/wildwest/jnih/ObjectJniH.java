@@ -1,5 +1,8 @@
 package com.yahoo.wildwest.jnih;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -18,10 +21,22 @@ import com.yahoo.example.test.DumpTest;
  */
 public class ObjectJniH {
 
+    private final Set<String> blacklistedMethods = generateBlackList();
+    private final Class<?> objectClass;
+    private final String objectClassName;
+    private final String shortObjectName;
 
-    private Set<String> blacklistedMethods = new HashSet<>();
+    public ObjectJniH(Class<?> objectClass) {
+        this.objectClass = objectClass;
+        this.objectClassName = this.objectClass.getName();
+        String[] temp = objectClassName.split("\\.");
+        this.shortObjectName = temp[temp.length - 1];
 
-    public ObjectJniH() {
+    }
+
+
+    private static Set<String> generateBlackList() {
+        Set<String> blacklistedMethods = new HashSet<>();
         for (Method m : Object.class.getMethods()) {
             blacklistedMethods.add(m.getName());
         }
@@ -29,31 +44,12 @@ public class ObjectJniH {
         for (Method m : Class.class.getMethods()) {
             blacklistedMethods.add(m.getName());
         }
+
+        return blacklistedMethods;
     }
 
-    enum AccessorType {
-        GETTER(new String[] {"get", "is"}), //
-        SETTER(new String[] {"set"}); //
-
-        private final String[] prefixes;
-
-        private AccessorType(String[] prefixes) {
-            this.prefixes = prefixes;
-        }
-
-        public boolean isBlacklisted(String methodName) {
-            for (String m : prefixes) {
-                if (methodName.startsWith(m)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-    }
 
     boolean isBlacklisted(String methodName, Class<?> returnType, AccessorType methodType) {
-
         if (blacklistedMethods.contains(methodName)) {
             System.err.println(methodName + " is from Object");
             return true;
@@ -71,7 +67,7 @@ public class ObjectJniH {
         return false;
     }
 
-    public List<Method> findGetters(Class<?> objectClass) {
+    public List<Method> findGetters() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         List<Method> getters = new LinkedList<>();
@@ -91,7 +87,7 @@ public class ObjectJniH {
     }
 
 
-    public List<Method> findSetters(Class<?> objectClass) {
+    public List<Method> findSetters() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         List<Method> setters = new LinkedList<>();
@@ -111,17 +107,13 @@ public class ObjectJniH {
     }
 
 
-    public String createCStruct(Class<?> objectClass) {
+    public String createCStruct() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
         StringBuilder structString = new StringBuilder();
-
-        String[] temp = objectClass.getName().split("\\.");
-        String structName = temp[temp.length - 1] + "Struct";
-
-
+        String structName = shortObjectName + "Struct";
         structString.append("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
@@ -155,79 +147,21 @@ public class ObjectJniH {
     }
 
 
-    public String createJavaCodeBlock(Class<?> objectClass) {
-        return "";
+    public String createJavaCodeBlock() throws IOException {
+        try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
+
+            pw.println("public " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
+            setupJavaVariablesBlock(pw);
+            createBitSpitter(pw);
+            createConstructorInvocation(pw);
+            pw.println("}");
+            return sw.toString();
+        }
     }
 
-    static final String GET_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
+    static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
 
-    private String createConstructorString(Class<?> objectClass) {
-
-        StringBuilder constructorString = new StringBuilder();
-        // really shouldn't name things so terribly
-        constructorString.append(objectClass.getName() + " newObject = new " + objectClass.getName() + "(");
-
-        parseObject(objectClass, (ctype, field, type) -> {
-            // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
-            // wasting bits.
-                        constructorString.append(field.getName()).append(",");
-                    });
-
-        // remove the extra comma
-        constructorString.deleteCharAt(constructorString.length() - 1);
-        constructorString.append(");\n");
-
-        return constructorString.toString();
-    }
-
-
-    private String createBitSpitter(Class<?> objectClass) {
-        StringBuilder getsBitsString = new StringBuilder();
-        // assume address, len
-        getsBitsString.append("long offset = 0;\n");
-
-        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
-        // wasting bits.
-        parseObject(objectClass, (ctype, field, type) -> {
-            int offsetBy = 0;
-            switch (ctype) {
-                case STRING:
-                    offsetBy = 16;
-                    // variablesString.append("" + field.getName() + "Len = " + getValueString + "\n");
-                    // // this won't end well. crap.
-                    // // it's probably shit.
-                    // variablesString.append("    byte[] " + field.getName() + "Bytes;\n");
-                    // // = new byte["+ field.getName() + "Len];\n");
-                    //
-                    // variablesString.append("    String " + field.getName() + ";\n");
-                    // // variablesString.append(" = new String(" + field.getName()
-                    // // + "Bytes, StandardCharsets.UTF_8);\n");
-                        break;
-
-                case LONG:
-                    offsetBy = 8;
-                    getsBitsString.append(field.getName() + " = " + GET_VALUE_STRING + "\n");
-                    break;
-
-                case INT:
-                    offsetBy = 8;
-                    getsBitsString.append(field.getName() + " = (int)" + GET_VALUE_STRING + "\n");
-                    break;
-
-            }
-
-            getsBitsString.append("offset += " + offsetBy + "; // just read " + field.getName() + " type "
-                            + type.getName() + "\n");
-
-            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-            // fields.add(f);
-        });
-
-        return getsBitsString.toString();
-    }
-
-
-    public String createJavaConstructor(Class<?> objectClass) {
+    private void setupJavaVariablesBlock(PrintWriter pw) {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
@@ -260,13 +194,79 @@ public class ObjectJniH {
             // fields.add(f);
         });
 
+        pw.println(variablesString.toString());
+    }
 
-        String getsBitsString = createBitSpitter(objectClass);
+    private void createConstructorInvocation(PrintWriter pw) {
 
-        String constructorString = createConstructorString(objectClass);
-        return variablesString.toString() + "\n" + getsBitsString + "\n" + constructorString + "\n";
+        StringBuilder constructorString = new StringBuilder();
+        // really shouldn't name things so terribly
+        constructorString.append(objectClassName + " newObject = new " + objectClassName + "(");
 
-        // return fields;
+        parseObject(objectClass, (ctype, field, type) -> {
+            // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
+            // wasting bits.
+                        constructorString.append(field.getName()).append(",");
+                    });
+
+        // remove the extra comma
+        constructorString.deleteCharAt(constructorString.length() - 1);
+        constructorString.append(");\n");
+
+        pw.println(constructorString.toString());
+        pw.println("return newObject;");
+    }
+
+
+    private void createBitSpitter(PrintWriter pw) {
+        StringBuilder getsBitsString = new StringBuilder();
+        // assume address, len
+        getsBitsString.append("long offset = 0;\n");
+
+        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
+        // wasting bits.
+        parseObject(objectClass, (ctype, field, type) -> {
+            int offsetBy = 0;
+            switch (ctype) {
+                case STRING:
+                    offsetBy = 16;
+                    // variablesString.append("" + field.getName() + "Len = " + getValueString + "\n");
+                    // // this won't end well. crap.
+                    // // it's probably shit.
+                    // variablesString.append("    byte[] " + field.getName() + "Bytes;\n");
+                    // // = new byte["+ field.getName() + "Len];\n");
+                    //
+                    // variablesString.append("    String " + field.getName() + ";\n");
+                    // // variablesString.append(" = new String(" + field.getName()
+                    // // + "Bytes, StandardCharsets.UTF_8);\n");
+                        break;
+
+                case LONG:
+                    offsetBy = 8;
+                    getsBitsString.append(field.getName() + " = " + GET_LONG_VALUE_STRING + "\n");
+                    break;
+
+                case INT:
+                    offsetBy = 8;
+                    getsBitsString.append(field.getName() + " = (int)" + GET_LONG_VALUE_STRING + "\n");
+                    break;
+
+
+                case BYTE:
+                    offsetBy = 8;
+                    getsBitsString.append(field.getName() + " = (byte)" + GET_LONG_VALUE_STRING + "\n");
+                    break;
+
+            }
+
+            getsBitsString.append("offset += " + offsetBy + "; // just read " + field.getName() + " type "
+                            + type.getName() + "\n");
+
+            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
+            // fields.add(f);
+        });
+
+        pw.println(getsBitsString.toString());
     }
 
     /**
@@ -275,7 +275,7 @@ public class ObjectJniH {
      * @param objectClass Class to operate on, expects primitives + strings, no arrays
      * @param pt lambda to invoke on each field that is a primitive or string.
      */
-    public void parseObject(Class<?> objectClass, ProcessType pt) {
+    public static void parseObject(Class<?> objectClass, ProcessType pt) {
         for (Field field : objectClass.getDeclaredFields()) {
 
             Class<?> type = field.getType();
@@ -284,36 +284,17 @@ public class ObjectJniH {
                 continue;
             }
 
-            CTYPES ctype = getCType(type);
+            CTYPES ctype = CTYPES.getCType(type);
 
             pt.process(ctype, field, type);
         }
     }
 
 
-    private CTYPES getCType(Class<?> type) {
-        switch (type.getName()) {
-            case "byte":
-                return CTYPES.BYTE;
-
-            case "int":
-                return CTYPES.INT;
-
-            case "long":
-                return CTYPES.LONG;
-
-            case "java.lang.String":
-                return CTYPES.STRING;
-
-            default:
-                return null;
-        }
-    }
 
     public static void main(String[] args) throws Exception {
-        ObjectJniH ojh = new ObjectJniH();
 
-        Class classToDump;
+        Class<?> classToDump;
         boolean cstruct = false;
         boolean java = false;
 
@@ -332,11 +313,12 @@ public class ObjectJniH {
             }
         }
 
+        ObjectJniH ojh = new ObjectJniH(classToDump);
         // create the c struct
-        String cstructString = ojh.createCStruct(classToDump);
+        String cstructString = ojh.createCStruct();
         System.out.println(cstructString);
 
-        String javaString = ojh.createJavaConstructor(classToDump);
+        String javaString = ojh.createJavaCodeBlock();
         System.out.println(javaString);
 
 
