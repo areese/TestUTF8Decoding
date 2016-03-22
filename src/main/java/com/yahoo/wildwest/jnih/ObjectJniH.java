@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.yahoo.example.test.DumpTest;
-import com.yahoo.wildwest.MUnsafe;
 
 /**
  * Given an SIMPLE object on the classpath Generate all of the stub code to copy it into a long/long (address, length)
@@ -178,15 +177,10 @@ public class ObjectJniH {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    printWithTab(pw, "// TOOD: support String");
                     printWithTab(pw, "long " + field.getName() + "Len;");
-                    printWithTab(pw, "byte[] " + field.getName() + "BytesArray;");
-                    // = new byte["+ field.getName() + "Len];\n");
-
-                        printWithTab(pw, "String " + field.getName() + ";");
-                    // pw.println(" = new String(" + field.getName()
-                    // + "Bytes, StandardCharsets.UTF_8);\n");
-                        break;
+                    printWithTab(pw, "long " + field.getName() + "Bytes;");
+                    printWithTab(pw, "String " + field.getName() + ";");
+                    break;
 
                 case LONG:
                     printWithTab(pw, "long " + field.getName() + "; // " + type.getName());
@@ -194,6 +188,10 @@ public class ObjectJniH {
 
                 case INT:
                     printWithTab(pw, "int " + field.getName() + "; // " + type.getName());
+                    break;
+
+                case SHORT:
+                    printWithTab(pw, "short " + field.getName() + "; // " + type.getName());
                     break;
 
                 case BYTE:
@@ -277,14 +275,20 @@ public class ObjectJniH {
 
                 case INT:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = (int)" + GET_LONG_VALUE_STRING);
+                    printWithTab(pw, fieldName + " = (int) " + GET_LONG_VALUE_STRING);
                     printOffset(pw, offsetBy, fieldName, type.getName());
                     break;
 
 
+                case SHORT:
+                    offsetBy = 8;
+                    printWithTab(pw, fieldName + " = (short) " + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    break;
+
                 case BYTE:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = (byte)" + GET_LONG_VALUE_STRING);
+                    printWithTab(pw, fieldName + " = (byte) " + GET_LONG_VALUE_STRING);
                     printOffset(pw, offsetBy, fieldName, type.getName());
                     break;
 
@@ -338,6 +342,7 @@ public class ObjectJniH {
         Class<?> classToDump;
         boolean generateCCode = false;
         boolean generateJavaCode = false;
+        boolean printLazyClass = true;
 
         if (args.length > 0) {
             classToDump = Class.forName(args[0]);
@@ -364,7 +369,15 @@ public class ObjectJniH {
 
         if (generateJavaCode) {
             String javaString = ojh.createJavaCodeBlock();
+
+            if (printLazyClass) {
+                System.out.println("public class A {");
+            }
+
             System.out.println(javaString);
+            if (printLazyClass) {
+                System.out.println("}");
+            }
         }
 
         // create the java read code, we can use the setters we've found

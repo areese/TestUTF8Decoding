@@ -4,15 +4,19 @@ package com.yahoo.wildwest.jnih;
 
 public enum CTYPES {
     BYTE, //
+    SHORT, //
     INT, //
     LONG, //
-    STRING;
+    STRING, ;
 
 
     public static CTYPES getCType(Class<?> type) {
         switch (type.getName()) {
             case "byte":
                 return CTYPES.BYTE;
+
+            case "short":
+                return CTYPES.SHORT;
 
             case "int":
                 return CTYPES.INT;
