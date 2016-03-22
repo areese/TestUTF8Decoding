@@ -24,10 +24,11 @@ public class CGenerator extends AbstractGenerator {
                 case LONG:
                 case INT:
                     // yes we waste 32 bits.
-
+                case SHORT:
+                    // yes we waste 48 bits.
                 case BYTE:
                     // yes we waste 56 bits.
-                        printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                    printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
                 default:
@@ -43,12 +44,37 @@ public class CGenerator extends AbstractGenerator {
         pw.println("} " + structName + ";\n");
     }
 
+    private void createEncodeFunction() {
+        printFunctionHeaderComment();
+        pw.println("void encodeIntoJava_" + shortObjectName + "(long toAddress, long addressLength) {");
+
+    }
+
+
+
+    private void printFunctionHeaderComment() {
+        pw.println("/**");
+        pw.println("* This function was auto-generated");
+        pw.println("* Given an allocated long addres, len tuple");
+        pw.println(" * It will encode in a way compatible with the generated java.");
+        pw.println("* everything is 64bit longs with a cast");
+        pw.println("* Strings are considered UTF8, and are a tuple of address + length");
+        pw.println("* Due to native memory tracking, strings are prealloacted with Unsafe.allocateMemory and assigned an output length");
+        pw.println("* Similiar to how a c function would take char *outBuf, size_t bufLen");
+        pw.println("* The length coming in says how large the buffer for address is.");
+        pw.println("* The length coming out says how many characters including \\0 were written");
+        pw.println("**/");
+    }
+
     @Override
     public String generate() {
         // for c:
         // first write out the struct definition.
         // then we write the decode function.
+        createCStruct();
 
+        // now we can write the encode function.
+        createEncodeFunction();
 
         // TODO Auto-generated method stub
         return null;
