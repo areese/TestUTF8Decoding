@@ -7,7 +7,9 @@ public enum CTYPES {
     SHORT, //
     INT, //
     LONG, //
-    STRING, ;
+    STRING, //
+    INETADDRESS, // sockaddr_in6 from C, InetAddress in java.
+    ;
 
 
     public static CTYPES getCType(Class<?> type) {
@@ -26,6 +28,9 @@ public enum CTYPES {
 
             case "java.lang.String":
                 return CTYPES.STRING;
+
+            case "java.net.InetAddress":
+                return CTYPES.INETADDRESS;
 
             default:
                 return null;

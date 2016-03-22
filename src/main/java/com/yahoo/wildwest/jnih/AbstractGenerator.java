@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.net.InetAddress;
 
 public abstract class AbstractGenerator implements Closeable {
     static final String FOUR_SPACE_TAB = "    ";
@@ -45,7 +46,11 @@ public abstract class AbstractGenerator implements Closeable {
 
             Class<?> type = field.getType();
 
-            if (!type.isPrimitive() && !type.isInstance("") || type.isArray()) {
+            // we can also deal with InetAddress, or at least we can TODO it. It's either 4 bytes of address bytes in a
+            // long + len = 0, or it's a long + len pointing at 16 bytes of address bytes.
+            // see powersaw, which started this whole mess.
+            // we use isInstance to see if it's a String, as isInstance takes Object, and isAssignableFrom takes Class.  oops.
+            if (!type.isPrimitive() && !type.isInstance("") && !type.isAssignableFrom(InetAddress.class) || type.isArray()) {
                 continue;
             }
 

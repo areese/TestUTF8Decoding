@@ -98,9 +98,13 @@ public class JavaGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    printWithTab("long " + field.getName() + "Len;");
-                    printWithTab("long " + field.getName() + "Bytes;");
+                    printNonPrimitiveVariable(field.getName());
                     printWithTab("String " + field.getName() + ";");
+                    break;
+
+                case INETADDRESS:
+                    printNonPrimitiveVariable(field.getName());
+                    printWithTab("InetAddress " + field.getName() + ";");
                     break;
 
                 case LONG:
@@ -126,6 +130,11 @@ public class JavaGenerator extends AbstractGenerator {
         });
 
         pw.println();
+    }
+
+    private void printNonPrimitiveVariable(String fieldName) {
+        printWithTab("long " + fieldName + "Len;");
+        printWithTab("long " + fieldName + "Address;");
     }
 
     private void createConstructorInvocation(PrintWriter pw) {
@@ -162,45 +171,38 @@ public class JavaGenerator extends AbstractGenerator {
         // wasting bits.
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
-            int offsetBy = 0;
             switch (ctype) {
                 case STRING:
-                    offsetBy = 8;
-                    printWithTab(fieldName + "BytesAddress = " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName + "BytesAddress", type.getName());
+                    printNonPrimitiveReadVariables(fieldName, type.getName());
+                    printDecodeString(fieldName);
                     pw.println();
+                    break;
 
-                    printWithTab(fieldName + "Len = " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName + "Len", type.getName());
-                    pw.println();
-
-                    printDecodeString(pw, fieldName);
+                case INETADDRESS:
+                    printNonPrimitiveReadVariables(fieldName, type.getName());
+                    printWithTab("// TODO: decode InetAddress");
                     pw.println();
                     break;
 
                 case LONG:
-                    offsetBy = 8;
                     printWithTab(fieldName + " = " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName, type.getName());
+                    printOffset(8, fieldName, type.getName());
                     break;
 
                 case INT:
-                    offsetBy = 8;
                     printWithTab(fieldName + " = (int) " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName, type.getName());
+                    printOffset(8, fieldName, type.getName());
                     break;
 
 
                 case SHORT:
-                    offsetBy = 8;
                     printWithTab(fieldName + " = (short) " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName, type.getName());
+                    printOffset(8, fieldName, type.getName());
                     break;
 
                 case BYTE:
-                    offsetBy = 8;
                     printWithTab(fieldName + " = (byte) " + GET_LONG_VALUE_STRING);
-                    printOffset(offsetBy, fieldName, type.getName());
+                    printOffset(8, fieldName, type.getName());
                     break;
 
             }
@@ -214,15 +216,18 @@ public class JavaGenerator extends AbstractGenerator {
         pw.println();
     }
 
-    private void printDecodeString(PrintWriter pw, String fieldName) {
-        printWithTab(fieldName + " = MUnsafe.decodeString(" + fieldName + "BytesAddress, " + fieldName + "Len);");
-        // printWithTab("if (null != " + fieldName + "BytesArray && null != " + fieldName
-        // + "Len) {");
-        // printWithTab(FOUR_SPACE_TAB + fieldName + " = new String(" + fieldName
-        // + "BytesArray, 0, " + fieldName + "Len, StandardCharsets.UTF_8);");
-        // printWithTab("} else {");
-        // printWithTab(FOUR_SPACE_TAB + fieldName + " = null;");
-        // printWithTab("}");
+    private void printNonPrimitiveReadVariables(String fieldName, String typeName) {
+        printWithTab(fieldName + "Address = " + GET_LONG_VALUE_STRING);
+        printOffset(8, fieldName + "Address", typeName);
+        pw.println();
+
+        printWithTab(fieldName + "Len = " + GET_LONG_VALUE_STRING);
+        printOffset(8, fieldName + "Len", typeName);
+        pw.println();
+    }
+
+    private void printDecodeString(String fieldName) {
+        printWithTab(fieldName + " = MUnsafe.decodeString(" + fieldName + "Address, " + fieldName + "Len);");
     }
 
     public String generate() {
