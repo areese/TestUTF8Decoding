@@ -4,6 +4,7 @@ package com.yahoo.wildwest;
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -91,8 +92,11 @@ public class MUnsafe {
     }
 
     public static void copyMemory(long destAddress, long totalSize, byte[] from) {
-        long fromOffset = unsafe.arrayBaseOffset(byte[].class);
-        unsafe.copyMemory(from, fromOffset, null, index(destAddress, 0), totalSize);
+        unsafe.copyMemory(from, byteArrayBaseOffset, null, index(destAddress, 0), totalSize);
+    }
+
+    public static void copyMemory(byte[] dest, long totalSize, long srcAddress) {
+        unsafe.copyMemory(null, index(srcAddress, 0), dest, byteArrayBaseOffset, totalSize);
     }
 
     private static long index(long address, int i) {
@@ -106,4 +110,50 @@ public class MUnsafe {
             length = 0;
         }
     }
+
+    /**
+     * Given a String, encode it into MissingFingers address,length tuple
+     * 
+     * @param s input
+     * @return MissingFingers, allocated address + length
+     */
+    public static MissingFingers encodeString(String s) {
+        if (null == s || 0 == s.length() || s.isEmpty()) {
+            // null begets null
+            return new MissingFingers(0, 0);
+        }
+
+        byte[] fromBytes = s.getBytes(StandardCharsets.UTF_8);
+
+        // gotta null terminate
+        long totalSize = fromBytes.length + 1;
+        long destAddress = unsafe.allocateMemory(totalSize);
+        copyMemory(destAddress, totalSize, fromBytes);
+
+        return new MissingFingers(destAddress, totalSize);
+    }
+
+    /**
+     * Given a UTF8 string pointed to by address of len bytes long, decode it, and then free the memory pointed at by
+     * it.
+     * 
+     * @param srcAddress
+     * @param len
+     * @return Java String, null on null, 0 on empty string
+     */
+    public static String decodeString(long srcAddress, long len) {
+        if (0 == srcAddress) {
+            return null;
+        }
+
+        if (0 == len) {
+            return "";
+        }
+
+        byte[] toBytes = new byte[(int) len];
+        copyMemory(toBytes, srcAddress, len);
+
+        return new String(toBytes, 0, (int) len, StandardCharsets.UTF_8);
+    }
+
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.yahoo.example.test.DumpTest;
+import com.yahoo.wildwest.MUnsafe;
 
 /**
  * Given an SIMPLE object on the classpath Generate all of the stub code to copy it into a long/long (address, length)
@@ -122,7 +123,7 @@ public class ObjectJniH {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "Bytes;\n");
+                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "BytesAddress;\n");
                     structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "Len;\n");
                     break;
 
@@ -175,30 +176,30 @@ public class ObjectJniH {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    pw.println(FOUR_SPACE_TAB + "// TOOD: support String");
-                    pw.println(FOUR_SPACE_TAB + "long " + field.getName() + "Len;");
-                    pw.println(FOUR_SPACE_TAB + "byte[] " + field.getName() + "Bytes;");
+                    printWithTab(pw, "// TOOD: support String");
+                    printWithTab(pw, "long " + field.getName() + "Len;");
+                    printWithTab(pw, "byte[] " + field.getName() + "BytesArray;");
                     // = new byte["+ field.getName() + "Len];\n");
 
-                        pw.println(FOUR_SPACE_TAB + "String " + field.getName() + ";");
+                        printWithTab(pw, "String " + field.getName() + ";");
                     // pw.println(" = new String(" + field.getName()
                     // + "Bytes, StandardCharsets.UTF_8);\n");
                         break;
 
                 case LONG:
-                    pw.println(FOUR_SPACE_TAB + "long " + field.getName() + "; // " + type.getName());
+                    printWithTab(pw, "long " + field.getName() + "; // " + type.getName());
                     break;
 
                 case INT:
-                    pw.println(FOUR_SPACE_TAB + "int " + field.getName() + "; // " + type.getName());
+                    printWithTab(pw, "int " + field.getName() + "; // " + type.getName());
                     break;
 
                 case BYTE:
-                    pw.println(FOUR_SPACE_TAB + "byte " + field.getName() + "; // " + type.getName());
+                    printWithTab(pw, "byte " + field.getName() + "; // " + type.getName());
                     break;
 
                 default:
-                    pw.println(FOUR_SPACE_TAB + "// TOOD: support " + type.getName());
+                    printWithTab(pw, "// TOOD: support " + type.getName());
                     break;
             }
         });
@@ -229,74 +230,82 @@ public class ObjectJniH {
         constructorString.append(");\n");
 
         pw.println(constructorString.toString());
-        pw.println(FOUR_SPACE_TAB + "return newObject;");
+        printWithTab(pw, "return newObject;");
+    }
+
+    private static void printWithTab(PrintWriter pw, String s) {
+        pw.print(FOUR_SPACE_TAB);
+        pw.println(s);
+    }
+
+    private static void printOffset(PrintWriter pw, int offsetBy, String fieldName, String typeName) {
+        printWithTab(pw, "offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
     }
 
 
     private void createBitSpitter(PrintWriter pw) {
         // assume address, len
-        pw.println("long offset = 0;");
+        printWithTab(pw, "long offset = 0;");
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
-        parseObject(objectClass,
-                        (ctype, field, type) -> {
-                            String fieldName = field.getName();
-                            int offsetBy = 0;
-                            switch (ctype) {
-                                case STRING:
-                                    offsetBy = 8;
-                                    pw.println(FOUR_SPACE_TAB + fieldName + "Bytes = " + GET_LONG_VALUE_STRING);
-                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
-                                                    + " type " + type.getName());
-                                    pw.println();
+        parseObject(objectClass, (ctype, field, type) -> {
+            String fieldName = field.getName();
+            int offsetBy = 0;
+            switch (ctype) {
+                case STRING:
+                    offsetBy = 8;
+                    printWithTab(pw, fieldName + "BytesAddress = " + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName + "BytesAddress", type.getName());
+                    pw.println();
 
-                                    pw.println(FOUR_SPACE_TAB + fieldName + "Len = " + GET_LONG_VALUE_STRING);
-                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
-                                                    + " type " + type.getName());
-                                    pw.println();
-                                    pw.println(FOUR_SPACE_TAB + "if (null != " + fieldName + "Bytes && null != "
-                                                    + fieldName + "Len) {");
-                                    pw.println(FOUR_SPACE_TAB + FOUR_SPACE_TAB + fieldName + " = new String("
-                                                    + fieldName + "Bytes, 0, " + fieldName
-                                                    + "Len, StandardCharsets.UTF_8);");
-                                    pw.println(FOUR_SPACE_TAB + "} else {");
-                                    pw.println(FOUR_SPACE_TAB + FOUR_SPACE_TAB + fieldName + " = null;");
-                                    pw.println(FOUR_SPACE_TAB + "}");
-                                    pw.println();
-                                    break;
+                    printWithTab(pw, fieldName + "Len = " + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName + "Len", type.getName());
+                    pw.println();
 
-                                case LONG:
-                                    offsetBy = 8;
-                                    pw.println(FOUR_SPACE_TAB + fieldName + " = " + GET_LONG_VALUE_STRING);
-                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
-                                                    + " type " + type.getName());
-                                    break;
+                    printDecodeString(pw, fieldName);
+                    pw.println();
+                    break;
 
-                                case INT:
-                                    offsetBy = 8;
-                                    pw.println(FOUR_SPACE_TAB + fieldName + " = (int)" + GET_LONG_VALUE_STRING);
-                                    pw.println("offset += " + offsetBy + "; // just read " + fieldName + " type "
-                                                    + type.getName());
-                                    break;
+                case LONG:
+                    offsetBy = 8;
+                    printWithTab(pw, fieldName + " = " + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    break;
+
+                case INT:
+                    offsetBy = 8;
+                    printWithTab(pw, fieldName + " = (int)" + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    break;
 
 
-                                case BYTE:
-                                    offsetBy = 8;
-                                    pw.println(FOUR_SPACE_TAB + fieldName + " = (byte)" + GET_LONG_VALUE_STRING);
-                                    pw.println(FOUR_SPACE_TAB + "offset += " + offsetBy + "; // just read " + fieldName
-                                                    + " type " + type.getName());
-                                    break;
+                case BYTE:
+                    offsetBy = 8;
+                    printWithTab(pw, fieldName + " = (byte)" + GET_LONG_VALUE_STRING);
+                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    break;
 
-                            }
+            }
 
-                            pw.println();
+            pw.println();
 
-                            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-                            // fields.add(f);
-                        });
+            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
+            // fields.add(f);
+                    });
 
         pw.println();
+    }
+
+    private void printDecodeString(PrintWriter pw, String fieldName) {
+        printWithTab(pw, fieldName + " = MUnsafe.decodeString(" + fieldName + "BytesAddress, " + fieldName + "Len);");
+        // printWithTab(pw, "if (null != " + fieldName + "BytesArray && null != " + fieldName
+        // + "Len) {");
+        // printWithTab(pw, FOUR_SPACE_TAB + fieldName + " = new String(" + fieldName
+        // + "BytesArray, 0, " + fieldName + "Len, StandardCharsets.UTF_8);");
+        // printWithTab(pw, "} else {");
+        // printWithTab(pw, FOUR_SPACE_TAB + fieldName + " = null;");
+        // printWithTab(pw, "}");
     }
 
     /**
