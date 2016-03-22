@@ -2,8 +2,11 @@ package com.yahoo.wildwest.jnih;
 
 
 public class CGenerator extends AbstractGenerator {
+    private String structName;
+
     public CGenerator(Class<?> classToDump) {
         super(classToDump);
+        structName = shortObjectName + "Struct";;
     }
 
     private void createCStruct() {
@@ -11,7 +14,6 @@ public class CGenerator extends AbstractGenerator {
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        String structName = shortObjectName + "Struct";
         printWithTab("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
@@ -32,7 +34,7 @@ public class CGenerator extends AbstractGenerator {
                     break;
 
                 default:
-                    printWithTab("DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
+                    printWithTab("// TODO : DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
             }
@@ -46,8 +48,11 @@ public class CGenerator extends AbstractGenerator {
 
     private void createEncodeFunction() {
         printFunctionHeaderComment();
-        pw.println("void encodeIntoJava_" + shortObjectName + "(long toAddress, long addressLength) {");
+        pw.println("void encodeIntoJava_" + shortObjectName + "(" + structName
+                        + " inputData, long toAddress, long addressLength) {");
 
+        // Next we iterate over the object and generate the fields.
+        // we'll have to do the c version of java unsafe.putMemory.
     }
 
 
