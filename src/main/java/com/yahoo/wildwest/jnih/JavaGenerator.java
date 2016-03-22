@@ -212,7 +212,7 @@ public class JavaGenerator extends AbstractGenerator {
      * Java Object.
      */
     public void javaCreateObject() {
-        printWithTab("public " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
+        printWithTab("public static " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
         pw.println();
         setupJavaVariablesBlock();
         createBitSpitter();
@@ -234,7 +234,7 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateInitialize() {
         pw.println();
-        printWithTab("public MissingFingers initialize" + shortObjectName + "() {");
+        printWithTab("public static MissingFingers initialize" + shortObjectName + "() {");
         pw.println();
         // assume address, len
         printWith2Tabs("long totalLen = 0;");
