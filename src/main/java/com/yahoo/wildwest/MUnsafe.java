@@ -94,7 +94,7 @@ public class MUnsafe {
         unsafe.copyMemory(from, byteArrayBaseOffset, null, index(destAddress, 0), totalSize);
     }
 
-    public static void copyMemory(byte[] dest, long totalSize, long srcAddress) {
+    public static void copyMemory(byte[] dest, long srcAddress, long totalSize) {
         unsafe.copyMemory(null, index(srcAddress, 0), dest, byteArrayBaseOffset, totalSize);
     }
 
@@ -102,11 +102,10 @@ public class MUnsafe {
         return address + ((long) i << 0);
     }
 
-    public static void freeMemory(long address, long length) {
+    public static void freeMemory(long address) {
         if (0 != address) {
             unsafe.freeMemory(address);
             address = 0;
-            length = 0;
         }
     }
 
@@ -152,7 +151,19 @@ public class MUnsafe {
         byte[] toBytes = new byte[(int) len];
         copyMemory(toBytes, srcAddress, len);
 
+        // strip off null terminator
+        if (0 == toBytes[(int) len - 1]) {
+            len -= 1;
+        }
+
         return new String(toBytes, 0, (int) len, StandardCharsets.UTF_8);
+    }
+
+    public static String decodeString(MissingFingers encodedString) {
+        if (null == encodedString) {
+            return null;
+        }
+        return decodeString(encodedString.getAddress(), encodedString.getLength());
     }
 
 }

@@ -64,7 +64,7 @@ public class MissingFingers implements Closeable {
 
     @Override
     public void close() {
-        MUnsafe.freeMemory(address, length);
+        MUnsafe.freeMemory(address);
     }
 
 }
