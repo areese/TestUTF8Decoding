@@ -20,7 +20,8 @@ public class CGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    printWithTab("uint64_t " + field.getName() + "BytesAddress;\n");
+                case INETADDRESS:
+                    printWithTab("uint64_t " + field.getName() + "Address;\n");
                     printWithTab("uint64_t " + field.getName() + "Len;\n");
                     break;
 
@@ -54,9 +55,80 @@ public class CGenerator extends AbstractGenerator {
 
         // Next we iterate over the object and generate the fields.
         // we'll have to do the c version of java unsafe.putMemory.
+        // we can assume that they passed in the struct.
+        // or they changed it by hand, and happened to use a struct of a different layout but with the same names.
+        // and use memcpy.
+
+        printWithTab("uint64_t offset = 0");
+
+        parseObject(objectClass, (ctype, field, type) -> {
+            switch (ctype) {
+                case STRING:
+                    printStringCopy(field.getName());
+                    break;
+
+                case INETADDRESS:
+                    break;
+
+                case LONG:
+                case INT:
+                    // yes we waste 32 bits.
+                case SHORT:
+                    // yes we waste 48 bits.
+                case BYTE:
+                    // yes we waste 56 bits.
+                    printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                    break;
+
+                default:
+                    printWithTab("// TODO : DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
+                    break;
+
+            }
+
+            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
+            // fields.add(f);
+        });
+        pw.println("}");
     }
 
 
+    /**
+     * This function generates the memcpy that's required for a String. Strings are address + length. And the
+     * destination is pre allocated by the java code. This means we have to: 1. write into dest address. 2. update
+     * length to reflect what we wrote.
+     * 
+     * @param name of the variable to copy
+     */
+    private void printStringCopy(String name) {
+        // string is a memcpy into provided address, followed by update length.
+        // at offset, is an address
+        String addressVariableName = name + "Address";
+        String lenVariableName = name + "Len";
+        String lenPtrVariableName = name + "LenPtr";
+        String dereferencedLenPtrVariableName = "(*" + lenPtrVariableName + ")";
+
+        printWithTab("uint64_t " + addressVariableName + "= address + offset;");
+        printWithTab("offset += 8");
+        pw.println();
+
+        printWithTab("uint64_t *" + lenPtrVariableName + " = (uint64_t*)(address + offset);");
+        printWithTab("offset += 8");
+        pw.println();
+
+        // we need to check len, we want the shorter of the to.
+        // and we need to set it when we are done.
+        printWithTab(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
+                        + lenVariableName + ");");
+
+        pw.println();
+
+        // now we have address "pointer" and len "pointer" we can use memcpy
+        printWithTab("memcpy ((void*) " + addressVariableName + ", (void*) inputData." + addressVariableName + ", "
+                        + dereferencedLenPtrVariableName + ");");
+
+        pw.println();
+    }
 
     private void printFunctionHeaderComment() {
         pw.println("/**");
@@ -83,7 +155,7 @@ public class CGenerator extends AbstractGenerator {
         createEncodeFunction();
 
         // TODO Auto-generated method stub
-        return null;
+        return sw.toString();
     }
 
 

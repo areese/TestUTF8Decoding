@@ -37,8 +37,9 @@ public class ObjectJniH {
 
         if (generateCCode) {
             // create the c struct
-            String cstructString = null; // ojh.createCCodeBlock();
-            System.out.println(cstructString);
+            try (CGenerator c = new CGenerator(classToDump)) {
+                System.out.println(c.generate());
+            }
         }
 
         if (generateJavaCode) {
