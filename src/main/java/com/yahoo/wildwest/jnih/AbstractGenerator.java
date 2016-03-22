@@ -23,16 +23,14 @@ public abstract class AbstractGenerator implements Closeable {
         this.shortObjectName = temp[temp.length - 1];
     }
 
-    public static void printWithTab(PrintWriter pw, String s) {
+    public void printWithTab(String s) {
         pw.print(FOUR_SPACE_TAB);
         pw.println(s);
     }
 
-    public static void printOffset(PrintWriter pw, int offsetBy, String fieldName, String typeName) {
-        printWithTab(pw, "offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
+    public void printOffset(int offsetBy, String fieldName, String typeName) {
+        printWithTab("offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
     }
-
-
 
     /**
      * Helper function to walk the fields of a class and write out either jni or java wrapper bits we'll need.

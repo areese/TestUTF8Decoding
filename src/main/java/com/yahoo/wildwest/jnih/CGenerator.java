@@ -6,20 +6,19 @@ public class CGenerator extends AbstractGenerator {
         super(classToDump);
     }
 
-    public String createCStruct() {
+    private void createCStruct() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        StringBuilder structString = new StringBuilder();
         String structName = shortObjectName + "Struct";
-        structString.append("typedef struct " + structName + " {\n");
+        printWithTab("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "BytesAddress;\n");
-                    structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "Len;\n");
+                    printWithTab("uint64_t " + field.getName() + "BytesAddress;\n");
+                    printWithTab("uint64_t " + field.getName() + "Len;\n");
                     break;
 
                 case LONG:
@@ -28,13 +27,11 @@ public class CGenerator extends AbstractGenerator {
 
                 case BYTE:
                     // yes we waste 56 bits.
-                        structString.append(FOUR_SPACE_TAB + "uint64_t " + field.getName() + "; // " + type.getName()
-                                        + "\n");
+                        printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
                 default:
-                    structString.append(FOUR_SPACE_TAB + "DATASTRUCT " + field.getName() + "; // " + type.getName()
-                                    + "\n");
+                    printWithTab("DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
             }
@@ -43,15 +40,16 @@ public class CGenerator extends AbstractGenerator {
             // fields.add(f);
         });
 
-        structString.append("} " + structName + ";\n");
-
-        return structString.toString();
-
-        // return fields;
+        pw.println("} " + structName + ";\n");
     }
 
     @Override
     public String generate() {
+        // for c:
+        // first write out the struct definition.
+        // then we write the decode function.
+
+
         // TODO Auto-generated method stub
         return null;
     }

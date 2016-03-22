@@ -96,29 +96,29 @@ public class JavaGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    printWithTab(pw, "long " + field.getName() + "Len;");
-                    printWithTab(pw, "long " + field.getName() + "Bytes;");
-                    printWithTab(pw, "String " + field.getName() + ";");
+                    printWithTab("long " + field.getName() + "Len;");
+                    printWithTab("long " + field.getName() + "Bytes;");
+                    printWithTab("String " + field.getName() + ";");
                     break;
 
                 case LONG:
-                    printWithTab(pw, "long " + field.getName() + "; // " + type.getName());
+                    printWithTab("long " + field.getName() + "; // " + type.getName());
                     break;
 
                 case INT:
-                    printWithTab(pw, "int " + field.getName() + "; // " + type.getName());
+                    printWithTab("int " + field.getName() + "; // " + type.getName());
                     break;
 
                 case SHORT:
-                    printWithTab(pw, "short " + field.getName() + "; // " + type.getName());
+                    printWithTab("short " + field.getName() + "; // " + type.getName());
                     break;
 
                 case BYTE:
-                    printWithTab(pw, "byte " + field.getName() + "; // " + type.getName());
+                    printWithTab("byte " + field.getName() + "; // " + type.getName());
                     break;
 
                 default:
-                    printWithTab(pw, "// TOOD: support " + type.getName());
+                    printWithTab("// TOOD: support " + type.getName());
                     break;
             }
         });
@@ -149,12 +149,12 @@ public class JavaGenerator extends AbstractGenerator {
         constructorString.append(");\n");
 
         pw.println(constructorString.toString());
-        printWithTab(pw, "return newObject;");
+        printWithTab("return newObject;");
     }
 
     private void createBitSpitter(PrintWriter pw) {
         // assume address, len
-        printWithTab(pw, "long offset = 0;");
+        printWithTab("long offset = 0;");
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
@@ -164,12 +164,12 @@ public class JavaGenerator extends AbstractGenerator {
             switch (ctype) {
                 case STRING:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + "BytesAddress = " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName + "BytesAddress", type.getName());
+                    printWithTab(fieldName + "BytesAddress = " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName + "BytesAddress", type.getName());
                     pw.println();
 
-                    printWithTab(pw, fieldName + "Len = " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName + "Len", type.getName());
+                    printWithTab(fieldName + "Len = " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName + "Len", type.getName());
                     pw.println();
 
                     printDecodeString(pw, fieldName);
@@ -178,27 +178,27 @@ public class JavaGenerator extends AbstractGenerator {
 
                 case LONG:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    printWithTab(fieldName + " = " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName, type.getName());
                     break;
 
                 case INT:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = (int) " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    printWithTab(fieldName + " = (int) " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName, type.getName());
                     break;
 
 
                 case SHORT:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = (short) " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    printWithTab(fieldName + " = (short) " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName, type.getName());
                     break;
 
                 case BYTE:
                     offsetBy = 8;
-                    printWithTab(pw, fieldName + " = (byte) " + GET_LONG_VALUE_STRING);
-                    printOffset(pw, offsetBy, fieldName, type.getName());
+                    printWithTab(fieldName + " = (byte) " + GET_LONG_VALUE_STRING);
+                    printOffset(offsetBy, fieldName, type.getName());
                     break;
 
             }
@@ -213,14 +213,14 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printDecodeString(PrintWriter pw, String fieldName) {
-        printWithTab(pw, fieldName + " = MUnsafe.decodeString(" + fieldName + "BytesAddress, " + fieldName + "Len);");
-        // printWithTab(pw, "if (null != " + fieldName + "BytesArray && null != " + fieldName
+        printWithTab(fieldName + " = MUnsafe.decodeString(" + fieldName + "BytesAddress, " + fieldName + "Len);");
+        // printWithTab("if (null != " + fieldName + "BytesArray && null != " + fieldName
         // + "Len) {");
-        // printWithTab(pw, FOUR_SPACE_TAB + fieldName + " = new String(" + fieldName
+        // printWithTab(FOUR_SPACE_TAB + fieldName + " = new String(" + fieldName
         // + "BytesArray, 0, " + fieldName + "Len, StandardCharsets.UTF_8);");
-        // printWithTab(pw, "} else {");
-        // printWithTab(pw, FOUR_SPACE_TAB + fieldName + " = null;");
-        // printWithTab(pw, "}");
+        // printWithTab("} else {");
+        // printWithTab(FOUR_SPACE_TAB + fieldName + " = null;");
+        // printWithTab("}");
     }
 
     public String generate() {

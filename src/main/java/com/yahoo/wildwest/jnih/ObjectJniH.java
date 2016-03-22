@@ -13,13 +13,6 @@ import com.yahoo.example.test.DumpTest;
  */
 public class ObjectJniH {
 
-
-
-    private String createCCodeBlock() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public static void main(String[] args) throws Exception {
 
         Class<?> classToDump;
