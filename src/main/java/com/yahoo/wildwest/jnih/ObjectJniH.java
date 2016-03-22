@@ -46,6 +46,7 @@ public class ObjectJniH {
             if (printLazyClass) {
                 System.out.println("import java.net.InetAddress;");
                 System.out.println("import com.yahoo.wildwest.MUnsafe;");
+                System.out.println("import com.yahoo.wildwest.MissingFingers;");
                 System.out.println("public class GenerateSample {");
             }
 

@@ -2,7 +2,6 @@
 // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.
 package com.yahoo.wildwest.jnih;
 
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -96,31 +95,23 @@ public class JavaGenerator extends AbstractGenerator {
         // List<Field> fields = new LinkedList<>();
 
         parseObject(objectClass, (ctype, field, type) -> {
+            String fieldName = field.getName();
             switch (ctype) {
                 case STRING:
-                    printNonPrimitiveVariable(field.getName());
-                    printWithTab("String " + field.getName() + ";");
+                    printNonPrimitiveVariable(fieldName);
+                    printWithTab("String " + fieldName + ";");
                     break;
 
                 case INETADDRESS:
-                    printNonPrimitiveVariable(field.getName());
-                    printWithTab("InetAddress " + field.getName() + ";");
+                    printNonPrimitiveVariable(fieldName);
+                    printWithTab("InetAddress " + fieldName + ";");
                     break;
 
                 case LONG:
-                    printWithTab("long " + field.getName() + "; // " + type.getName());
-                    break;
-
                 case INT:
-                    printWithTab("int " + field.getName() + "; // " + type.getName());
-                    break;
-
                 case SHORT:
-                    printWithTab("short " + field.getName() + "; // " + type.getName());
-                    break;
-
                 case BYTE:
-                    printWithTab("byte " + field.getName() + "; // " + type.getName());
+                    printWithTab(type.getName() + " " + fieldName + "; // " + type.getName());
                     break;
 
                 default:
@@ -146,11 +137,11 @@ public class JavaGenerator extends AbstractGenerator {
 
         String trailer = ", // \n";
 
+        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
+        // wasting bits.
         parseObject(objectClass, (ctype, field, type) -> {
-            // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
-            // wasting bits.
-                        constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + field.getName()).append(trailer);
-                    });
+            constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + field.getName()).append(trailer);
+        });
 
         // remove the extra comma
         int index = constructorString.lastIndexOf(",");
@@ -186,24 +177,11 @@ public class JavaGenerator extends AbstractGenerator {
                     break;
 
                 case LONG:
-                    printWithTab(fieldName + " = " + GET_LONG_VALUE_STRING);
-                    printOffset(8, fieldName, type.getName());
-                    break;
-
                 case INT:
-                    printWithTab(fieldName + " = (int) " + GET_LONG_VALUE_STRING);
-                    printOffset(8, fieldName, type.getName());
-                    break;
-
-
                 case SHORT:
-                    printWithTab(fieldName + " = (short) " + GET_LONG_VALUE_STRING);
-                    printOffset(8, fieldName, type.getName());
-                    break;
-
                 case BYTE:
-                    printWithTab(fieldName + " = (byte) " + GET_LONG_VALUE_STRING);
-                    printOffset(8, fieldName, type.getName());
+                    printWithTab(fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
+                    printOffset(ctype.fieldOffset, fieldName, type.getName());
                     break;
 
             }
@@ -236,17 +214,84 @@ public class JavaGenerator extends AbstractGenerator {
      * Java Object.
      */
     public void javaCreateObject() {
+        printWithTab("public " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
         pw.println();
         setupJavaVariablesBlock();
         createBitSpitter();
         createConstructorInvocation();
         pw.println();
+        printWithTab("}");
+    }
+
+
+    private void writeLenCalc(String fieldName, String typeName, int size, String extra) {
+        printWith2Tabs("// " + fieldName + " " + typeName + " is " + size + " bytes " + extra);
+        printWith2Tabs("totalLen += " + size + ";");
+
+    }
+
+    /**
+     * This generates the initializeObject function which creates the memory space the jni will have to write to for
+     * later inflation. This is tricky, because we have to use Unsafe.allocatememory (If we didn't we couldn't use free
+     * in the case NMT was enabled, or weird things would happen)
+     */
+    public void javaCreateInitialize() {
+        pw.println();
+        printWithTab("public MissingFingers initialize" + shortObjectName + "() {");
+        pw.println();
+        // assume address, len
+        printWith2Tabs("long totalLen = 0;");
+
+        // we're going to iterate twice.
+        // The first time is to figure out total length of the block.
+        // The second time is to write the address and length combo's for each spot.
+        // The problem is, the max length is going to be crap.
+        // We're picking 1k, and maybe ccode is only ever 4 bytes.
+        // We're picking 1k, and maybe desc is always 10k.
+        // So that's a hand edit. Or maybe an annotation we should add.
+        // But this was to boilerplate things and modify, not completely headlessly generate today.
+
+
+        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
+        // wasting bits.
+
+        parseObject(objectClass, (ctype, field, type) -> {
+            String fieldName = field.getName();
+            switch (ctype) {
+                case STRING:
+                case INETADDRESS:
+                    writeLenCalc(fieldName, type.getName(), ctype.fieldOffset, ", address + length");
+                    break;
+
+                case LONG:
+                case INT:
+                case SHORT:
+                case BYTE:
+                    writeLenCalc(fieldName, type.getName(), ctype.fieldOffset, ", cast to uint64_t");
+                    break;
+            }
+
+            pw.println();
+        });
+
+        // Now, we can allocate, and then loop back and drop in new allocations for each of these.
+        // prob should make some CONSTANTS, so there is a single place to change each field size.
+        // maybe we could make a single CONSTANTS class, that would contain those...
+
+        // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
+        // fields.add(f);
+
+        printWith2Tabs("long address = MUnsafe.unsafe.allocateMemory(totalLen);");
+
+        // we need to iterate through and
+
+        printWithTab("}");
+        pw.println();
     }
 
     public String generate() {
-        pw.println("public " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
+        javaCreateInitialize();
         javaCreateObject();
-        pw.println("}");
         return sw.toString();
     }
 

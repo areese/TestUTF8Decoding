@@ -3,14 +3,21 @@
 package com.yahoo.wildwest.jnih;
 
 public enum CTYPES {
-    BYTE, //
-    SHORT, //
-    INT, //
-    LONG, //
-    STRING, //
-    INETADDRESS, // sockaddr_in6 from C, InetAddress in java.
+    BYTE(8, 0), //
+    SHORT(8, 0), //
+    INT(8, 0), //
+    LONG(8, 0), //
+    STRING(16, 1024), //
+    INETADDRESS(16, 16), // sockaddr_in6 from C, InetAddress in java.
     ;
 
+    public final int fieldOffset;
+    public final int allocationSize;
+
+    CTYPES(int fieldOffset, int allocationSize) {
+        this.fieldOffset = fieldOffset;
+        this.allocationSize = allocationSize;
+    }
 
     public static CTYPES getCType(Class<?> type) {
         switch (type.getName()) {
