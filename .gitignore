@@ -2,5 +2,5 @@ target/
 .classpath
 .project
 .settings
-src/main/java/GenerateSample.java
+src/main/java/com/yahoo/example/test/GenerateSample.java
 src/main/native/generateSample.cpp
