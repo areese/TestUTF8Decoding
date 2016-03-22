@@ -180,6 +180,7 @@ public class JavaGenerator extends AbstractGenerator {
 
                 case INETADDRESS:
                     printNonPrimitiveReadVariables(fieldName, type.getName());
+                    printWithTab(fieldName + " = null;");
                     printWithTab("// TODO: decode InetAddress");
                     pw.println();
                     break;

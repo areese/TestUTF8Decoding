@@ -7,7 +7,7 @@ public class CGenerator extends AbstractGenerator {
 
     public CGenerator(Class<?> classToDump) {
         super(classToDump);
-        structName = shortObjectName + "Struct";;
+        structName = shortObjectName + "Struct";
     }
 
     private void createCStruct() {
@@ -15,8 +15,7 @@ public class CGenerator extends AbstractGenerator {
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        pw.println("#include <sys/param.h>");
-        pw.println();
+        printHeaderFileIncludes();
 
         pw.println("typedef struct " + structName + " {\n");
 
@@ -51,10 +50,18 @@ public class CGenerator extends AbstractGenerator {
         pw.println("} " + structName + ";\n");
     }
 
+    private void printHeaderFileIncludes() {
+        pw.println("#include <sys/param.h>");
+        pw.println("#include <stdio.h>");
+        pw.println("#include <stdint.h>");
+        pw.println("#include <string.h>");
+        pw.println();
+    }
+
     private void createEncodeFunction() {
         printFunctionHeaderComment();
         pw.println("void encodeIntoJava_" + shortObjectName + "(" + structName
-                        + " inputData, long toAddress, long addressLength) {");
+                        + " inputData, long address, long addressLength) {");
 
         // Next we iterate over the object and generate the fields.
         // we'll have to do the c version of java unsafe.putMemory.
@@ -62,7 +69,7 @@ public class CGenerator extends AbstractGenerator {
         // or they changed it by hand, and happened to use a struct of a different layout but with the same names.
         // and use memcpy.
 
-        printWithTab("uint64_t offset = 0");
+        printWithTab("uint64_t offset = 0;");
 
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
@@ -102,7 +109,7 @@ public class CGenerator extends AbstractGenerator {
 
 
     private void printSetPointerVariable(String name) {
-        printWith2Tabs("(*" + name + "Ptr) = " + "inputData." + name);
+        printWith2Tabs("(*" + name + "Ptr) = " + "inputData." + name + ";");
     }
 
     /**
@@ -149,7 +156,7 @@ public class CGenerator extends AbstractGenerator {
 
     private void printPointerVariable(String addressVariableName, String typeName) {
         printWith2Tabs("uint64_t *" + addressVariableName + "Ptr = (uint64_t*)(address + offset); // " + typeName);
-        printWith2Tabs("offset += 8");
+        printWith2Tabs("offset += 8;");
     }
 
     /**

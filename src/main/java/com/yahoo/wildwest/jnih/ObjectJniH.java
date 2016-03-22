@@ -44,7 +44,9 @@ public class ObjectJniH {
 
         if (generateJavaCode) {
             if (printLazyClass) {
-                System.out.println("public class A {");
+                System.out.println("import java.net.InetAddress;");
+                System.out.println("import com.yahoo.wildwest.MUnsafe;");
+                System.out.println("public class GenerateSample {");
             }
 
             try (JavaGenerator java = new JavaGenerator(classToDump)) {
