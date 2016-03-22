@@ -2,8 +2,8 @@ package com.yahoo.wildwest.jnih;
 
 public class HGenerator extends AbstractCGenerator {
 
-    public HGenerator(Class<?> classToDump) {
-        super(classToDump);
+    public HGenerator(Class<?> classToDump, String cFilename) {
+        super(classToDump, cFilename);
     }
 
 

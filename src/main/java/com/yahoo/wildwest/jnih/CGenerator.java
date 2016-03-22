@@ -2,8 +2,8 @@ package com.yahoo.wildwest.jnih;
 
 public class CGenerator extends AbstractCGenerator {
 
-    public CGenerator(Class<?> classToDump) {
-        super(classToDump);
+    public CGenerator(Class<?> classToDump, String cFilename) {
+        super(classToDump, cFilename);
     }
 
     @Override

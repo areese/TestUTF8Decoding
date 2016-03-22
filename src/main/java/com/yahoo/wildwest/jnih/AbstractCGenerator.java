@@ -4,10 +4,12 @@ package com.yahoo.wildwest.jnih;
 
 public abstract class AbstractCGenerator extends AbstractGenerator {
     private String structName;
+    private String cFilename;
 
-    public AbstractCGenerator(Class<?> classToDump) {
+    public AbstractCGenerator(Class<?> classToDump, String cFilename) {
         super(classToDump);
-        structName = shortObjectName + "Struct";
+        this.structName = shortObjectName + "Struct";
+        this.cFilename = cFilename;
     }
 
     protected void createCStruct() {
