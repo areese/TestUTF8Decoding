@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import sun.misc.Unsafe;
 import sun.misc.VM;
 
-@SuppressWarnings("restriction")
 public class MUnsafe {
     public static final Unsafe unsafe;
     public static final long charArrayBaseOffset;
@@ -126,7 +125,7 @@ public class MUnsafe {
         byte[] fromBytes = s.getBytes(StandardCharsets.UTF_8);
 
         // gotta null terminate
-        long totalSize = fromBytes.length + 1;
+        long totalSize = byteArraySize(fromBytes) + 1;
         long destAddress = unsafe.allocateMemory(totalSize);
         copyMemory(destAddress, totalSize, fromBytes);
 
