@@ -98,4 +98,13 @@ public final class SampleInfo {
     public String getDesc() {
         return desc;
     }
+
+
+    @Override
+    public String toString() {
+        return "SampleInfo [type=" + type + ", attrs=" + attrs + ", status=" + status + ", expiration=" + expiration
+                        + ", readCount=" + readCount + ", writeCount=" + writeCount + ", writeTimestamp="
+                        + writeTimestamp + ", ia=" + ia + ", org=" + org + ", loc=" + loc + ", ccode=" + ccode
+                        + ", desc=" + desc + "]";
+    }
 }
