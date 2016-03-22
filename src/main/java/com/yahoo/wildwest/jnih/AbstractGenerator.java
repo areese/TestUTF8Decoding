@@ -26,6 +26,12 @@ public abstract class AbstractGenerator implements Closeable {
         this.shortObjectName = temp[temp.length - 1];
     }
 
+    public void printWith2Tabs(String s) {
+        pw.print(FOUR_SPACE_TAB);
+        pw.print(FOUR_SPACE_TAB);
+        pw.println(s);
+    }
+
     public void printWithTab(String s) {
         pw.print(FOUR_SPACE_TAB);
         pw.println(s);
@@ -49,8 +55,10 @@ public abstract class AbstractGenerator implements Closeable {
             // we can also deal with InetAddress, or at least we can TODO it. It's either 4 bytes of address bytes in a
             // long + len = 0, or it's a long + len pointing at 16 bytes of address bytes.
             // see powersaw, which started this whole mess.
-            // we use isInstance to see if it's a String, as isInstance takes Object, and isAssignableFrom takes Class.  oops.
-            if (!type.isPrimitive() && !type.isInstance("") && !type.isAssignableFrom(InetAddress.class) || type.isArray()) {
+            // we use isInstance to see if it's a String, as isInstance takes Object, and isAssignableFrom takes Class.
+            // oops.
+            if (!type.isPrimitive() && !type.isInstance("") && !type.isAssignableFrom(InetAddress.class)
+                            || type.isArray()) {
                 continue;
             }
 

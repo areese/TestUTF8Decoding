@@ -15,7 +15,10 @@ public class CGenerator extends AbstractGenerator {
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        printWithTab("typedef struct " + structName + " {\n");
+        pw.println("#include <sys/param.h>");
+        pw.println();
+
+        pw.println("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
@@ -64,10 +67,11 @@ public class CGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
                 case STRING:
-                    printStringCopy(field.getName());
+                    printStringCopy(field.getName(), type.getName());
                     break;
 
                 case INETADDRESS:
+                    printInetAddress(field.getName(), type.getName());
                     break;
 
                 case LONG:
@@ -77,7 +81,11 @@ public class CGenerator extends AbstractGenerator {
                     // yes we waste 48 bits.
                 case BYTE:
                     // yes we waste 56 bits.
-                    printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                    // print the variable;
+                    printWithTab("{");
+                    printPointerVariable(field.getName(), type.getName());
+                    printSetPointerVariable(field.getName());
+                    printWithTab("}");
                     break;
 
                 default:
@@ -93,6 +101,10 @@ public class CGenerator extends AbstractGenerator {
     }
 
 
+    private void printSetPointerVariable(String name) {
+        printWith2Tabs("(*" + name + "Ptr) = " + "inputData." + name);
+    }
+
     /**
      * This function generates the memcpy that's required for a String. Strings are address + length. And the
      * destination is pre allocated by the java code. This means we have to: 1. write into dest address. 2. update
@@ -100,7 +112,54 @@ public class CGenerator extends AbstractGenerator {
      * 
      * @param name of the variable to copy
      */
-    private void printStringCopy(String name) {
+    private void printStringCopy(String name, String typeName) {
+        // string is a memcpy into provided address, followed by update length.
+        // at offset, is an address
+        printWithTab("{");
+        String addressVariableName = name + "Address";
+        String lenVariableName = name + "Len";
+        String lenPtrVariableName = name + "LenPtr";
+        String dereferencedLenPtrVariableName = "(*" + lenPtrVariableName + ")";
+
+        printLenAndPointerVariable(name, typeName);
+
+        // we need to check len, we want the shorter of the to.
+        // and we need to set it when we are done.
+        printWith2Tabs("// use the shortest of buffersize and input size");
+        printWith2Tabs(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
+                        + lenVariableName + ");");
+
+        pw.println();
+
+        // now we have address "pointer" and len "pointer" we can use memcpy
+        printWith2Tabs("memcpy ((void*) " + addressVariableName + "Ptr, (void*) inputData." + addressVariableName
+                        + ", " + dereferencedLenPtrVariableName + ");");
+
+        printWithTab("}");
+        pw.println();
+    }
+
+    private void printLenAndPointerVariable(String name, String typeName) {
+        printPointerVariable(name + "Address", typeName);
+        pw.println();
+
+        printPointerVariable(name + "Len", typeName);
+        pw.println();
+    }
+
+    private void printPointerVariable(String addressVariableName, String typeName) {
+        printWith2Tabs("uint64_t *" + addressVariableName + "Ptr = (uint64_t*)(address + offset); // " + typeName);
+        printWith2Tabs("offset += 8");
+    }
+
+    /**
+     * This function generates the memcpy that's required for a String. Strings are address + length. And the
+     * destination is pre allocated by the java code. This means we have to: 1. write into dest address. 2. update
+     * length to reflect what we wrote.
+     * 
+     * @param name of the variable to copy
+     */
+    private void printInetAddress(String name, String typeName) {
         // string is a memcpy into provided address, followed by update length.
         // at offset, is an address
         String addressVariableName = name + "Address";
@@ -108,25 +167,23 @@ public class CGenerator extends AbstractGenerator {
         String lenPtrVariableName = name + "LenPtr";
         String dereferencedLenPtrVariableName = "(*" + lenPtrVariableName + ")";
 
-        printWithTab("uint64_t " + addressVariableName + "= address + offset;");
-        printWithTab("offset += 8");
-        pw.println();
+        printWithTab("{");
+        printLenAndPointerVariable(name, typeName);
 
-        printWithTab("uint64_t *" + lenPtrVariableName + " = (uint64_t*)(address + offset);");
-        printWithTab("offset += 8");
-        pw.println();
+        // we need to deal with the type here. it's a sockaddr_storage that we need to target.
 
         // we need to check len, we want the shorter of the to.
         // and we need to set it when we are done.
-        printWithTab(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
-                        + lenVariableName + ");");
+        // printWithTab(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
+        // + lenVariableName + ");");
 
         pw.println();
 
         // now we have address "pointer" and len "pointer" we can use memcpy
-        printWithTab("memcpy ((void*) " + addressVariableName + ", (void*) inputData." + addressVariableName + ", "
-                        + dereferencedLenPtrVariableName + ");");
+        // printWithTab("memcpy ((void*) " + addressVariableName + ", (void*) inputData." + addressVariableName + ", "
+        // + dereferencedLenPtrVariableName + ");");
 
+        printWithTab("}");
         pw.println();
     }
 
