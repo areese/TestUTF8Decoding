@@ -142,7 +142,10 @@ public class MUnsafe {
      */
     public static String decodeStringAndFree(long srcAddress, long len) {
         try {
-            return decodeString(srcAddress, len);
+            System.err.println("asked to decode " + srcAddress + " len " + len);
+            srcAddress = 0;
+            // return decodeString(srcAddress, len);
+            return "";
         } finally {
             if (0 != srcAddress) {
                 unsafe.freeMemory(srcAddress);
