@@ -3,6 +3,7 @@
 package com.yahoo.wildwest;
 
 import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
@@ -192,6 +193,42 @@ public class MUnsafe {
         } finally {
             if (null != encodedString) {
                 encodedString.close();
+            }
+        }
+    }
+
+
+    public static InetAddress decodeInetAddress(long srcAddress, long len) {
+        // TODO: implement
+        return null;
+    }
+
+    /**
+     * 
+     * @param srcAddress
+     * @param len
+     * @return Java String, null on null, 0 on empty string
+     */
+    public static InetAddress decodeInetAddressAndFree(long srcAddress, long len) {
+        try {
+            return decodeInetAddress(srcAddress, len);
+        } finally {
+            if (0 != srcAddress) {
+                unsafe.freeMemory(srcAddress);
+            }
+        }
+    }
+
+
+    public static InetAddress decodeInetAddressAndFree(MissingFingers encodedInetAddress) {
+        try {
+            if (null == encodedInetAddress) {
+                return null;
+            }
+            return decodeInetAddress(encodedInetAddress.getAddress(), encodedInetAddress.getLength());
+        } finally {
+            if (null != encodedInetAddress) {
+                encodedInetAddress.close();
             }
         }
     }

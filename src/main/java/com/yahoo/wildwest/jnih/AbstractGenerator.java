@@ -26,15 +26,19 @@ public abstract class AbstractGenerator implements Closeable {
         this.shortObjectName = temp[temp.length - 1];
     }
 
-    public void printWith2Tabs(String s) {
-        pw.print(FOUR_SPACE_TAB);
-        pw.print(FOUR_SPACE_TAB);
+    public void printWithTabs(int tabs, String s) {
+        for (int i = 0; i < tabs; i++) {
+            pw.print(FOUR_SPACE_TAB);
+        }
         pw.println(s);
     }
 
+    public void printWith2Tabs(String s) {
+        printWithTabs(2, s);
+    }
+
     public void printWithTab(String s) {
-        pw.print(FOUR_SPACE_TAB);
-        pw.println(s);
+        printWithTabs(1, s);
     }
 
     public void printOffset(int offsetBy, String fieldName, String typeName) {

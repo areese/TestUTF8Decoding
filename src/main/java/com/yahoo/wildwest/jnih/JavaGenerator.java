@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.yahoo.wildwest.MUnsafe;
+
 public class JavaGenerator extends AbstractGenerator {
 
     static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
@@ -98,13 +100,9 @@ public class JavaGenerator extends AbstractGenerator {
             String fieldName = field.getName();
             switch (ctype) {
                 case STRING:
-                    printNonPrimitiveVariable(fieldName);
-                    printWithTab("String " + fieldName + ";");
-                    break;
-
                 case INETADDRESS:
                     printNonPrimitiveVariable(fieldName);
-                    printWithTab("InetAddress " + fieldName + ";");
+                    printWithTab(shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
                     break;
 
                 case LONG:
@@ -164,15 +162,9 @@ public class JavaGenerator extends AbstractGenerator {
             String fieldName = field.getName();
             switch (ctype) {
                 case STRING:
-                    printNonPrimitiveReadVariables(fieldName, type.getName());
-                    printDecodeString(fieldName);
-                    pw.println();
-                    break;
-
                 case INETADDRESS:
                     printNonPrimitiveReadVariables(fieldName, type.getName());
-                    printWithTab(fieldName + " = null;");
-                    printWithTab("// TODO: decode InetAddress");
+                    printDecode(fieldName, type.getName());
                     pw.println();
                     break;
 
@@ -205,8 +197,14 @@ public class JavaGenerator extends AbstractGenerator {
         pw.println();
     }
 
-    private void printDecodeString(String fieldName) {
-        printWithTab(fieldName + " = MUnsafe.decodeStringAndFree(" + fieldName + "Address, " + fieldName + "Len);");
+    private void printDecode(String fieldName, String typeName) {
+        printWithTab(fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName + "Address, "
+                        + fieldName + "Len);");
+    }
+
+    private String shortTypeName(String typeName) {
+        String[] s = typeName.split("\\.");
+        return s[s.length - 1];
     }
 
     /**
@@ -224,10 +222,9 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
 
-    private void writeLenCalc(String fieldName, String typeName, int size, String extra) {
+    private void writeLenCalc(String varName, String fieldName, String typeName, int size, String extra) {
         printWith2Tabs("// " + fieldName + " " + typeName + " is " + size + " bytes " + extra);
-        printWith2Tabs("totalLen += " + size + ";");
-
+        printWith2Tabs(varName + " += " + size + ";");
     }
 
     /**
@@ -257,20 +254,22 @@ public class JavaGenerator extends AbstractGenerator {
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
+            String extra = "";
             switch (ctype) {
                 case STRING:
                 case INETADDRESS:
-                    writeLenCalc(fieldName, type.getName(), ctype.fieldOffset, ", address + length");
+                    extra = ", address + length";
                     break;
 
                 case LONG:
                 case INT:
                 case SHORT:
                 case BYTE:
-                    writeLenCalc(fieldName, type.getName(), ctype.fieldOffset, ", cast to uint64_t");
+                    extra = ", cast to uint64_t";
                     break;
             }
 
+            writeLenCalc("totalLen ", fieldName, type.getName(), ctype.fieldOffset, extra);
             pw.println();
         });
 
@@ -283,10 +282,42 @@ public class JavaGenerator extends AbstractGenerator {
 
         printWith2Tabs("long address = MUnsafe.unsafe.allocateMemory(totalLen);");
 
-        // we need to iterate through and
+        // we need to iterate through and write out the allocates and puts for non primitives.
+        pw.println();
+        printWith2Tabs("long offset = 0;");
+        parseObject(objectClass, (ctype, field, type) -> {
+            String fieldName = field.getName();
+            switch (ctype) {
+                case STRING:
+                case INETADDRESS:
+                    writePutAddress(fieldName, type.getName(), ctype);
+                    break;
 
+                case LONG:
+                case INT:
+                case SHORT:
+                case BYTE:
+                    writeLenCalc("offset ", fieldName, type.getName(), ctype.fieldOffset, ", cast to uint64_t");
+                    break;
+            }
+
+            pw.println();
+        });
+
+        printWith2Tabs("return new MissingFingers(address, totalLen);");
         printWithTab("}");
         pw.println();
+    }
+
+    private void writePutAddress(String fieldName, String typeName, CTYPES ctype) {
+        printWith2Tabs("// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
+        printWith2Tabs("{");
+        printWithTabs(3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + ctype.allocationSize + "); ");
+        printWithTabs(3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
+        printWithTabs(3, "offset += 8;");
+        printWithTabs(3, "MUnsafe.unsafe.putAddress(address + offset, " + ctype.allocationSize + ");");
+        printWithTabs(3, "offset += 8;");
+        printWith2Tabs("}");
     }
 
     public String generate() {
