@@ -139,6 +139,23 @@ public class MUnsafe {
      * @param len
      * @return Java String, null on null, 0 on empty string
      */
+    public static String decodeStringAndFree(long srcAddress, long len) {
+        try {
+            return decodeString(srcAddress, len);
+        } finally {
+            if (0 != srcAddress) {
+                unsafe.freeMemory(srcAddress);
+            }
+        }
+    }
+
+    /**
+     * Given a UTF8 string pointed to by address of len bytes long, decode it
+     * 
+     * @param srcAddress
+     * @param len
+     * @return Java String, null on null, 0 on empty string
+     */
     public static String decodeString(long srcAddress, long len) {
         if (0 == srcAddress) {
             return null;
@@ -164,6 +181,19 @@ public class MUnsafe {
             return null;
         }
         return decodeString(encodedString.getAddress(), encodedString.getLength());
+    }
+
+    public static String decodeStringAndFree(MissingFingers encodedString) {
+        try {
+            if (null == encodedString) {
+                return null;
+            }
+            return decodeString(encodedString.getAddress(), encodedString.getLength());
+        } finally {
+            if (null != encodedString) {
+                encodedString.close();
+            }
+        }
     }
 
 }

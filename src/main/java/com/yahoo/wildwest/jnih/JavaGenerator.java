@@ -90,7 +90,7 @@ public class JavaGenerator extends AbstractGenerator {
         return setters;
     }
 
-    private void setupJavaVariablesBlock(PrintWriter pw) {
+    private void setupJavaVariablesBlock() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
@@ -137,7 +137,7 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab("long " + fieldName + "Address;");
     }
 
-    private void createConstructorInvocation(PrintWriter pw) {
+    private void createConstructorInvocation() {
 
         StringBuilder constructorString = new StringBuilder();
         // really shouldn't name things so terribly
@@ -163,7 +163,7 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab("return newObject;");
     }
 
-    private void createBitSpitter(PrintWriter pw) {
+    private void createBitSpitter() {
         // assume address, len
         printWithTab("long offset = 0;");
 
@@ -228,14 +228,24 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printDecodeString(String fieldName) {
-        printWithTab(fieldName + " = MUnsafe.decodeString(" + fieldName + "Address, " + fieldName + "Len);");
+        printWithTab(fieldName + " = MUnsafe.decodeStringAndFree(" + fieldName + "Address, " + fieldName + "Len);");
+    }
+
+    /**
+     * This generates the createObject function which is used to decode the jni representation from address, len into a
+     * Java Object.
+     */
+    public void javaCreateObject() {
+        pw.println();
+        setupJavaVariablesBlock();
+        createBitSpitter();
+        createConstructorInvocation();
+        pw.println();
     }
 
     public String generate() {
         pw.println("public " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
-        setupJavaVariablesBlock(pw);
-        createBitSpitter(pw);
-        createConstructorInvocation(pw);
+        javaCreateObject();
         pw.println("}");
         return sw.toString();
     }
