@@ -106,7 +106,7 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
 
 
     private void printSetPointerVariable(String name) {
-        printWith2Tabs("(*" + name + "Ptr) = " + "inputData." + name + ";");
+        printWith2Tabs("(*" + name + "Ptr) = " + "inputData->" + name + ";");
     }
 
     /**
@@ -130,13 +130,13 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         // we need to check len, we want the shorter of the to.
         // and we need to set it when we are done.
         printWith2Tabs("// use the shortest of buffersize and input size");
-        printWith2Tabs(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
+        printWith2Tabs(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData->"
                         + lenVariableName + ");");
 
         pw.println();
 
         // now we have address "pointer" and len "pointer" we can use memcpy
-        printWith2Tabs("memcpy ((void*) " + addressVariableName + "Ptr, (void*) inputData." + addressVariableName
+        printWith2Tabs("memcpy ((void*) " + addressVariableName + "Ptr, (void*) inputData->" + addressVariableName
                         + ", " + dereferencedLenPtrVariableName + ");");
 
         printWithTab("}");
@@ -178,13 +178,13 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
 
         // we need to check len, we want the shorter of the to.
         // and we need to set it when we are done.
-        // printWithTab(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData."
+        // printWithTab(dereferencedLenPtrVariableName + " = MIN( " + dereferencedLenPtrVariableName + ", inputData->"
         // + lenVariableName + ");");
 
         pw.println();
 
         // now we have address "pointer" and len "pointer" we can use memcpy
-        // printWithTab("memcpy ((void*) " + addressVariableName + ", (void*) inputData." + addressVariableName + ", "
+        // printWithTab("memcpy ((void*) " + addressVariableName + ", (void*) inputData->" + addressVariableName + ", "
         // + dereferencedLenPtrVariableName + ");");
 
         printWithTab("}");
@@ -194,7 +194,7 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
     protected void printFunctionDef() {
         printFunctionHeaderComment();
         pw.print("void encodeIntoJava_" + shortObjectName + "(" + structName
-                        + " inputData, long address, long addressLength)");
+                        + " *inputData, long address, long addressLength)");
     }
 
     private void printFunctionHeaderComment() {

@@ -68,7 +68,7 @@ typedef struct SampleInfoStruct {
  * The length coming in says how large the buffer for address is.
  * The length coming out says how many characters including \0 were written
 **/
-void encodeIntoJava_SampleInfo(SampleInfoStruct inputData, long address, long addressLength);
+void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long addressLength);
 
 #endif /* _Included_generateSample*/
 
