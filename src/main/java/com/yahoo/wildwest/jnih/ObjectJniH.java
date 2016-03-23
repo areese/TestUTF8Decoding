@@ -21,6 +21,7 @@ public class ObjectJniH {
         Class<?> classToDump;
         String cFilename = "generateSample";
         String javaFilename = "GenerateSample.java";
+        String javaPath = "src/main/java/";
 
         if (args.length > 0) {
             classToDump = Class.forName(args[0]);
@@ -56,19 +57,12 @@ public class ObjectJniH {
             }
         }
 
-        try (PrintWriter pw = new PrintWriter(new File(javaFilename))) {
-            pw.println("package com.yahoo.example.test;");
-            pw.println("import java.net.InetAddress;");
-            pw.println("import com.yahoo.wildwest.MUnsafe;");
-            pw.println("import com.yahoo.wildwest.MissingFingers;");
-            pw.println("public class GenerateSample {");
-
-            try (JavaGenerator java = new JavaGenerator(classToDump)) {
+        try (JavaGenerator java = new JavaGenerator(classToDump)) {
+            try (PrintWriter pw = new PrintWriter(new File(javaPath + java.getFileName()))) {
                 pw.println(java.generate());
             }
-
-            pw.println("}");
         }
+
 
         // create the java read code, we can use the setters we've found
 

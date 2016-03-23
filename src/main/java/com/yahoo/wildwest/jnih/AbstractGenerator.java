@@ -15,34 +15,38 @@ public abstract class AbstractGenerator implements Closeable {
     protected final Class<?> objectClass;
     protected final String objectClassName;
     protected final String shortObjectName;
-
-    protected StringWriter sw = new StringWriter();
-    protected PrintWriter pw = new PrintWriter(sw);
+    protected final String javaPath;
 
     public AbstractGenerator(Class<?> classToDump) {
         this.objectClass = classToDump;
         this.objectClassName = this.objectClass.getName();
         String[] temp = objectClassName.split("\\.");
         this.shortObjectName = temp[temp.length - 1];
-    }
 
-    public void printWithTabs(int tabs, String s) {
-        for (int i = 0; i < tabs; i++) {
-            pw.print(FOUR_SPACE_TAB);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < temp.length - 1; i++) {
+            sb.append(temp[i]).append("/");
         }
-        pw.println(s);
+        javaPath = sb.toString();
     }
 
-    public void printWith2Tabs(String s) {
-        printWithTabs(2, s);
+    public void printWithTabs(LinePrinter lp, int tabs, String s) {
+        for (int i = 0; i < tabs; i++) {
+            lp.print(FOUR_SPACE_TAB);
+        }
+        lp.println(s);
     }
 
-    public void printWithTab(String s) {
-        printWithTabs(1, s);
+    public void printWith2Tabs(LinePrinter lp, String s) {
+        printWithTabs(lp, 2, s);
     }
 
-    public void printOffset(int offsetBy, String fieldName, String typeName) {
-        printWithTab("offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
+    public void printWithTab(LinePrinter lp, String s) {
+        printWithTabs(lp, 1, s);
+    }
+
+    public void printOffset(LinePrinter lp, int offsetBy, String fieldName, String typeName) {
+        printWithTab(lp, "offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
     }
 
     /**
@@ -74,8 +78,8 @@ public abstract class AbstractGenerator implements Closeable {
 
     @Override
     public void close() throws IOException {
-        pw.close();
-        sw.close();
+//        pw.close();
+//        sw.close();
     }
 
 

@@ -2,10 +2,17 @@
 // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.
 package com.yahoo.wildwest.jnih;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public abstract class AbstractCGenerator extends AbstractGenerator {
     protected final String structName;
     protected final String cFilename;
     protected final String shortCFilename;
+
+    protected StringWriter sw = new StringWriter();
+    protected PrintWriterWrapper pw = new PrintWriterWrapper(sw);
 
     public AbstractCGenerator(Class<?> classToDump, String cFilename) {
         super(classToDump);
@@ -22,8 +29,8 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
             switch (ctype) {
                 case STRING:
                 case INETADDRESS:
-                    printWithTab("uint64_t " + field.getName() + "Address;\n");
-                    printWithTab("uint64_t " + field.getName() + "Len;\n");
+                    printWithTab(pw,"uint64_t " + field.getName() + "Address;\n");
+                    printWithTab(pw,"uint64_t " + field.getName() + "Len;\n");
                     break;
 
                 case LONG:
@@ -33,11 +40,11 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
                     // yes we waste 48 bits.
                 case BYTE:
                     // yes we waste 56 bits.
-                    printWithTab("uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                    printWithTab(pw,"uint64_t " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
                 default:
-                    printWithTab("// TODO : DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
+                    printWithTab(pw, "// TODO : DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
                     break;
 
             }
@@ -77,5 +84,11 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         pw.println("**/");
     }
 
+
+    @Override
+    public void close() throws IOException {
+        pw.close();
+        sw.close();
+    }
 
 }

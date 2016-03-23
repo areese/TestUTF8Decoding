@@ -14,8 +14,25 @@ public class JavaGenerator extends AbstractGenerator {
 
     private final Set<String> blacklistedMethods = generateBlackList();
 
+    private final String generatedClassName;
+    private final String fileName;
+
+
+    /**
+     * A couple of lists of strings that compose the body of the class. one for each function and one for the constants
+     */
+    private final ListPrintWriter classHeader = new ListPrintWriter();
+    private final ListPrintWriter constants = new ListPrintWriter();
+    private final ListPrintWriter initFunction = new ListPrintWriter();
+    private final ListPrintWriter createFunction = new ListPrintWriter();
+    private final ListPrintWriter classFooter = new ListPrintWriter();
+
+    private final ListPrintWriter[] parts = {classHeader, constants, initFunction, createFunction, classFooter};
+
     public JavaGenerator(Class<?> classToDump) {
         super(classToDump);
+        this.generatedClassName = shortObjectName + "Generated";
+        this.fileName = javaPath + generatedClassName + ".java";
     }
 
     private static Set<String> generateBlackList() {
@@ -50,7 +67,7 @@ public class JavaGenerator extends AbstractGenerator {
         return false;
     }
 
-    public List<Method> findGetters() {
+    private List<Method> findGetters() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         List<Method> getters = new LinkedList<>();
@@ -70,7 +87,7 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
 
-    public List<Method> findSetters() {
+    private List<Method> findSetters() {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         List<Method> setters = new LinkedList<>();
@@ -89,7 +106,7 @@ public class JavaGenerator extends AbstractGenerator {
         return setters;
     }
 
-    private void setupJavaVariablesBlock() {
+    private void setupJavaVariablesBlock(ListPrintWriter lp) {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
@@ -99,32 +116,32 @@ public class JavaGenerator extends AbstractGenerator {
             switch (ctype) {
                 case STRING:
                 case INETADDRESS:
-                    printNonPrimitiveVariable(fieldName);
-                    printWithTab(shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
+                    printNonPrimitiveVariable(lp, fieldName);
+                    printWithTab(lp, shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
                     break;
 
                 case LONG:
                 case INT:
                 case SHORT:
                 case BYTE:
-                    printWithTab(type.getName() + " " + fieldName + "; // " + type.getName());
+                    printWithTab(lp, type.getName() + " " + fieldName + "; // " + type.getName());
                     break;
 
                 default:
-                    printWithTab("// TOOD: support " + type.getName());
+                    printWithTab(lp, "// TOOD: support " + type.getName());
                     break;
             }
         });
 
-        pw.println();
+        lp.println();
     }
 
-    private void printNonPrimitiveVariable(String fieldName) {
-        printWithTab("long " + fieldName + "Len;");
-        printWithTab("long " + fieldName + "Address;");
+    private void printNonPrimitiveVariable(LinePrinter lp, String fieldName) {
+        printWithTab(lp, "long " + fieldName + "Len;");
+        printWithTab(lp, "long " + fieldName + "Address;");
     }
 
-    private void createConstructorInvocation() {
+    private void createConstructorInvocation(LinePrinter lp) {
 
         StringBuilder constructorString = new StringBuilder();
         // really shouldn't name things so terribly
@@ -146,13 +163,13 @@ public class JavaGenerator extends AbstractGenerator {
         }
         constructorString.append(");\n");
 
-        pw.println(constructorString.toString());
-        printWithTab("return newObject;");
+        lp.println(constructorString.toString());
+        printWithTab(lp, "return newObject;");
     }
 
-    private void createBitSpitter() {
+    private void createBitSpitter(LinePrinter lp) {
         // assume address, len
-        printWithTab("long offset = 0;");
+        printWithTab(lp, "long offset = 0;");
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
@@ -161,43 +178,43 @@ public class JavaGenerator extends AbstractGenerator {
             switch (ctype) {
                 case STRING:
                 case INETADDRESS:
-                    printNonPrimitiveReadVariables(fieldName, type.getName());
-                    printDecode(fieldName, type.getName());
-                    pw.println();
+                    printNonPrimitiveReadVariables(lp, fieldName, type.getName());
+                    printDecode(lp, fieldName, type.getName());
+                    lp.println();
                     break;
 
                 case LONG:
                 case INT:
                 case SHORT:
                 case BYTE:
-                    printWithTab(fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
-                    printOffset(ctype.fieldOffset, fieldName, type.getName());
+                    printWithTab(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
+                    printOffset(lp, ctype.fieldOffset, fieldName, type.getName());
                     break;
 
             }
 
-            pw.println();
+            lp.println();
 
             // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
             // fields.add(f);
                     });
 
-        pw.println();
+        lp.println();
     }
 
-    private void printNonPrimitiveReadVariables(String fieldName, String typeName) {
-        printWithTab(fieldName + "Address = " + GET_LONG_VALUE_STRING);
-        printOffset(8, fieldName + "Address", typeName);
-        pw.println();
+    private void printNonPrimitiveReadVariables(LinePrinter lp, String fieldName, String typeName) {
+        printWithTab(lp, fieldName + "Address = " + GET_LONG_VALUE_STRING);
+        printOffset(lp, 8, fieldName + "Address", typeName);
+        lp.println();
 
-        printWithTab(fieldName + "Len = " + GET_LONG_VALUE_STRING);
-        printOffset(8, fieldName + "Len", typeName);
-        pw.println();
+        printWithTab(lp, fieldName + "Len = " + GET_LONG_VALUE_STRING);
+        printOffset(lp, 8, fieldName + "Len", typeName);
+        lp.println();
     }
 
-    private void printDecode(String fieldName, String typeName) {
-        printWithTab(fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName + "Address, "
-                        + fieldName + "Len);");
+    private void printDecode(LinePrinter lp, String fieldName, String typeName) {
+        printWithTab(lp, fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName
+                        + "Address, " + fieldName + "Len);");
     }
 
     private String shortTypeName(String typeName) {
@@ -210,19 +227,20 @@ public class JavaGenerator extends AbstractGenerator {
      * Java Object.
      */
     public void javaCreateObject() {
-        printWithTab("public static " + objectClassName + " create" + shortObjectName + "(long address, long len) {");
-        pw.println();
-        setupJavaVariablesBlock();
-        createBitSpitter();
-        createConstructorInvocation();
-        pw.println();
-        printWithTab("}");
+        printWithTab(createFunction, "public static " + objectClassName + " create" + shortObjectName
+                        + "(long address, long len) {");
+        createFunction.println();
+        setupJavaVariablesBlock(createFunction);
+        createBitSpitter(createFunction);
+        createConstructorInvocation(createFunction);
+        createFunction.println();
+        printWithTab(createFunction, "}");
     }
 
 
-    private void writeLenCalc(String varName, String fieldName, String typeName, int size, String extra) {
-        printWith2Tabs("// " + fieldName + " " + typeName + " is " + size + " bytes " + extra);
-        printWith2Tabs(varName + " += " + size + ";");
+    private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, int size, String extra) {
+        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + size + " bytes " + extra);
+        printWith2Tabs(lp, varName + " += " + size + ";");
     }
 
     /**
@@ -231,11 +249,11 @@ public class JavaGenerator extends AbstractGenerator {
      * in the case NMT was enabled, or weird things would happen)
      */
     public void javaCreateInitialize() {
-        pw.println();
-        printWithTab("public static MissingFingers initialize" + shortObjectName + "() {");
-        pw.println();
+        initFunction.println();
+        printWithTab(initFunction, "public static MissingFingers initialize" + shortObjectName + "() {");
+        initFunction.println();
         // assume address, len
-        printWith2Tabs("long totalLen = 0;");
+        printWith2Tabs(initFunction, "long totalLen = 0;");
 
         // we're going to iterate twice.
         // The first time is to figure out total length of the block.
@@ -267,8 +285,8 @@ public class JavaGenerator extends AbstractGenerator {
                     break;
             }
 
-            writeLenCalc("totalLen ", fieldName, type.getName(), ctype.fieldOffset, extra);
-            pw.println();
+            writeLenCalc(initFunction, "totalLen ", fieldName, type.getName(), ctype.fieldOffset, extra);
+            initFunction.println();
         });
 
         // Now, we can allocate, and then loop back and drop in new allocations for each of these.
@@ -278,56 +296,88 @@ public class JavaGenerator extends AbstractGenerator {
         // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
         // fields.add(f);
 
-        printWith2Tabs("long address = MUnsafe.unsafe.allocateMemory(totalLen);");
-        printDumpAddressDetails("address", "totalLen");
+        printWith2Tabs(initFunction, "long address = MUnsafe.unsafe.allocateMemory(totalLen);");
+        printDumpAddressDetails(initFunction, "address", "totalLen");
 
         // we need to iterate through and write out the allocates and puts for non primitives.
-        pw.println();
-        printWith2Tabs("long offset = 0;");
-        parseObject(objectClass, (ctype, field, type) -> {
-            String fieldName = field.getName();
-            switch (ctype) {
-                case STRING:
-                case INETADDRESS:
-                    writePutAddress(fieldName, type.getName(), ctype);
-                    break;
+        initFunction.println();
+        printWith2Tabs(initFunction, "long offset = 0;");
+        parseObject(objectClass,
+                        (ctype, field, type) -> {
+                            String fieldName = field.getName();
+                            switch (ctype) {
+                                case STRING:
+                                case INETADDRESS:
+                                    writePutAddress(initFunction, fieldName, type.getName(), ctype);
+                                    break;
 
-                case LONG:
-                case INT:
-                case SHORT:
-                case BYTE:
-                    writeLenCalc("offset ", fieldName, type.getName(), ctype.fieldOffset, ", cast to uint64_t");
-                    break;
-            }
+                                case LONG:
+                                case INT:
+                                case SHORT:
+                                case BYTE:
+                                    writeLenCalc(initFunction, "offset ", fieldName, type.getName(), ctype.fieldOffset,
+                                                    ", cast to uint64_t");
+                                    break;
+                            }
 
-            pw.println();
-        });
+                            initFunction.println();
+                        });
 
-        printWith2Tabs("return new MissingFingers(address, totalLen);");
-        printWithTab("}");
-        pw.println();
+        printWith2Tabs(initFunction, "return new MissingFingers(address, totalLen);");
+        printWithTab(initFunction, "}");
+        initFunction.println();
     }
 
-    private void printDumpAddressDetails(String address, String totalLen) {
-        printWith2Tabs("System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
+    private void printDumpAddressDetails(LinePrinter lp, String address, String totalLen) {
+        printWith2Tabs(lp, "System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
                         + ") + \" of length \" + Long.toHexString(" + totalLen + "));");
     }
 
-    private void writePutAddress(String fieldName, String typeName, CTYPES ctype) {
-        printWith2Tabs("// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
-        printWith2Tabs("{");
-        printWithTabs(3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + ctype.allocationSize + "); ");
-        printWithTabs(3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
-        printWithTabs(3, "offset += 8;");
-        printWithTabs(3, "MUnsafe.unsafe.putAddress(address + offset, " + ctype.allocationSize + ");");
-        printWithTabs(3, "offset += 8;");
-        printWith2Tabs("}");
+    private void writePutAddress(ListPrintWriter lp, String fieldName, String typeName, CTYPES ctype) {
+        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
+        printWith2Tabs(lp, "{");
+        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + ctype.allocationSize + "); ");
+        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
+        printWithTabs(lp, 3, "offset += 8;");
+        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + ctype.allocationSize + ");");
+        printWithTabs(lp, 3, "offset += 8;");
+        printWith2Tabs(lp, "}");
+    }
+
+    private String generate_constant(String variable, long value) {
+        return "public static final long " + variable.toUpperCase() + " = " + value + ";";
+    }
+
+    private void printClassHeader() {
+        classHeader.println("package com.yahoo.example.test;");
+        classHeader.println("import java.net.InetAddress;");
+        classHeader.println("import com.yahoo.wildwest.MUnsafe;");
+        classHeader.println("import com.yahoo.wildwest.MissingFingers;");
+        classHeader.println();
+        classHeader.println("public class " + generatedClassName + " {");
+    }
+
+    private void printClassFooter() {
+        classFooter.println("}");
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public String generate() {
+        printClassHeader();
         javaCreateInitialize();
         javaCreateObject();
-        return sw.toString();
+        printClassFooter();
+
+        StringBuilder partsBuilder = new StringBuilder();
+        for (ListPrintWriter lp : parts) {
+            partsBuilder.append(lp.toString());
+        }
+
+        return partsBuilder.toString();
+
     }
 
 }

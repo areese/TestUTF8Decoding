@@ -22,13 +22,13 @@ public class HGenerator extends AbstractCGenerator {
         pw.println("#ifndef _generatedAddressUnion");
         pw.println("#define _generatedAddressUnion");
         pw.println("typedef struct AddressUnion {");
-        printWithTab("union {");
-        printWith2Tabs("uint64_t address;");
-        printWith2Tabs("void *voidPtr;");
-        printWith2Tabs("const char *constCharPtr;");
-        printWithTab("};");
+        printWithTab(pw, "union {");
+        printWith2Tabs(pw, "uint64_t address;");
+        printWith2Tabs(pw, "void *voidPtr;");
+        printWith2Tabs(pw, "const char *constCharPtr;");
+        printWithTab(pw, "};");
         // FIXME: we should use this struct instead of the address+len pairs everywhere.
-        printWithTab("// uint64_t len");
+        printWithTab(pw, "// uint64_t len");
         pw.println("} AddressUnion;");
         pw.println("#endif /* _generatedAddressUnion */");
         pw.println();
