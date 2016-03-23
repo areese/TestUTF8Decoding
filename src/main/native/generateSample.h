@@ -1,12 +1,24 @@
-#ifndef _Included_generatedSample
-#define _Included_generatedSample
+#ifndef _Included_generateSample
+#define _Included_generateSample
 
 #include <sys/param.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
-//FIXME: const char* not uint64_t
+
+#ifndef _generatedAddressUnion
+#define _generatedAddressUnion
+typedef struct AddressUnion {
+    union {
+        uint64_t address;
+        void *voidPtr;
+        const char *constCharPtr;
+    };
+    // uint64_t len
+} AddressUnion;
+#endif /* _generatedAddressUnion */
+
 typedef struct SampleInfoStruct {
 
     uint64_t type; // int
@@ -23,27 +35,25 @@ typedef struct SampleInfoStruct {
 
     uint64_t writeTimestamp; // long
 
-    void * iaAddress;
+    uint64_t iaAddress;
 
     uint64_t iaLen;
 
-    const char* orgAddress;
+    uint64_t orgAddress;
 
     uint64_t orgLen;
 
-    const char* locAddress;
+    uint64_t locAddress;
 
     uint64_t locLen;
 
-    const char* ccodeAddress;
+    uint64_t ccodeAddress;
 
     uint64_t ccodeLen;
 
-    const char* descAddress;
+    uint64_t descAddress;
 
     uint64_t descLen;
-
-    // FIXME: why was this added twice?  we had 2 defs of variables.
 
 } SampleInfoStruct;
 
@@ -57,8 +67,8 @@ typedef struct SampleInfoStruct {
  * Similiar to how a c function would take char *outBuf, size_t bufLen
  * The length coming in says how large the buffer for address is.
  * The length coming out says how many characters including \0 were written
- **/
-void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address,
-        long addressLength);
+**/
+void encodeIntoJava_SampleInfo(SampleInfoStruct inputData, long address, long addressLength);
 
-#endif
+#endif /* _Included_generateSample*/
+

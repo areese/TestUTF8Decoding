@@ -3,22 +3,19 @@
 package com.yahoo.wildwest.jnih;
 
 public abstract class AbstractCGenerator extends AbstractGenerator {
-    private String structName;
-    private String cFilename;
+    protected final String structName;
+    protected final String cFilename;
+    protected final String shortCFilename;
 
     public AbstractCGenerator(Class<?> classToDump, String cFilename) {
         super(classToDump);
         this.structName = shortObjectName + "Struct";
         this.cFilename = cFilename;
+        String[] t = cFilename.split("/");
+        this.shortCFilename = (t.length == 0) ? t[0] : t[t.length - 1];
     }
 
     protected void createCStruct() {
-        // first we need to find all of it's fields, since we're generating code.
-        // I'm only looking for getters. If you don't have getters, it won't be written.
-        // List<Field> fields = new LinkedList<>();
-
-        printHeaderFileIncludes();
-
         pw.println("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
@@ -52,7 +49,7 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         pw.println("} " + structName + ";\n");
     }
 
-    private void printHeaderFileIncludes() {
+    protected void printHeaderFileIncludes() {
         pw.println("#include <sys/param.h>");
         pw.println("#include <stdio.h>");
         pw.println("#include <stdint.h>");
@@ -61,10 +58,6 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
     }
 
     protected void createEncodeFunction() {
-        printFunctionHeaderComment();
-        pw.println("void encodeIntoJava_" + shortObjectName + "(" + structName
-                        + " inputData, long address, long addressLength) {");
-
         // Next we iterate over the object and generate the fields.
         // we'll have to do the c version of java unsafe.putMemory.
         // we can assume that they passed in the struct.
@@ -195,20 +188,5 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         printWithTab("}");
         pw.println();
     }
-
-    private void printFunctionHeaderComment() {
-        pw.println("/**");
-        pw.println("* This function was auto-generated");
-        pw.println("* Given an allocated long addres, len tuple");
-        pw.println(" * It will encode in a way compatible with the generated java.");
-        pw.println("* everything is 64bit longs with a cast");
-        pw.println("* Strings are considered UTF8, and are a tuple of address + length");
-        pw.println("* Due to native memory tracking, strings are prealloacted with Unsafe.allocateMemory and assigned an output length");
-        pw.println("* Similiar to how a c function would take char *outBuf, size_t bufLen");
-        pw.println("* The length coming in says how large the buffer for address is.");
-        pw.println("* The length coming out says how many characters including \\0 were written");
-        pw.println("**/");
-    }
-
 
 }

@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.yahoo.wildwest.MUnsafe;
-
 public class JavaGenerator extends AbstractGenerator {
 
     static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
