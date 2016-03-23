@@ -9,9 +9,9 @@ public class SampleJniTest {
     private static final native void nativeSampleInfo(long address, long len);
 
     public static SampleInfo createSampleInfo() {
-        MissingFingers sampleInfo = GenerateSample.initializeSampleInfo();
+        MissingFingers sampleInfo = SampleInfoGenerated.initializeSampleInfo();
         nativeSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
-        return GenerateSample.createSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
+        return SampleInfoGenerated.createSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
     }
 
     public static void main(String[] args) {

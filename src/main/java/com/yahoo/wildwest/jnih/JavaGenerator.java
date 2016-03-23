@@ -117,18 +117,18 @@ public class JavaGenerator extends AbstractGenerator {
                 case STRING:
                 case INETADDRESS:
                     printNonPrimitiveVariable(lp, fieldName);
-                    printWithTab(lp, shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
+                    printWith2Tabs(lp, shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
                     break;
 
                 case LONG:
                 case INT:
                 case SHORT:
                 case BYTE:
-                    printWithTab(lp, type.getName() + " " + fieldName + "; // " + type.getName());
+                    printWith2Tabs(lp, type.getName() + " " + fieldName + "; // " + type.getName());
                     break;
 
                 default:
-                    printWithTab(lp, "// TOOD: support " + type.getName());
+                    printWith2Tabs(lp, "// TOOD: support " + type.getName());
                     break;
             }
         });
@@ -137,15 +137,16 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printNonPrimitiveVariable(LinePrinter lp, String fieldName) {
-        printWithTab(lp, "long " + fieldName + "Len;");
-        printWithTab(lp, "long " + fieldName + "Address;");
+        printWith2Tabs(lp, "long " + fieldName + "Len;");
+        printWith2Tabs(lp, "long " + fieldName + "Address;");
     }
 
     private void createConstructorInvocation(LinePrinter lp) {
 
         StringBuilder constructorString = new StringBuilder();
         // really shouldn't name things so terribly
-        constructorString.append(FOUR_SPACE_TAB + objectClassName + " newObject = new " + objectClassName + "(");
+        constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + objectClassName + " newObject = new "
+                        + objectClassName + "(");
         constructorString.append("\n");
 
         String trailer = ", // \n";
@@ -153,7 +154,8 @@ public class JavaGenerator extends AbstractGenerator {
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
         parseObject(objectClass, (ctype, field, type) -> {
-            constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + field.getName()).append(trailer);
+            constructorString.append(FOUR_SPACE_TAB + FOUR_SPACE_TAB + FOUR_SPACE_TAB + field.getName())
+                            .append(trailer);
         });
 
         // remove the extra comma
@@ -164,12 +166,22 @@ public class JavaGenerator extends AbstractGenerator {
         constructorString.append(");\n");
 
         lp.println(constructorString.toString());
-        printWithTab(lp, "return newObject;");
+        printWith2Tabs(lp, "return newObject;");
+    }
+
+    public void printOffset(LinePrinter lp, String fieldSizeConstantName, String fieldName, String typeName) {
+        printWith2Tabs(lp, "offset += " + fieldSizeConstantName + "; // just read " + fieldName + " type " + typeName);
     }
 
     private void createBitSpitter(LinePrinter lp) {
+
+        printWith2Tabs(lp, "// Now that we've calculated the complete length, and have allocated it.");
+        printWith2Tabs(lp, "// We have to go insert new allocations and lengths for the output buffers");
+        printWith2Tabs(lp, "// Each output buffer has a constant size, which can be tweaked after generation");
+
         // assume address, len
-        printWithTab(lp, "long offset = 0;");
+        printWith2Tabs(lp, "long offset = 0;");
+        lp.println();
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
@@ -187,8 +199,8 @@ public class JavaGenerator extends AbstractGenerator {
                 case INT:
                 case SHORT:
                 case BYTE:
-                    printWithTab(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
-                    printOffset(lp, ctype.fieldOffset, fieldName, type.getName());
+                    printWith2Tabs(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
+                    printOffset(lp, ctype.fieldSizeConstantName, fieldName, type.getName());
                     break;
 
             }
@@ -203,17 +215,17 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printNonPrimitiveReadVariables(LinePrinter lp, String fieldName, String typeName) {
-        printWithTab(lp, fieldName + "Address = " + GET_LONG_VALUE_STRING);
-        printOffset(lp, 8, fieldName + "Address", typeName);
+        printWith2Tabs(lp, fieldName + "Address = " + GET_LONG_VALUE_STRING);
+        printOffset(lp, "ADDRESS_OFFSET", fieldName + "Address", typeName);
         lp.println();
 
-        printWithTab(lp, fieldName + "Len = " + GET_LONG_VALUE_STRING);
-        printOffset(lp, 8, fieldName + "Len", typeName);
+        printWith2Tabs(lp, fieldName + "Len = " + GET_LONG_VALUE_STRING);
+        printOffset(lp, "LEN_OFFSET", fieldName + "Len", typeName);
         lp.println();
     }
 
     private void printDecode(LinePrinter lp, String fieldName, String typeName) {
-        printWithTab(lp, fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName
+        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName
                         + "Address, " + fieldName + "Len);");
     }
 
@@ -238,9 +250,10 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
 
-    private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, int size, String extra) {
-        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + size + " bytes " + extra);
-        printWith2Tabs(lp, varName + " += " + size + ";");
+    private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, CTYPES ctype,
+                    String extra) {
+        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes " + extra);
+        printWith2Tabs(lp, varName + " += " + ctype.fieldSizeConstantName + ";");
     }
 
     /**
@@ -285,7 +298,7 @@ public class JavaGenerator extends AbstractGenerator {
                     break;
             }
 
-            writeLenCalc(initFunction, "totalLen ", fieldName, type.getName(), ctype.fieldOffset, extra);
+            writeLenCalc(initFunction, "totalLen ", fieldName, type.getName(), ctype, extra);
             initFunction.println();
         });
 
@@ -302,26 +315,24 @@ public class JavaGenerator extends AbstractGenerator {
         // we need to iterate through and write out the allocates and puts for non primitives.
         initFunction.println();
         printWith2Tabs(initFunction, "long offset = 0;");
-        parseObject(objectClass,
-                        (ctype, field, type) -> {
-                            String fieldName = field.getName();
-                            switch (ctype) {
-                                case STRING:
-                                case INETADDRESS:
-                                    writePutAddress(initFunction, fieldName, type.getName(), ctype);
-                                    break;
+        parseObject(objectClass, (ctype, field, type) -> {
+            String fieldName = field.getName();
+            switch (ctype) {
+                case STRING:
+                case INETADDRESS:
+                    writePutAddress(initFunction, fieldName, type.getName(), ctype);
+                    break;
 
-                                case LONG:
-                                case INT:
-                                case SHORT:
-                                case BYTE:
-                                    writeLenCalc(initFunction, "offset ", fieldName, type.getName(), ctype.fieldOffset,
-                                                    ", cast to uint64_t");
-                                    break;
-                            }
+                case LONG:
+                case INT:
+                case SHORT:
+                case BYTE:
+                    writeLenCalc(initFunction, "offset ", fieldName, type.getName(), ctype, ", cast to uint64_t");
+                    break;
+            }
 
-                            initFunction.println();
-                        });
+            initFunction.println();
+        });
 
         printWith2Tabs(initFunction, "return new MissingFingers(address, totalLen);");
         printWithTab(initFunction, "}");
@@ -338,13 +349,13 @@ public class JavaGenerator extends AbstractGenerator {
         printWith2Tabs(lp, "{");
         printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + ctype.allocationSize + "); ");
         printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
-        printWithTabs(lp, 3, "offset += 8;");
+        printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
         printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + ctype.allocationSize + ");");
-        printWithTabs(lp, 3, "offset += 8;");
+        printWithTabs(lp, 3, "offset += LEN_OFFSET;");
         printWith2Tabs(lp, "}");
     }
 
-    private String generate_constant(String variable, long value) {
+    public static String generateConstant(String variable, long value) {
         return "public static final long " + variable.toUpperCase() + " = " + value + ";";
     }
 
@@ -365,8 +376,18 @@ public class JavaGenerator extends AbstractGenerator {
         return fileName;
     }
 
+    private void generateConstants() {
+        for (CTYPES c : CTYPES.values()) {
+            printWithTab(constants, generateConstant(c.fieldSizeConstantName, c.fieldOffset));
+        }
+
+        printWithTab(constants, generateConstant("ADDRESS_OFFSET", 8));
+        printWithTab(constants, generateConstant("LEN_OFFSET", 8));
+    }
+
     public String generate() {
         printClassHeader();
+        generateConstants();
         javaCreateInitialize();
         javaCreateObject();
         printClassFooter();

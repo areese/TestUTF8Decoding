@@ -3,20 +3,26 @@
 package com.yahoo.wildwest.jnih;
 
 public enum CTYPES {
-    BYTE(8, 0), //
-    SHORT(8, 0), //
-    INT(8, 0), //
-    LONG(8, 0), //
-    STRING(16, 1024), //
-    INETADDRESS(16, 16), // sockaddr_in6 from C, InetAddress in java.
+    BYTE(8, 0, 0), //
+    SHORT(8, 0, 0), //
+    INT(8, 0, 0), //
+    LONG(8, 0, 0), //
+    STRING(8, 8, 1024), //
+    INETADDRESS(8, 8, 16), // sockaddr_in6 from C, InetAddress in java.
     ;
 
     public final int fieldOffset;
     public final int allocationSize;
+    public final String fieldSizeConstantName;
+    public final int addressSize; // 8 for everything now.
+    public final int lengthSize; // 8 more if it requires a length, so fieldOffset = addressSize + lengthSize
 
-    CTYPES(int fieldOffset, int allocationSize) {
-        this.fieldOffset = fieldOffset;
+    CTYPES(int addressSize, int lengthSize, int allocationSize) {
+        this.addressSize = addressSize;
+        this.lengthSize = lengthSize;
+        this.fieldOffset = this.addressSize + this.lengthSize;
         this.allocationSize = allocationSize;
+        this.fieldSizeConstantName = this.name().toUpperCase() + "_FIELD_SIZE";
     }
 
     public static CTYPES getCType(Class<?> type) {

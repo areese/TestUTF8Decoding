@@ -4,8 +4,6 @@ package com.yahoo.wildwest.jnih;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 
@@ -43,10 +41,6 @@ public abstract class AbstractGenerator implements Closeable {
 
     public void printWithTab(LinePrinter lp, String s) {
         printWithTabs(lp, 1, s);
-    }
-
-    public void printOffset(LinePrinter lp, int offsetBy, String fieldName, String typeName) {
-        printWithTab(lp, "offset += " + offsetBy + "; // just read " + fieldName + " type " + typeName);
     }
 
     /**
