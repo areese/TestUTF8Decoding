@@ -53,7 +53,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         (*writeTimestampPtr) = inputData->writeTimestamp;
     }
     {
-        uint64_t *iaAddressPtr = (uint64_t*)(address + offset); // java.net.InetAddress
+        uint64_t *iaAddressPtr = *(uint64_t**)(address + offset); // java.net.InetAddress
         offset += 8;
 
         uint64_t *iaLenPtr = (uint64_t*)(address + offset); // java.net.InetAddress
@@ -63,7 +63,15 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
     }
 
     {
-        uint64_t *orgAddressPtr = (uint64_t*)(address + offset); // java.lang.String
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at at start 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        uint64_t *orgAddressPtr = *(uint64_t**)(address + offset); // java.lang.String
         offset += 8;
 
         uint64_t *orgLenPtr = (uint64_t*)(address + offset); // java.lang.String
@@ -72,11 +80,36 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*orgLenPtr) = MIN( (*orgLenPtr), inputData->orgLen);
 
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at Before copy of orgAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        fprintf(stderr, "encoding to 0x%lx of len 0x%lx\n", orgAddressPtr, (*orgLenPtr));
         memcpy ((void*) orgAddressPtr, (void*) inputData->orgAddress, (*orgLenPtr));
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at After copy of orgAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
     }
 
     {
-        uint64_t *locAddressPtr = (uint64_t*)(address + offset); // java.lang.String
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at at start 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        uint64_t *locAddressPtr = *(uint64_t**)(address + offset); // java.lang.String
         offset += 8;
 
         uint64_t *locLenPtr = (uint64_t*)(address + offset); // java.lang.String
@@ -85,11 +118,36 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*locLenPtr) = MIN( (*locLenPtr), inputData->locLen);
 
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at Before copy of locAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        fprintf(stderr, "encoding to 0x%lx of len 0x%lx\n", locAddressPtr, (*locLenPtr));
         memcpy ((void*) locAddressPtr, (void*) inputData->locAddress, (*locLenPtr));
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at After copy of locAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
     }
 
     {
-        uint64_t *ccodeAddressPtr = (uint64_t*)(address + offset); // java.lang.String
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at at start 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        uint64_t *ccodeAddressPtr = *(uint64_t**)(address + offset); // java.lang.String
         offset += 8;
 
         uint64_t *ccodeLenPtr = (uint64_t*)(address + offset); // java.lang.String
@@ -98,11 +156,36 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*ccodeLenPtr) = MIN( (*ccodeLenPtr), inputData->ccodeLen);
 
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at Before copy of ccodeAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        fprintf(stderr, "encoding to 0x%lx of len 0x%lx\n", ccodeAddressPtr, (*ccodeLenPtr));
         memcpy ((void*) ccodeAddressPtr, (void*) inputData->ccodeAddress, (*ccodeLenPtr));
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at After copy of ccodeAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
     }
 
     {
-        uint64_t *descAddressPtr = (uint64_t*)(address + offset); // java.lang.String
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at at start 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        uint64_t *descAddressPtr = *(uint64_t**)(address + offset); // java.lang.String
         offset += 8;
 
         uint64_t *descLenPtr = (uint64_t*)(address + offset); // java.lang.String
@@ -111,7 +194,24 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*descLenPtr) = MIN( (*descLenPtr), inputData->descLen);
 
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at Before copy of descAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
+        fprintf(stderr, "encoding to 0x%lx of len 0x%lx\n", descAddressPtr, (*descLenPtr));
         memcpy ((void*) descAddressPtr, (void*) inputData->descAddress, (*descLenPtr));
+        {
+            uint64_t *ptr = (uint64_t *)address;
+            fprintf(stderr,"Dumping address at After copy of descAddress 0x%llx len 0x%llx\n", address, addressLength);
+            for (long l=0; l<addressLength/sizeof(uint64_t); l++) {
+                fprintf(stderr,"%llx\n",ptr[l]);
+            }
+            fprintf(stderr,"\n\n");
+        }
     }
 
 }

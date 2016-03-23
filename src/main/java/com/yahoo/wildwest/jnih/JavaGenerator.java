@@ -279,6 +279,7 @@ public class JavaGenerator extends AbstractGenerator {
         // fields.add(f);
 
         printWith2Tabs("long address = MUnsafe.unsafe.allocateMemory(totalLen);");
+        printDumpAddressDetails("address", "totalLen");
 
         // we need to iterate through and write out the allocates and puts for non primitives.
         pw.println();
@@ -305,6 +306,11 @@ public class JavaGenerator extends AbstractGenerator {
         printWith2Tabs("return new MissingFingers(address, totalLen);");
         printWithTab("}");
         pw.println();
+    }
+
+    private void printDumpAddressDetails(String address, String totalLen) {
+        printWith2Tabs("System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
+                        + ") + \" of length \" + Long.toHexString(" + totalLen + "));");
     }
 
     private void writePutAddress(String fieldName, String typeName, CTYPES ctype) {
