@@ -12,6 +12,11 @@ public class SampleInfoGenerated {
     public static final long INETADDRESS_FIELD_SIZE = 16;
     public static final long ADDRESS_OFFSET = 8;
     public static final long LEN_OFFSET = 8;
+    public static final long IA_DATA_SIZE = 16;
+    public static final long ORG_DATA_SIZE = 1024;
+    public static final long LOC_DATA_SIZE = 1024;
+    public static final long CCODE_DATA_SIZE = 1024;
+    public static final long DESC_DATA_SIZE = 1024;
 
     public static MissingFingers initializeSampleInfo() {
 
@@ -79,46 +84,46 @@ public class SampleInfoGenerated {
 
         // ia java.net.InetAddress is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(16); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(IA_DATA_SIZE); 
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
-            MUnsafe.unsafe.putAddress(address + offset, 16);
+            MUnsafe.unsafe.putAddress(address + offset, IA_DATA_SIZE);
             offset += LEN_OFFSET;
         }
 
         // org java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(1024); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(ORG_DATA_SIZE); 
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
-            MUnsafe.unsafe.putAddress(address + offset, 1024);
+            MUnsafe.unsafe.putAddress(address + offset, ORG_DATA_SIZE);
             offset += LEN_OFFSET;
         }
 
         // loc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(1024); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(LOC_DATA_SIZE); 
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
-            MUnsafe.unsafe.putAddress(address + offset, 1024);
+            MUnsafe.unsafe.putAddress(address + offset, LOC_DATA_SIZE);
             offset += LEN_OFFSET;
         }
 
         // ccode java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(1024); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(CCODE_DATA_SIZE); 
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
-            MUnsafe.unsafe.putAddress(address + offset, 1024);
+            MUnsafe.unsafe.putAddress(address + offset, CCODE_DATA_SIZE);
             offset += LEN_OFFSET;
         }
 
         // desc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(1024); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(DESC_DATA_SIZE); 
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
-            MUnsafe.unsafe.putAddress(address + offset, 1024);
+            MUnsafe.unsafe.putAddress(address + offset, DESC_DATA_SIZE);
             offset += LEN_OFFSET;
         }
 

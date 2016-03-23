@@ -16,6 +16,7 @@ public enum CTYPES {
     public final String fieldSizeConstantName;
     public final int addressSize; // 8 for everything now.
     public final int lengthSize; // 8 more if it requires a length, so fieldOffset = addressSize + lengthSize
+    public final String dataSizeConstantAppender;
 
     CTYPES(int addressSize, int lengthSize, int allocationSize) {
         this.addressSize = addressSize;
@@ -23,6 +24,7 @@ public enum CTYPES {
         this.fieldOffset = this.addressSize + this.lengthSize;
         this.allocationSize = allocationSize;
         this.fieldSizeConstantName = this.name().toUpperCase() + "_FIELD_SIZE";
+        this.dataSizeConstantAppender = "_DATA_SIZE";
     }
 
     public static CTYPES getCType(Class<?> type) {

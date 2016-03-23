@@ -346,11 +346,17 @@ public class JavaGenerator extends AbstractGenerator {
 
     private void writePutAddress(ListPrintWriter lp, String fieldName, String typeName, CTYPES ctype) {
         printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
+
+        String fieldSizeConstant = fieldName.toUpperCase() + ctype.dataSizeConstantAppender;
+
+        // special case write out a constant.
+        printWithTab(constants, generateConstant(fieldSizeConstant, ctype.allocationSize));
+
         printWith2Tabs(lp, "{");
-        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + ctype.allocationSize + "); ");
+        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + fieldSizeConstant + "); ");
         printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
-        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + ctype.allocationSize + ");");
+        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "offset += LEN_OFFSET;");
         printWith2Tabs(lp, "}");
     }
