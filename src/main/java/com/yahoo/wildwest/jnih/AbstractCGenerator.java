@@ -58,6 +58,8 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
     }
 
     protected void createEncodeFunction() {
+        printFunctionDef();
+        pw.println(" {");
         // Next we iterate over the object and generate the fields.
         // we'll have to do the c version of java unsafe.putMemory.
         // we can assume that they passed in the struct.
@@ -188,5 +190,26 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         printWithTab("}");
         pw.println();
     }
+
+    protected void printFunctionDef() {
+        printFunctionHeaderComment();
+        pw.print("void encodeIntoJava_" + shortObjectName + "(" + structName
+                        + " inputData, long address, long addressLength)");
+    }
+
+    private void printFunctionHeaderComment() {
+        pw.println("/**");
+        pw.println(" * This function was auto-generated");
+        pw.println(" * Given an allocated long addres, len tuple");
+        pw.println(" * It will encode in a way compatible with the generated java.");
+        pw.println(" * everything is 64bit longs with a cast");
+        pw.println(" * Strings are considered UTF8, and are a tuple of address + length");
+        pw.println(" * Due to native memory tracking, strings are prealloacted with Unsafe.allocateMemory and assigned an output length");
+        pw.println(" * Similiar to how a c function would take char *outBuf, size_t bufLen");
+        pw.println(" * The length coming in says how large the buffer for address is.");
+        pw.println(" * The length coming out says how many characters including \\0 were written");
+        pw.println("**/");
+    }
+
 
 }

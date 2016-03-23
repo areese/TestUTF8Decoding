@@ -6,11 +6,19 @@ public class CGenerator extends AbstractCGenerator {
         super(classToDump, cFilename);
     }
 
+    private void printIncludes() {
+        printHeaderFileIncludes();
+        pw.println("#include \"" + shortCFilename + ".h\"");
+    }
+
+
     @Override
     public String generate() {
         // for c:
         // first write out the struct definition.
         // then we write the decode function.
+
+        printIncludes();
 
         // now we can write the encode function.
         createEncodeFunction();
