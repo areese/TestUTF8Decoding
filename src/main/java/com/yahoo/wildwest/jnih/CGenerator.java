@@ -137,7 +137,7 @@ public class CGenerator extends AbstractCGenerator {
 
         debugWrittenData("at start");
 
-        String srcAddressVariableName = name + ".address";
+        String srcAddressVariableName = name + ".voidPtr";
         String dstAddressVariableName = name + "Ptr";
         String lenVariableName = name + ".len";
         String lenPtrVariableName = name + "LenPtr";
@@ -156,9 +156,13 @@ public class CGenerator extends AbstractCGenerator {
         debugWrittenData("Before copy of " + srcAddressVariableName);
         debugEncoding(srcAddressVariableName, dereferencedLenPtrVariableName);
 
-        printWith2Tabs(pw, "memcpy ((void*) " + dstAddressVariableName + ", (void*) inputData->"
-                        + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
 
+        printWith2Tabs(pw, "if (NULL != " + dstAddressVariableName);
+        printWithTabs(pw, 4, " && NULL != inputData->" + srcAddressVariableName);
+        printWithTabs(pw, 4, " && NULL != " + lenPtrVariableName + ") {");
+        printWithTabs(pw, 4, "memcpy ((void*) " + dstAddressVariableName + ", inputData->" + srcAddressVariableName
+                        + ", " + dereferencedLenPtrVariableName + ");");
+        printWith2Tabs(pw, "}");
         debugWrittenData("After copy of " + srcAddressVariableName);
 
         printWithTab(pw, "}");

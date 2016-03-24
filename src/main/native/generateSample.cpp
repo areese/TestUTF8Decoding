@@ -16,6 +16,10 @@
  * The length coming out says how many characters including \0 were written
 **/
 void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long addressLength) {
+    if (0 == address || 0 == addressLength) {
+        return;
+    }
+
     uint64_t offset = 0;
     {
         uint64_t *typePtr = (uint64_t*)(address + offset); // int
@@ -72,7 +76,11 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*orgLenPtr) = MIN( (*orgLenPtr), inputData->org.len);
 
-        memcpy ((void*) orgPtr, (void*) inputData->org.address, (*orgLenPtr));
+        if (NULL != orgPtr
+                 && NULL != inputData->org.voidPtr
+                 && NULL != orgLenPtr) {
+                memcpy ((void*) orgPtr, inputData->org.voidPtr, (*orgLenPtr));
+        }
     }
 
     {
@@ -85,7 +93,11 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*locLenPtr) = MIN( (*locLenPtr), inputData->loc.len);
 
-        memcpy ((void*) locPtr, (void*) inputData->loc.address, (*locLenPtr));
+        if (NULL != locPtr
+                 && NULL != inputData->loc.voidPtr
+                 && NULL != locLenPtr) {
+                memcpy ((void*) locPtr, inputData->loc.voidPtr, (*locLenPtr));
+        }
     }
 
     {
@@ -98,7 +110,11 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*ccodeLenPtr) = MIN( (*ccodeLenPtr), inputData->ccode.len);
 
-        memcpy ((void*) ccodePtr, (void*) inputData->ccode.address, (*ccodeLenPtr));
+        if (NULL != ccodePtr
+                 && NULL != inputData->ccode.voidPtr
+                 && NULL != ccodeLenPtr) {
+                memcpy ((void*) ccodePtr, inputData->ccode.voidPtr, (*ccodeLenPtr));
+        }
     }
 
     {
@@ -111,7 +127,11 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         // use the shortest of buffersize and input size
         (*descLenPtr) = MIN( (*descLenPtr), inputData->desc.len);
 
-        memcpy ((void*) descPtr, (void*) inputData->desc.address, (*descLenPtr));
+        if (NULL != descPtr
+                 && NULL != inputData->desc.voidPtr
+                 && NULL != descLenPtr) {
+                memcpy ((void*) descPtr, inputData->desc.voidPtr, (*descLenPtr));
+        }
     }
 
 }
