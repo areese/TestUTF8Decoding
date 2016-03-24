@@ -33,6 +33,7 @@ typedef struct SampleInfoStruct {
     AddressUnion loc; // java.lang.String
     AddressUnion ccode; // java.lang.String
     AddressUnion desc; // java.lang.String
+    AddressUnion someBytes; // [B
 } SampleInfoStruct;
 
 /**

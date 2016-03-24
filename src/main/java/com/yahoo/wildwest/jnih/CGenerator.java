@@ -84,8 +84,9 @@ public class CGenerator extends AbstractCGenerator {
 
         parseObject(objectClass, (ctype, field, type) -> {
             switch (ctype) {
+                case BYTEARRAY:
                 case STRING:
-                    printStringCopy(field.getName(), type.getName());
+                    printCopyBytes(field.getName(), type.getName());
                     break;
 
                 case INETADDRESS:
@@ -125,12 +126,12 @@ public class CGenerator extends AbstractCGenerator {
 
     /**
      * This function generates the memcpy that's required for a String. Strings are address + length. And the
-     * destination is pre allocated by the java code. This means we have to: 1. write into dest address. 2. update
+     * destination is pre-allocated by the java code. This means we have to: 1. write into dest address. 2. update
      * length to reflect what we wrote.
      * 
      * @param name of the variable to copy
      */
-    private void printStringCopy(String name, String typeName) {
+    private void printCopyBytes(String name, String typeName) {
         // string is a memcpy into provided address, followed by update length.
         // at offset, is an address
         printWithTab(pw, "{");

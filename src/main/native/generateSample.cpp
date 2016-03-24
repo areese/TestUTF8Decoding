@@ -134,5 +134,22 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         }
     }
 
+    {
+        uint64_t *someBytesPtr = *(uint64_t**)(address + offset); // [B
+        offset += 8;
+
+        uint64_t *someBytesLenPtr = (uint64_t*)(address + offset); // [B
+        offset += 8;
+
+        // use the shortest of buffersize and input size
+        (*someBytesLenPtr) = MIN( (*someBytesLenPtr), inputData->someBytes.len);
+
+        if (NULL != someBytesPtr
+                 && NULL != inputData->someBytes.voidPtr
+                 && NULL != someBytesLenPtr) {
+                memcpy ((void*) someBytesPtr, inputData->someBytes.voidPtr, (*someBytesLenPtr));
+        }
+    }
+
 }
 

@@ -10,6 +10,7 @@ public class SampleInfoGenerated {
     public static final long LONG_FIELD_SIZE = 8;
     public static final long STRING_FIELD_SIZE = 16;
     public static final long INETADDRESS_FIELD_SIZE = 16;
+    public static final long BYTEARRAY_FIELD_SIZE = 16;
     public static final long ADDRESS_OFFSET = 8;
     public static final long LEN_OFFSET = 8;
     public static final long IA_DATA_SIZE = 16;
@@ -17,7 +18,9 @@ public class SampleInfoGenerated {
     public static final long LOC_DATA_SIZE = 1024;
     public static final long CCODE_DATA_SIZE = 1024;
     public static final long DESC_DATA_SIZE = 1024;
+    public static final long SOMEBYTES_DATA_SIZE = 1024;
 
+    @SuppressWarnings("restriction")
     public static MissingFingers initializeSampleInfo() {
 
         long totalLen = 0;
@@ -56,6 +59,9 @@ public class SampleInfoGenerated {
 
         // desc java.lang.String is 16 bytes , address + length
         totalLen  += STRING_FIELD_SIZE;
+
+        // someBytes [B is 16 bytes , address + length
+        totalLen  += BYTEARRAY_FIELD_SIZE;
 
         long address = MUnsafe.unsafe.allocateMemory(totalLen);
 
@@ -126,6 +132,15 @@ public class SampleInfoGenerated {
             offset += LEN_OFFSET;
         }
 
+        // someBytes [B is 16 bytes, address + length
+        {
+            long newAddress = MUnsafe.unsafe.allocateMemory(SOMEBYTES_DATA_SIZE); 
+            MUnsafe.unsafe.putAddress(address + offset, newAddress);
+            offset += ADDRESS_OFFSET;
+            MUnsafe.unsafe.putAddress(address + offset, SOMEBYTES_DATA_SIZE);
+            offset += LEN_OFFSET;
+        }
+
         return new MissingFingers(address, totalLen);
     }
 
@@ -153,6 +168,9 @@ public class SampleInfoGenerated {
         long descLen;
         long descAddress;
         String desc; // java.lang.String
+        long someBytesLen;
+        long someBytesAddress;
+        byte[] someBytes; // [B
 
         // Now that we've calculated the complete length, and have allocated it.
         // We have to go insert new allocations and lengths for the output buffers
@@ -225,6 +243,15 @@ public class SampleInfoGenerated {
         desc = MUnsafe.decodeStringAndFree(descAddress, descLen);
 
 
+        someBytesAddress = MUnsafe.unsafe.getLong(address + offset);
+        offset += ADDRESS_OFFSET; // just read someBytesAddress type [B
+
+        someBytesLen = MUnsafe.unsafe.getLong(address + offset);
+        offset += LEN_OFFSET; // just read someBytesLen type [B
+
+     //   someBytes = MUnsafe.decodeStringAndFree(someBytesAddress, someBytesLen);
+
+
 
         com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(
             type, // 
@@ -238,7 +265,8 @@ public class SampleInfoGenerated {
             org, // 
             loc, // 
             ccode, // 
-            desc);
+            desc, // 
+            null);
 
         return newObject;
 

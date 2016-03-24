@@ -28,6 +28,7 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
             String typeValue;
             switch (ctype) {
                 case STRING:
+                case BYTEARRAY:
                 case INETADDRESS:
                     typeValue = "AddressUnion";
                     break;

@@ -22,9 +22,11 @@ public final class SampleInfo {
     private final String ccode;
     private final String desc;
 
+    private final byte[] someBytes;
 
     public SampleInfo(int type, int attrs, int status, long expiration, int readCount, int writeCount,
-                    long writeTimestamp, InetAddress ia, String org, String loc, String ccode, String desc) {
+                    long writeTimestamp, InetAddress ia, String org, String loc, String ccode, String desc,
+                    byte[] someBytes) {
         this.type = type;
         this.attrs = attrs;
         this.status = status;
@@ -37,6 +39,7 @@ public final class SampleInfo {
         this.loc = loc;
         this.ccode = ccode;
         this.desc = desc;
+        this.someBytes = someBytes;
     }
 
 
@@ -99,6 +102,10 @@ public final class SampleInfo {
         return desc;
     }
 
+
+    public byte[] getSomeBytes() {
+        return someBytes;
+    }
 
     @Override
     public String toString() {

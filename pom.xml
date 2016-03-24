@@ -259,7 +259,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
-					<argLine>-Djava.library.path=${nativeDir}:${libDir} ${surefireArgs}</argLine>
+					<argLine>-Djava.library.path=${nativeDir} ${surefireArgs}</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

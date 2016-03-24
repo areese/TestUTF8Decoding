@@ -113,23 +113,11 @@ public class JavaGenerator extends AbstractGenerator {
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
-            switch (ctype) {
-                case STRING:
-                case INETADDRESS:
-                    printNonPrimitiveVariable(lp, fieldName);
-                    printWith2Tabs(lp, shortTypeName(type.getName()) + " " + fieldName + "; // " + type.getName());
-                    break;
-
-                case LONG:
-                case INT:
-                case SHORT:
-                case BYTE:
-                    printWith2Tabs(lp, type.getName() + " " + fieldName + "; // " + type.getName());
-                    break;
-
-                default:
-                    printWith2Tabs(lp, "// TOOD: support " + type.getName());
-                    break;
+            if (ctype.isSupportedPrimitive()) {
+                printWith2Tabs(lp, type.getName() + " " + fieldName + "; // " + type.getName());
+            } else {
+                printNonPrimitiveVariable(lp, fieldName);
+                printWith2Tabs(lp, shortTypeName(type, true) + " " + fieldName + "; // " + type.getName());
             }
         });
 
@@ -187,22 +175,13 @@ public class JavaGenerator extends AbstractGenerator {
         // wasting bits.
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
-            switch (ctype) {
-                case STRING:
-                case INETADDRESS:
-                    printNonPrimitiveReadVariables(lp, fieldName, type.getName());
-                    printDecode(lp, fieldName, type.getName());
-                    lp.println();
-                    break;
-
-                case LONG:
-                case INT:
-                case SHORT:
-                case BYTE:
-                    printWith2Tabs(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
-                    printOffset(lp, ctype.fieldSizeConstantName, fieldName, type.getName());
-                    break;
-
+            if (ctype.isSupportedPrimitive()) {
+                printWith2Tabs(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
+                printOffset(lp, ctype.fieldSizeConstantName, fieldName, type.getName());
+            } else {
+                printNonPrimitiveReadVariables(lp, fieldName, type.getName());
+                printDecode(lp, fieldName, type);
+                lp.println();
             }
 
             lp.println();
@@ -222,12 +201,23 @@ public class JavaGenerator extends AbstractGenerator {
         lp.println();
     }
 
-    private void printDecode(LinePrinter lp, String fieldName, String typeName) {
-        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(typeName) + "AndFree(" + fieldName
+    private void printDecode(LinePrinter lp, String fieldName, Class<?> type) {
+        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(type, false) + "AndFree(" + fieldName
                         + "Address, " + fieldName + "Len);");
     }
 
-    private String shortTypeName(String typeName) {
+    static String shortTypeName(Class<?> type, boolean isTypeDef) {
+        if (type.isArray()) {
+            // oops.
+            String typeName = type.getComponentType().toString();
+            if (isTypeDef) {
+                return typeName + "[]";
+            } else {
+                return Character.toUpperCase(typeName.charAt(0)) + typeName.substring(1) + "Array";
+            }
+        }
+
+        String typeName = type.getName();
         String[] s = typeName.split("\\.");
         return s[s.length - 1];
     }
@@ -261,6 +251,7 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateInitialize() {
         initFunction.println();
+        printWithTab(initFunction, "@SuppressWarnings(\"restriction\")");
         printWithTab(initFunction, "public static MissingFingers initialize" + shortObjectName + "() {");
         initFunction.println();
         // assume address, len
@@ -282,18 +273,10 @@ public class JavaGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
             String extra = "";
-            switch (ctype) {
-                case STRING:
-                case INETADDRESS:
-                    extra = ", address + length";
-                    break;
-
-                case LONG:
-                case INT:
-                case SHORT:
-                case BYTE:
-                    extra = ", cast to uint64_t";
-                    break;
+            if (ctype.isSupportedPrimitive()) {
+                extra = ", cast to uint64_t";
+            } else {
+                extra = ", address + length";
             }
 
             writeLenCalc(initFunction, "totalLen ", fieldName, type.getName(), ctype, extra);
@@ -308,18 +291,10 @@ public class JavaGenerator extends AbstractGenerator {
         printWith2Tabs(initFunction, "long offset = 0;");
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
-            switch (ctype) {
-                case STRING:
-                case INETADDRESS:
-                    writePutAddress(initFunction, fieldName, type.getName(), ctype);
-                    break;
-
-                case LONG:
-                case INT:
-                case SHORT:
-                case BYTE:
-                    writeLenCalc(initFunction, "offset ", fieldName, type.getName(), ctype, ", cast to uint64_t");
-                    break;
+            if (ctype.isSupportedPrimitive()) {
+                writeLenCalc(initFunction, "offset ", fieldName, type.getName(), ctype, ", cast to uint64_t");
+            } else {
+                writePutAddress(initFunction, fieldName, type.getName(), ctype);
             }
 
             initFunction.println();
@@ -338,7 +313,8 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void writePutAddress(ListPrintWriter lp, String fieldName, String typeName, CTYPES ctype) {
-        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
+        printWith2Tabs(lp,
+                        "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
 
         String fieldSizeConstant = fieldName.toUpperCase() + ctype.dataSizeConstantAppender;
 

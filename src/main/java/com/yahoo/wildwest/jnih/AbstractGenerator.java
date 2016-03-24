@@ -61,12 +61,16 @@ public abstract class AbstractGenerator implements Closeable {
             // see powersaw, which started this whole mess.
             // we use isInstance to see if it's a String, as isInstance takes Object, and isAssignableFrom takes Class.
             // oops.
-            if (!type.isPrimitive() && !type.isInstance("") && !type.isAssignableFrom(InetAddress.class)
-                            || type.isArray()) {
-                continue;
-            }
+            // if (!type.isPrimitive() && !type.isInstance("") && !type.isAssignableFrom(InetAddress.class)
+            // || type.isArray()) {
+            // continue;
+            // }
 
             CTYPES ctype = CTYPES.getCType(type);
+            if (null == ctype) {
+                // rather than a magic check above, let the enum decide what we're doing.
+                continue;
+            }
 
             pt.process(ctype, field, type);
         }
