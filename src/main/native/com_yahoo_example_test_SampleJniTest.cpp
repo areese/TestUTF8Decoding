@@ -6,6 +6,14 @@
 
 #include "generateSample.h"
 
+#define TEST_LONG 0x7FCAFEF00DBEEFDE
+#define SUPER_LONG_STRING "// Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms. \
+    // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms. \
+    // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms. \
+"
+
+//#define TEST_INT  0x7FCAFEF00DBEEFDE
+
 /*
  * Class:     com_yahoo_example_test_SampleJniTest
  * Method:    nativeSampleInfo
@@ -16,28 +24,28 @@ JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJniTest_nativeSampleInf
 
     SampleInfoStruct data;
 
-    data.type = 0;
-    data.attrs = 1;
-    data.status = 2;
-    data.expiration = 3;
-    data.readCount = 4;
-    data.writeCount = 5;
-    data.writeTimestamp = 6;
+    data.type = TEST_LONG;
+    data.attrs = TEST_LONG;
+    data.status = TEST_LONG;
+    data.expiration = TEST_LONG;
+    data.readCount = TEST_LONG;
+    data.writeCount = TEST_LONG;
+    data.writeTimestamp = TEST_LONG;
 
-    data.iaAddress = 0;
-    data.iaLen = 0;
+    data.ia.constCharPtr =  0;
+    data.ia.len = 0;
 
-    data.orgAddress = "orgAddress";
-    data.orgLen = strlen("orgAddress");
+    data.org.constCharPtr =  SUPER_LONG_STRING;
+    data.org.len = strlen(SUPER_LONG_STRING);
 
-    data.locAddress = "locAddress";
-    data.locLen = strlen("locAddress");
+    data.loc.constCharPtr =  "locAddress";
+    data.loc.len = strlen("locAddress");
 
-    data.ccodeAddress = "ccodeAddress";
-    data.ccodeLen = strlen("ccodeAddress");
+    data.ccode.constCharPtr =  "ccodeAddress";
+    data.ccode.len = strlen("ccodeAddress");
 
-    data.descAddress = "descAddress";
-    data.descLen = strlen("descAddress");
+    data.desc.constCharPtr =  "descAddress";
+    data.desc.len = strlen("descAddress");
 
     encodeIntoJava_SampleInfo(&data, address, len);
 }

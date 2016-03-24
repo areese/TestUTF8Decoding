@@ -12,7 +12,7 @@ public class CGenerator extends AbstractCGenerator {
     }
 
     private void printLenAndPointerVariable(String name, String typeName) {
-        printPointerVariableWithDereference(name + "Address", typeName);
+        printPointerVariableWithDereference(name + "Ptr", typeName);
         pw.println();
 
         printPointerVariable(name + "Len", typeName);
@@ -20,7 +20,7 @@ public class CGenerator extends AbstractCGenerator {
     }
 
     private void printPointerVariableWithDereference(String addressVariableName, String typeName) {
-        printWith2Tabs(pw, "uint64_t *" + addressVariableName + "Ptr = *(uint64_t**)(address + offset); // " + typeName);
+        printWith2Tabs(pw, "uint64_t *" + addressVariableName + " = *(uint64_t**)(address + offset); // " + typeName);
         printWith2Tabs(pw, "offset += 8;");
     }
 
@@ -131,8 +131,9 @@ public class CGenerator extends AbstractCGenerator {
         printWithTab(pw, "{");
         printDumpWrittenData("at start");
 
-        String addressVariableName = name + "Address";
-        String lenVariableName = name + "Len";
+        String srcAddressVariableName = name + ".address";
+        String dstAddressVariableName = name + "Ptr";
+        String lenVariableName = name + ".len";
         String lenPtrVariableName = name + "LenPtr";
         String dereferencedLenPtrVariableName = "(*" + lenPtrVariableName + ")";
 
@@ -146,23 +147,23 @@ public class CGenerator extends AbstractCGenerator {
 
         pw.println();
 
-        printDumpWrittenData("Before copy of " + addressVariableName);
+        printDumpWrittenData("Before copy of " + srcAddressVariableName);
 
         // now we have address "pointer" and len "pointer" we can use memcpy
-        printWith2Tabs(pw, "fprintf(stderr, \"encoding to 0x%lx of len 0x%lx\\n\", " + addressVariableName + "Ptr, "
-                        + dereferencedLenPtrVariableName + ");");
+        printWith2Tabs(pw, "fprintf(stderr, \"encoding to 0x%llx of len 0x%llx\\n\", inputData->"
+                        + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
 
-        printWith2Tabs(pw, "memcpy ((void*) " + addressVariableName + "Ptr, (void*) inputData->" + addressVariableName
-                        + ", " + dereferencedLenPtrVariableName + ");");
+        printWith2Tabs(pw, "memcpy ((void*) " + dstAddressVariableName + ", (void*) inputData->"
+                        + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
 
-        printDumpWrittenData("After copy of " + addressVariableName);
+        printDumpWrittenData("After copy of " + srcAddressVariableName);
 
         printWithTab(pw, "}");
         pw.println();
     }
 
     private void printDumpWritingTo(String stage, String address, String addressLength) {
-        printWithTabs(pw, 3, "fprintf(stderr,\"Writing bytes to 0x%llx len 0x%llx at " + stage + "\\n\", " + address
+        printWithTabs(pw, 3, "fprintf(stderr,\"Writing bytes to 0x%lx len 0x%lx at " + stage + "\\n\", " + address
                         + ", " + addressLength + ");");
     }
 
@@ -170,7 +171,7 @@ public class CGenerator extends AbstractCGenerator {
         printWithTabs(pw, 2, "{");
         printWithTabs(pw, 3, "uint64_t *ptr = (uint64_t *)address;");
         printWithTabs(pw, 3, "fprintf(stderr,\"Dumping address at " + stage
-                        + " 0x%llx len 0x%llx\\n\", address, addressLength);");
+                        + " 0x%lx len 0x%lx\\n\", address, addressLength);");
         printWithTabs(pw, 3, "for (long l=0; l<addressLength/sizeof(uint64_t); l++) {");
         // printWith2Tabs(pw, "if (l % 32 == 0) { fprintf(stderr,\"\\n\"); }");
         printWithTabs(pw, 4, "fprintf(stderr,\"%llx\\n\",ptr[l]);");

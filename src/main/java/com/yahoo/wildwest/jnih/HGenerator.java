@@ -27,8 +27,7 @@ public class HGenerator extends AbstractCGenerator {
         printWith2Tabs(pw, "void *voidPtr;");
         printWith2Tabs(pw, "const char *constCharPtr;");
         printWithTab(pw, "};");
-        // FIXME: we should use this struct instead of the address+len pairs everywhere.
-        printWithTab(pw, "// uint64_t len");
+        printWithTab(pw, "uint64_t len;");
         pw.println("} AddressUnion;");
         pw.println("#endif /* _generatedAddressUnion */");
         pw.println();

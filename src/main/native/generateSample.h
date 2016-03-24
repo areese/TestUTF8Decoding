@@ -15,46 +15,24 @@ typedef struct AddressUnion {
         void *voidPtr;
         const char *constCharPtr;
     };
-    // uint64_t len
+    uint64_t len;
 } AddressUnion;
 #endif /* _generatedAddressUnion */
 
 typedef struct SampleInfoStruct {
 
     uint64_t type; // int
-
     uint64_t attrs; // int
-
     uint64_t status; // int
-
     uint64_t expiration; // long
-
     uint64_t readCount; // int
-
     uint64_t writeCount; // int
-
     uint64_t writeTimestamp; // long
-
-    uint64_t iaAddress;
-
-    uint64_t iaLen;
-
-    uint64_t orgAddress;
-
-    uint64_t orgLen;
-
-    uint64_t locAddress;
-
-    uint64_t locLen;
-
-    uint64_t ccodeAddress;
-
-    uint64_t ccodeLen;
-
-    uint64_t descAddress;
-
-    uint64_t descLen;
-
+    AddressUnion ia; // java.net.InetAddress
+    AddressUnion org; // java.lang.String
+    AddressUnion loc; // java.lang.String
+    AddressUnion ccode; // java.lang.String
+    AddressUnion desc; // java.lang.String
 } SampleInfoStruct;
 
 /**

@@ -26,11 +26,11 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         pw.println("typedef struct " + structName + " {\n");
 
         parseObject(objectClass, (ctype, field, type) -> {
+            String typeValue;
             switch (ctype) {
                 case STRING:
                 case INETADDRESS:
-                    printWithTab(pw,"uint64_t " + field.getName() + "Address;\n");
-                    printWithTab(pw,"uint64_t " + field.getName() + "Len;\n");
+                    typeValue = "AddressUnion";
                     break;
 
                 case LONG:
@@ -40,14 +40,15 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
                     // yes we waste 48 bits.
                 case BYTE:
                     // yes we waste 56 bits.
-                    printWithTab(pw,"uint64_t " + field.getName() + "; // " + type.getName() + "\n");
+                    typeValue = "uint64_t";
                     break;
 
                 default:
-                    printWithTab(pw, "// TODO : DATASTRUCT " + field.getName() + "; // " + type.getName() + "\n");
+                    typeValue = "// TODO : DATASTRUCT ";
                     break;
 
             }
+            printWithTab(pw, typeValue + " " + field.getName() + "; // " + type.getName());
 
             // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
             // fields.add(f);
