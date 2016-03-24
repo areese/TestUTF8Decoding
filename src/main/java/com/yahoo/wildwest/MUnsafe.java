@@ -142,7 +142,6 @@ public class MUnsafe {
      */
     public static String decodeStringAndFree(long srcAddress, long len) {
         try {
-            System.err.println("asked to decode 0x" + Long.toHexString(srcAddress) + " len 0x" + Long.toHexString(len));
             return decodeString(srcAddress, len);
         } finally {
             if (0 != srcAddress) {

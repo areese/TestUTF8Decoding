@@ -14,6 +14,8 @@ public abstract class AbstractGenerator implements Closeable {
     protected final String objectClassName;
     protected final String shortObjectName;
     protected final String javaPath;
+    protected final boolean spewDebugging = false;
+
 
     public AbstractGenerator(Class<?> classToDump) {
         this.objectClass = classToDump;
@@ -72,8 +74,8 @@ public abstract class AbstractGenerator implements Closeable {
 
     @Override
     public void close() throws IOException {
-//        pw.close();
-//        sw.close();
+        // pw.close();
+        // sw.close();
     }
 
 

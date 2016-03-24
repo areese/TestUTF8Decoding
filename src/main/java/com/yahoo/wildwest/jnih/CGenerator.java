@@ -129,6 +129,7 @@ public class CGenerator extends AbstractCGenerator {
         // string is a memcpy into provided address, followed by update length.
         // at offset, is an address
         printWithTab(pw, "{");
+
         printDumpWrittenData("at start");
 
         String srcAddressVariableName = name + ".address";
@@ -149,9 +150,7 @@ public class CGenerator extends AbstractCGenerator {
 
         printDumpWrittenData("Before copy of " + srcAddressVariableName);
 
-        // now we have address "pointer" and len "pointer" we can use memcpy
-        printWith2Tabs(pw, "fprintf(stderr, \"encoding to 0x%llx of len 0x%llx\\n\", inputData->"
-                        + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
+        printDebugEncoding(srcAddressVariableName, dereferencedLenPtrVariableName);
 
         printWith2Tabs(pw, "memcpy ((void*) " + dstAddressVariableName + ", (void*) inputData->"
                         + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
@@ -162,22 +161,27 @@ public class CGenerator extends AbstractCGenerator {
         pw.println();
     }
 
-    private void printDumpWritingTo(String stage, String address, String addressLength) {
-        printWithTabs(pw, 3, "fprintf(stderr,\"Writing bytes to 0x%lx len 0x%lx at " + stage + "\\n\", " + address
-                        + ", " + addressLength + ");");
+    private void printDebugEncoding(String srcAddressVariableName, String dereferencedLenPtrVariableName) {
+        if (spewDebugging) {
+            // now we have address "pointer" and len "pointer" we can use memcpy
+            printWith2Tabs(pw, "fprintf(stderr, \"encoding to 0x%llx of len 0x%llx\\n\", inputData->"
+                            + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
+        }
     }
 
     private void printDumpWrittenData(String stage) {
-        printWithTabs(pw, 2, "{");
-        printWithTabs(pw, 3, "uint64_t *ptr = (uint64_t *)address;");
-        printWithTabs(pw, 3, "fprintf(stderr,\"Dumping address at " + stage
-                        + " 0x%lx len 0x%lx\\n\", address, addressLength);");
-        printWithTabs(pw, 3, "for (long l=0; l<addressLength/sizeof(uint64_t); l++) {");
-        // printWith2Tabs(pw, "if (l % 32 == 0) { fprintf(stderr,\"\\n\"); }");
-        printWithTabs(pw, 4, "fprintf(stderr,\"%llx\\n\",ptr[l]);");
-        printWithTabs(pw, 3, "}");
-        printWithTabs(pw, 3, "fprintf(stderr,\"\\n\\n\");");
-        printWithTabs(pw, 2, "}");
+        if (spewDebugging) {
+            printWithTabs(pw, 2, "{");
+            printWithTabs(pw, 3, "uint64_t *ptr = (uint64_t *)address;");
+            printWithTabs(pw, 3, "fprintf(stderr,\"Dumping address at " + stage
+                            + " 0x%lx len 0x%lx\\n\", address, addressLength);");
+            printWithTabs(pw, 3, "for (long l=0; l<addressLength/sizeof(uint64_t); l++) {");
+            // printWith2Tabs(pw, "if (l % 32 == 0) { fprintf(stderr,\"\\n\"); }");
+            printWithTabs(pw, 4, "fprintf(stderr,\"%llx\\n\",ptr[l]);");
+            printWithTabs(pw, 3, "}");
+            printWithTabs(pw, 3, "fprintf(stderr,\"\\n\\n\");");
+            printWithTabs(pw, 2, "}");
+        }
     }
 
     @Override

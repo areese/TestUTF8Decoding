@@ -58,7 +58,6 @@ public class SampleInfoGenerated {
         totalLen  += STRING_FIELD_SIZE;
 
         long address = MUnsafe.unsafe.allocateMemory(totalLen);
-        System.out.println("Allocated address " + Long.toHexString(address) + " of length " + Long.toHexString(totalLen));
 
         long offset = 0;
         // type int is 8 bytes , cast to uint64_t

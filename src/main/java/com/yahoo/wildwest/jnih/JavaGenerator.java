@@ -207,9 +207,7 @@ public class JavaGenerator extends AbstractGenerator {
 
             lp.println();
 
-            // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-            // fields.add(f);
-                    });
+        });
 
         lp.println();
     }
@@ -302,13 +300,6 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        // Now, we can allocate, and then loop back and drop in new allocations for each of these.
-        // prob should make some CONSTANTS, so there is a single place to change each field size.
-        // maybe we could make a single CONSTANTS class, that would contain those...
-
-        // System.out.println("field " + ctype + " " + fieldName + " " + f.isAccessible());
-        // fields.add(f);
-
         printWith2Tabs(initFunction, "long address = MUnsafe.unsafe.allocateMemory(totalLen);");
         printDumpAddressDetails(initFunction, "address", "totalLen");
 
@@ -340,8 +331,10 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printDumpAddressDetails(LinePrinter lp, String address, String totalLen) {
-        printWith2Tabs(lp, "System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
-                        + ") + \" of length \" + Long.toHexString(" + totalLen + "));");
+        if (spewDebugging) {
+            printWith2Tabs(lp, "System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
+                            + ") + \" of length \" + Long.toHexString(" + totalLen + "));");
+        }
     }
 
     private void writePutAddress(ListPrintWriter lp, String fieldName, String typeName, CTYPES ctype) {
