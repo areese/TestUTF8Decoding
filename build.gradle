@@ -1,0 +1,7 @@
+apply plugin: 'java'
+
+dependencies {
+    testCompile group: 'org.testng', name: 'testng', version: '6.8.5'
+    runtime group: 'log4j', name: 'log4j', version: '1.2.14'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.7'
+}

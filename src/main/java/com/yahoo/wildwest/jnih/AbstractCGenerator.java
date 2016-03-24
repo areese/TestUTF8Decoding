@@ -3,7 +3,6 @@
 package com.yahoo.wildwest.jnih;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public abstract class AbstractCGenerator extends AbstractGenerator {

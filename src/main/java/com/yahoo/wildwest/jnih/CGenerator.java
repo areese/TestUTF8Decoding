@@ -75,6 +75,11 @@ public class CGenerator extends AbstractCGenerator {
         // or they changed it by hand, and happened to use a struct of a different layout but with the same names.
         // and use memcpy.
 
+        printWithTab(pw, "if (0 == address || 0 == addressLength) {");
+        printWith2Tabs(pw, "return;");
+        printWithTab(pw, "}");
+        pw.println();
+
         printWithTab(pw, "uint64_t offset = 0;");
 
         parseObject(objectClass, (ctype, field, type) -> {
@@ -130,7 +135,7 @@ public class CGenerator extends AbstractCGenerator {
         // at offset, is an address
         printWithTab(pw, "{");
 
-        printDumpWrittenData("at start");
+        debugWrittenData("at start");
 
         String srcAddressVariableName = name + ".address";
         String dstAddressVariableName = name + "Ptr";
@@ -148,20 +153,19 @@ public class CGenerator extends AbstractCGenerator {
 
         pw.println();
 
-        printDumpWrittenData("Before copy of " + srcAddressVariableName);
-
-        printDebugEncoding(srcAddressVariableName, dereferencedLenPtrVariableName);
+        debugWrittenData("Before copy of " + srcAddressVariableName);
+        debugEncoding(srcAddressVariableName, dereferencedLenPtrVariableName);
 
         printWith2Tabs(pw, "memcpy ((void*) " + dstAddressVariableName + ", (void*) inputData->"
                         + srcAddressVariableName + ", " + dereferencedLenPtrVariableName + ");");
 
-        printDumpWrittenData("After copy of " + srcAddressVariableName);
+        debugWrittenData("After copy of " + srcAddressVariableName);
 
         printWithTab(pw, "}");
         pw.println();
     }
 
-    private void printDebugEncoding(String srcAddressVariableName, String dereferencedLenPtrVariableName) {
+    private void debugEncoding(String srcAddressVariableName, String dereferencedLenPtrVariableName) {
         if (spewDebugging) {
             // now we have address "pointer" and len "pointer" we can use memcpy
             printWith2Tabs(pw, "fprintf(stderr, \"encoding to 0x%llx of len 0x%llx\\n\", inputData->"
@@ -169,7 +173,7 @@ public class CGenerator extends AbstractCGenerator {
         }
     }
 
-    private void printDumpWrittenData(String stage) {
+    private void debugWrittenData(String stage) {
         if (spewDebugging) {
             printWithTabs(pw, 2, "{");
             printWithTabs(pw, 3, "uint64_t *ptr = (uint64_t *)address;");
