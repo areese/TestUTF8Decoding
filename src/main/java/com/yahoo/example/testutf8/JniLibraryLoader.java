@@ -24,21 +24,21 @@ public class JniLibraryLoader {
             System.err.println("Cannot load " + LIBRARY + " native library, -Djava.library.path="
                             + ((null == javaLibraryPath) ? "unset" : javaLibraryPath));
             error.printStackTrace();
-            System.err.println("**********************************************************************************************************************\n"
-                            + "**********************************************************************************************************************\n"
-                            + "***                                                                                                                ***\n"
-                            + "***                                                                                                                ***\n"
-                            + "***    Cannot load "
-                            + LIBRARY
-                            + " native library appears to already have been loaded.                                 ***\n"
-                            + "***  JNI only allows a native library to be loaded once per JVM..                                                  ***\n"
-                            + "***  This means that any jars that use JNI should be linked under java.library.path and not bundled into your      ***\n"
-                            + "***  ear or war file.                                                                                              ***\n"
-                            + "***  This error is almost always due to bundling a second copy of the jar that uses JNI into your deployment.      ***\n"
-                            + "***                                                                                                                ***\n"
-                            + "***                                                                                                                ***\n"
-                            + "**********************************************************************************************************************\n"
-                            + "**********************************************************************************************************************\n");
+            System.err.println(
+                            "**********************************************************************************************************************\n"
+                                            + "**********************************************************************************************************************\n"
+                                            + "***                                                                                                                ***\n"
+                                            + "***                                                                                                                ***\n"
+                                            + "***    Cannot load " + LIBRARY
+                                            + " native library appears to already have been loaded.                                 ***\n"
+                                            + "***  JNI only allows a native library to be loaded once per JVM..                                                  ***\n"
+                                            + "***  This means that any jars that use JNI should be linked under java.library.path and not bundled into your      ***\n"
+                                            + "***  ear or war file.                                                                                              ***\n"
+                                            + "***  This error is almost always due to bundling a second copy of the jar that uses JNI into your deployment.      ***\n"
+                                            + "***                                                                                                                ***\n"
+                                            + "***                                                                                                                ***\n"
+                                            + "**********************************************************************************************************************\n"
+                                            + "**********************************************************************************************************************\n");
             throw error;
         }
     }

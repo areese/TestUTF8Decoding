@@ -9,8 +9,7 @@ public class TestUnsafeStringManip {
     @Test
     public void testSimpleEncodeDecode() {
         // long and all ascii
-        String simple =
-                        "Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.";
+        String simple = "Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.";
 
         try (MissingFingers encodedString = MUnsafe.encodeString(simple)) {
             Assert.assertNotNull(encodedString);

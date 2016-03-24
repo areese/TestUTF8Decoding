@@ -5,7 +5,6 @@ package com.yahoo.wildwest.jnih;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.InetAddress;
 
 public abstract class AbstractGenerator implements Closeable {
     static final String FOUR_SPACE_TAB = "    ";

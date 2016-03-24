@@ -1,5 +1,7 @@
 package com.yahoo.example.test;
+
 import java.net.InetAddress;
+
 import com.yahoo.wildwest.MUnsafe;
 import com.yahoo.wildwest.MissingFingers;
 
@@ -25,71 +27,71 @@ public class SampleInfoGenerated {
 
         long totalLen = 0;
         // type int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // attrs int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // status int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // expiration long is 8 bytes , cast to uint64_t
-        totalLen  += LONG_FIELD_SIZE;
+        totalLen += LONG_FIELD_SIZE;
 
         // readCount int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // writeCount int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // writeTimestamp long is 8 bytes , cast to uint64_t
-        totalLen  += LONG_FIELD_SIZE;
+        totalLen += LONG_FIELD_SIZE;
 
         // ia java.net.InetAddress is 16 bytes , address + length
-        totalLen  += INETADDRESS_FIELD_SIZE;
+        totalLen += INETADDRESS_FIELD_SIZE;
 
         // org java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
 
         // loc java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
 
         // ccode java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
 
         // desc java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
 
         // someBytes [B is 16 bytes , address + length
-        totalLen  += BYTEARRAY_FIELD_SIZE;
+        totalLen += BYTEARRAY_FIELD_SIZE;
 
         long address = MUnsafe.unsafe.allocateMemory(totalLen);
 
         long offset = 0;
         // type int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // attrs int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // status int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // expiration long is 8 bytes , cast to uint64_t
-        offset  += LONG_FIELD_SIZE;
+        offset += LONG_FIELD_SIZE;
 
         // readCount int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // writeCount int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // writeTimestamp long is 8 bytes , cast to uint64_t
-        offset  += LONG_FIELD_SIZE;
+        offset += LONG_FIELD_SIZE;
 
         // ia java.net.InetAddress is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(IA_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(IA_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, IA_DATA_SIZE);
@@ -98,7 +100,7 @@ public class SampleInfoGenerated {
 
         // org java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(ORG_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(ORG_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, ORG_DATA_SIZE);
@@ -107,7 +109,7 @@ public class SampleInfoGenerated {
 
         // loc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(LOC_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(LOC_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, LOC_DATA_SIZE);
@@ -116,7 +118,7 @@ public class SampleInfoGenerated {
 
         // ccode java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(CCODE_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(CCODE_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, CCODE_DATA_SIZE);
@@ -125,7 +127,7 @@ public class SampleInfoGenerated {
 
         // desc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(DESC_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(DESC_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, DESC_DATA_SIZE);
@@ -134,7 +136,7 @@ public class SampleInfoGenerated {
 
         // someBytes [B is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(SOMEBYTES_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(SOMEBYTES_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, SOMEBYTES_DATA_SIZE);
@@ -249,24 +251,23 @@ public class SampleInfoGenerated {
         someBytesLen = MUnsafe.unsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read someBytesLen type [B
 
-     //   someBytes = MUnsafe.decodeStringAndFree(someBytesAddress, someBytesLen);
+        someBytes = MUnsafe.decodeByteArrayAndFree(someBytesAddress, someBytesLen);
 
 
 
-        com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(
-            type, // 
-            attrs, // 
-            status, // 
-            expiration, // 
-            readCount, // 
-            writeCount, // 
-            writeTimestamp, // 
-            ia, // 
-            org, // 
-            loc, // 
-            ccode, // 
-            desc, // 
-            null);
+        com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(type, //
+                        attrs, //
+                        status, //
+                        expiration, //
+                        readCount, //
+                        writeCount, //
+                        writeTimestamp, //
+                        ia, //
+                        org, //
+                        loc, //
+                        ccode, //
+                        desc, //
+                        someBytes);
 
         return newObject;
 
