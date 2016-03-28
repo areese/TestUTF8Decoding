@@ -1,5 +1,3 @@
-// Copyright 2016 Yahoo Inc.
-// Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.
 package com.yahoo.wildwest;
 
 import java.io.Closeable;
@@ -7,15 +5,22 @@ import java.io.Closeable;
 public class MissingFingers implements Closeable {
     private long address;
     private long length;
+    private boolean allocated;
 
     public MissingFingers() {
         this.address = 0;
         this.length = 0;
+        this.allocated = false;
     }
 
     public MissingFingers(long address, long length) {
+        this(address, length, true);
+    }
+
+    public MissingFingers(long address, long length, boolean allocated) {
         this.address = address;
         this.length = length;
+        this.allocated = allocated;
     }
 
     /**
@@ -24,8 +29,7 @@ public class MissingFingers implements Closeable {
      * @param byteArraySize
      */
     public MissingFingers(long byteArraySize) {
-        this.length = byteArraySize;
-        this.address = MUnsafe.allocate(this.length);
+        this(MUnsafe.allocate(byteArraySize), byteArraySize, true);
     }
 
     /**
@@ -66,7 +70,14 @@ public class MissingFingers implements Closeable {
 
     @Override
     public void close() {
-        MUnsafe.freeMemory(address);
+        // only free if allocated
+        if (allocated) {
+            MUnsafe.freeMemory(address);
+        }
+    }
+
+    public boolean getAllocated() {
+        return allocated;
     }
 
 }

@@ -11,6 +11,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Objects;
 
+@SuppressWarnings("restriction")
 public class InetAddressAccessor {
     // public static void main(String[] args) throws Exception {
     // testInet4AddressHolder();
@@ -202,7 +203,7 @@ public class InetAddressAccessor {
             MUnsafe.copyMemory(addressLong, len, addressBytes);
         }
 
-        return new MissingFingers(addressLong, len);
+        return new MissingFingers(addressLong, len, (0 != len));
     }
 
 
