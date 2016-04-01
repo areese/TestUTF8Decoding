@@ -5,6 +5,7 @@ package com.yahoo.example.test;
 import com.yahoo.example.testutf8.JniLibraryLoader;
 import com.yahoo.wildwest.MUnsafe;
 
+@SuppressWarnings("restriction")
 public class DecodeTest {
     static {
         JniLibraryLoader.load();

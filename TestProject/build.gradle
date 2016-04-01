@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+repositories {
+   mavenLocal()
+}
+
+dependencies {
+    compile group: 'com.yahoo.example.codegen', name: 'codegen', version: '1.0.0'
+    testCompile group: 'org.testng', name: 'testng', version: '6.8.5'
+    runtime group: 'log4j', name: 'log4j', version: '1.2.14'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.7'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.yahoo.testpoject'
+            artifactId 'testSample'
+            version '1.0.0'
+
+            from components.java
+        }
+    }
+}
+
