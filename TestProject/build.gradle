@@ -1,6 +1,15 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+task buildJni(type:Exec) {
+  commandLine 'make'
+}
+
+// https://docs.gradle.org/current/userguide/java_plugin.html
+buildJni.shouldRunAfter compileJava
+
+build.dependsOn(buildJni)
+
 repositories {
    mavenLocal()
 }
@@ -23,4 +32,3 @@ publishing {
         }
     }
 }
-
