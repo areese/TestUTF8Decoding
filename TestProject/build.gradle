@@ -1,6 +1,13 @@
+  
+repositories {
+   mavenLocal()
+}
+
+
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+// FIXME: these bits should be a plugin we can reuse.
 task buildJni(type:Exec) {
   commandLine 'make'
 }
@@ -10,8 +17,20 @@ buildJni.shouldRunAfter compileJava
 
 build.dependsOn(buildJni)
 
-repositories {
-   mavenLocal()
+
+test {
+  // enable TestNG support (default is JUnit)
+  useTestNG()
+
+  if (System.properties['os.name'] == "Mac OS X") { 
+    // set a system property for the test JVM(s)
+    systemProperty 'java.library.path','target/native/x86_64-darwin-clang'
+  }
+
+  if (System.properties['os.name'] == "Linux") { 
+    // set a system property for the test JVM(s)
+    systemProperty 'java.library.path','target/native/x86_64-darwin-clang'
+  }
 }
 
 dependencies {
@@ -32,3 +51,10 @@ publishing {
         }
     }
 }
+
+task printProps << {
+    println System.properties
+    println System.properties['os.name']
+    println System.properties['os.name'] == "Mac OS X"
+}
+
