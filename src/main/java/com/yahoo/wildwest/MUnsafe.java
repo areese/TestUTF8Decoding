@@ -78,7 +78,7 @@ public class MUnsafe {
     /**
      * Given an index into a char array, return the correct offset to use
      * 
-     * @param index
+     * @param index index into the array to get.
      * @return offset into the array for a specific index.
      */
     public static long charArrayOffset(int index) {
@@ -89,13 +89,20 @@ public class MUnsafe {
      * Given a char array, calculate the correct amount of memory it will take. ??? Doesn't take into account null and
      * probably should.
      * 
-     * @param from
+     * @param from array to use in calculation.
      * @return length to allocate.
      */
     public static long charArraySize(char[] from) {
         return from.length * charArrayIndexScale;
     }
 
+
+    /**
+     * Given an index into a byte array, return the correct offset to use
+     * 
+     * @param index index into the array to get.
+     * @return offset into the array for a specific index.
+     */
     public static long byteArrayOffset(int index) {
         return calculateOffset(index, byteArrayBaseOffset, byteArrayIndexScale);
     }
@@ -103,7 +110,7 @@ public class MUnsafe {
     /**
      * Given a byte array, calculate the correct amount of memory it will take.
      * 
-     * @param from
+     * @param from array to use in calculation.
      * @return length to allocate.
      */
     public static long byteArraySize(byte[] from) {
@@ -228,29 +235,30 @@ public class MUnsafe {
     }
 
     /**
-     * Given a UTF8 string pointed to by address of len bytes long, decode it, and then free the memory pointed at by
-     * it.
+     * Given an address into memory, copy the bytes into a new String assuming UTF-8 encoding. Also free the memory upon
+     * completion using Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you
+     * allocated with malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
      * 
-     * @param srcAddress
-     * @param len
-     * @return Java String, null on null, 0 on empty string
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len bytes to copy.
+     * @return String, null on null, 0 on empty string
      */
     public static String decodeStringAndFree(long srcAddress, long len) {
         try {
             return decodeString(srcAddress, len);
         } finally {
             if (0 != srcAddress) {
-                unsafe.freeMemory(srcAddress);
+                freeMemory(srcAddress);
             }
         }
     }
 
     /**
-     * Given a UTF8 string pointed to by address of len bytes long, decode it
+     * Given an address into memory, copy the bytes into a new String assuming UTF-8 encoding.
      * 
-     * @param srcAddress
-     * @param len
-     * @return Java String, null on null, 0 on empty string
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len bytes to copy.
+     * @return String, null on null, 0 on empty string
      */
     public static String decodeString(long srcAddress, long len) {
         if (0 == srcAddress) {
@@ -272,6 +280,14 @@ public class MUnsafe {
         return new String(toBytes, 0, (int) len, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Given an address into memory, copy the bytes into a new String assuming UTF-8 encoding. Also free the memory upon
+     * completion using Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you
+     * allocated with malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
+     * 
+     * @param encodedString unsafe allocated address that we can copy from/
+     * @return String, null on null, 0 on empty string
+     */
     public static String decodeString(MissingFingers encodedString) {
         if (null == encodedString) {
             return null;
@@ -279,6 +295,14 @@ public class MUnsafe {
         return decodeString(encodedString.getAddress(), encodedString.getLength());
     }
 
+    /**
+     * Given an address into memory, copy the bytes into a new String assuming UTF-8 encoding. Also free the memory upon
+     * completion using Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you
+     * allocated with malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
+     * 
+     * @param encodedString unsafe allocated address that we can copy from/
+     * @return String, null on null, 0 on empty string
+     */
     public static String decodeStringAndFree(MissingFingers encodedString) {
         try {
             if (null == encodedString) {
@@ -292,27 +316,48 @@ public class MUnsafe {
         }
     }
 
+
+    /**
+     * Given an address into memory, copy the bytes into a new InetAddress.
+     * 
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len length of bytes to copy.
+     * @return InetAddress, null on null, 0 on empty string
+     */
     public static InetAddress decodeInetAddress(long srcAddress, long len) {
         // TODO: implement
         return null;
     }
 
+
     /**
+     * Given an address into memory, copy the bytes into a new InetAddress. Also free the memory upon completion using
+     * Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you allocated with
+     * malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
      * 
-     * @param srcAddress
-     * @param len
-     * @return Java String, null on null, 0 on empty string
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len length of bytes to copy.
+     * @return InetAddress, null on null, 0 on empty string
      */
     public static InetAddress decodeInetAddressAndFree(long srcAddress, long len) {
         try {
             return decodeInetAddress(srcAddress, len);
         } finally {
             if (0 != srcAddress) {
-                unsafe.freeMemory(srcAddress);
+                freeMemory(srcAddress);
             }
         }
     }
 
+
+    /**
+     * Given an address into memory, copy the bytes into a new InetAddress. Also free the memory upon completion using
+     * Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you allocated with
+     * malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
+     * 
+     * @param encodedInetAddress unsafe allocated address that we can copy from/
+     * @return InetAddress, null on null, 0 on empty string
+     */
     public static InetAddress decodeInetAddressAndFree(MissingFingers encodedInetAddress) {
         try {
             if (null == encodedInetAddress) {
@@ -327,24 +372,29 @@ public class MUnsafe {
     }
 
     /**
+     * Given an address into memory, copy the bytes into a new byte array. Also free the memory upon completion using
+     * Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you allocated with
+     * malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
      * 
-     * @param srcAddress
-     * @param len
-     * @return Java byte[], null on null, empty on empty
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len length of bytes to copy.
+     * @return Java ByteArray, null on null, 0 on empty string
      */
     public static byte[] decodeByteArrayAndFree(long srcAddress, long len) {
         try {
             return decodeByteArray(srcAddress, len);
         } finally {
             if (0 != srcAddress) {
-                unsafe.freeMemory(srcAddress);
+                freeMemory(srcAddress);
             }
         }
     }
 
     /**
-     * @param srcAddress
-     * @param len
+     * Given an address into memory, copy the bytes into a new byte array.
+     * 
+     * @param srcAddress unsafe allocated address that we can copy from/
+     * @param len length of bytes to copy.
      * @return Java ByteArray, null on null, 0 on empty string
      */
     public static byte[] decodeByteArray(long srcAddress, long len) {
@@ -362,6 +412,12 @@ public class MUnsafe {
         return toBytes;
     }
 
+    /**
+     * Given an address into memory, copy the bytes into a new byte array.
+     * 
+     * @param encodedByteArray unsafe allocated address that we can copy from/
+     * @return Java ByteArray, null on null, 0 on empty string
+     */
     public static byte[] decodeByteArray(MissingFingers encodedByteArray) {
         if (null == encodedByteArray) {
             return null;
@@ -369,6 +425,14 @@ public class MUnsafe {
         return decodeByteArray(encodedByteArray.getAddress(), encodedByteArray.getLength());
     }
 
+    /**
+     * Given an address into memory, copy the bytes into a new byte array. Also free the memory upon completion using
+     * Unsafe.freeMemory If you didn't allocate this via unsafe, things will likely go south. If you allocated with
+     * malloc, they might not unless you turn on NativeMemoryTracking then they will for sure. haha.
+     * 
+     * @param encodedByteArray unsafe allocated address that we can copy from/
+     * @return Java ByteArray, null on null, 0 on empty string
+     */
     public static byte[] decodeByteArrayAndFree(MissingFingers encodedByteArray) {
         try {
             if (null == encodedByteArray) {

@@ -24,9 +24,11 @@ public class MissingFingers implements Closeable {
     }
 
     /**
-     * This version will _allocate_
+     * This version will _allocate_ This allocates space of at least byteArraySize. Looking at DirectByteBuffer, it
+     * seems that you need to check if things are page aligned, and allocate on a page boundary. So this might allocate
+     * more than that size as an unknown implementation detail.
      * 
-     * @param byteArraySize
+     * @param byteArraySize size of array to allocate
      */
     public MissingFingers(long byteArraySize) {
         this(MUnsafe.allocate(byteArraySize), byteArraySize, true);
@@ -46,26 +48,8 @@ public class MissingFingers implements Closeable {
         return address;
     }
 
-    /**
-     * You probably shouldn't ever call this. It should only be an address from unsafe.
-     * 
-     * @param address
-     */
-    public void setAddress(long address) {
-        this.address = address;
-    }
-
     public long getLength() {
         return length;
-    }
-
-    /**
-     * You probably shouldn't ever call this. It should only be an address from unsafe.
-     * 
-     * @param address
-     */
-    public void setLength(long length) {
-        this.length = length;
     }
 
     @Override
