@@ -27,6 +27,9 @@ public class SampleJniTest {
         Assert.assertEquals(si.getReadCount(), 230617054);
         Assert.assertEquals(si.getWriteCount(), 230617054);
         Assert.assertEquals(si.getWriteTimestamp(), 9208452695088623582L);
+        Assert.assertEquals(si.getLoc(), "locAddress");
+        Assert.assertEquals(si.getCcode(), "ccodeAddress");
+        Assert.assertEquals(si.getDesc(), "descAddress");
         Assert.assertEquals(si.getOrg(),
                         "// Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.     // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.     // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms. ");
     }
