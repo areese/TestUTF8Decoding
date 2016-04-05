@@ -15,6 +15,7 @@ public class JavaGenerator extends AbstractGenerator {
     private final Set<String> blacklistedMethods = generateBlackList();
 
     private final String generatedClassName;
+    private final String javaPath;
     private final String fileName;
 
 
@@ -29,8 +30,18 @@ public class JavaGenerator extends AbstractGenerator {
 
     private final ListPrintWriter[] parts = {classHeader, constants, initFunction, createFunction, classFooter};
 
-    public JavaGenerator(Class<?> classToDump) {
+    public JavaGenerator(String basePath, Class<?> classToDump) {
         super(classToDump);
+
+        String[] temp = objectClassName.split("\\.");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < temp.length - 1; i++) {
+            sb.append(temp[i]).append("/");
+        }
+
+        this.javaPath = basePath + sb.toString();
+
         this.generatedClassName = shortObjectName + "Generated";
         this.fileName = javaPath + generatedClassName + ".java";
     }

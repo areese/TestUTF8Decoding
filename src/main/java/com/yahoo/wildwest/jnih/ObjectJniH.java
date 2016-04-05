@@ -20,7 +20,6 @@ public class ObjectJniH {
 
         Class<?> classToDump;
         String cFilename = "generateSample";
-        String javaFilename = "GenerateSample.java";
         String javaPath = "src/main/java/";
 
         if (args.length > 0) {
@@ -35,11 +34,17 @@ public class ObjectJniH {
                 i++;
             }
 
-            if ("-javafile".equals(args[i]) && (i + 1) < args.length) {
-                javaFilename = args[i + 1];
-                if (!javaFilename.endsWith(".java")) {
-                    javaFilename += ".java";
+            if ("-javapath".equals(args[i]) && (i + 1) < args.length) {
+                javaPath = args[i + 1];
+
+                if (!javaPath.endsWith("/")) {
+                    javaPath += "/";
                 }
+                if (!new File(javaPath).isDirectory()) {
+                    throw new Exception(javaPath + " is not a directory");
+                }
+
+                System.err.println("determined " + javaPath);
                 i++;
             }
         }
@@ -57,8 +62,10 @@ public class ObjectJniH {
             }
         }
 
-        try (JavaGenerator java = new JavaGenerator(classToDump)) {
-            try (PrintWriter pw = new PrintWriter(new File(javaPath + java.getFileName()))) {
+        try (JavaGenerator java = new JavaGenerator(javaPath, classToDump)) {
+            String path = java.getFileName();
+            System.err.println("Writing java to " + path);
+            try (PrintWriter pw = new PrintWriter(new File(path))) {
                 pw.println(java.generate());
             }
         }

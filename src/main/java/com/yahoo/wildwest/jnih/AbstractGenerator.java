@@ -12,7 +12,6 @@ public abstract class AbstractGenerator implements Closeable {
     protected final Class<?> objectClass;
     protected final String objectClassName;
     protected final String shortObjectName;
-    protected final String javaPath;
     protected final boolean spewDebugging = false;
 
 
@@ -21,12 +20,6 @@ public abstract class AbstractGenerator implements Closeable {
         this.objectClassName = this.objectClass.getName();
         String[] temp = objectClassName.split("\\.");
         this.shortObjectName = temp[temp.length - 1];
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < temp.length - 1; i++) {
-            sb.append(temp[i]).append("/");
-        }
-        javaPath = sb.toString();
     }
 
     public void printWithTabs(LinePrinter lp, int tabs, String s) {
