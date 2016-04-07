@@ -230,6 +230,7 @@ public class MUnsafe {
         long totalSize = byteArraySize(fromBytes) + 1;
         long destAddress = unsafe.allocateMemory(totalSize);
         copyMemory(destAddress, totalSize, fromBytes);
+        unsafe.putByte(destAddress + (totalSize - 1), (byte) 0);
 
         return new MissingFingers(destAddress, totalSize);
     }
