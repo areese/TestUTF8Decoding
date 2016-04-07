@@ -79,7 +79,7 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
         pw.println(" * everything is 64bit longs with a cast");
         pw.println(" * Strings are considered UTF8, and are a tuple of address + length");
         pw.println(" * Due to native memory tracking, strings are prealloacted with Unsafe.allocateMemory and assigned an output length");
-        pw.println(" * Similiar to how a c function would take char *outBuf, size_t bufLen");
+        pw.println(" * Similar to how a c function would take char *outBuf, size_t bufLen");
         pw.println(" * The length coming in says how large the buffer for address is.");
         pw.println(" * The length coming out says how many characters including \\0 were written");
         pw.println("**/");

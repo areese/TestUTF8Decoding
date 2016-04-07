@@ -131,28 +131,6 @@ public class InetAddressAccessor {
         }
     }
 
-    // static void testInet4AddressHolder() throws ReflectiveOperationException, UnknownHostException {
-    // Inet4AddressHelper helper = new Inet4AddressHelper();
-    //
-    // InetAddress ina = InetAddress.getByName("192.168.1.111");
-    //
-    // int inet4Address = helper.getAddress((Inet4Address) ina);
-    // System.out.println(Integer.toHexString(inet4Address));
-    // }
-    //
-    // static void testInet6AddressHolder() throws ReflectiveOperationException, UnknownHostException {
-    // Inet6AddressHelper helper = new Inet6AddressHelper();
-    //
-    // InetAddress ina = InetAddress.getByName("[2001:4998:0:1::1007]");
-    //
-    // byte[] inet6Address = helper.getAddress((Inet6Address) ina);
-    // for (byte b : inet6Address) {
-    // System.out.print(Integer.toHexString(Byte.toUnsignedInt(b)));
-    // }
-    // System.out.println();
-    //
-    // }
-
     static final Inet4AddressHelper inet4Helper;
     static final Inet6AddressHelper inet6Helper;
 
@@ -204,6 +182,30 @@ public class InetAddressAccessor {
         }
 
         return new MissingFingers(addressLong, len, (0 != len));
+    }
+
+    public static InetAddress newAddress(MissingFingers output) {
+        return newAddress(output.getAddress(), output.getLength());
+    }
+
+    public static InetAddress newAddress(long address, long length) {
+
+        if (0 == address) {
+            return null;
+        }
+
+        if (0 == length) {
+            // hacky ipv4.
+            // no length. ;)
+        } else if (4 == length) {
+            // ipv4
+        } else if (16 == length) {
+            // ipv6
+        } else {
+            throw new IllegalArgumentException("Length must be either 4 (ipv4) or 16 (ipv6), was " + length);
+        }
+
+        return null;
     }
 
 

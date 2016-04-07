@@ -262,7 +262,6 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateInitialize() {
         initFunction.println();
-        printWithTab(initFunction, "@SuppressWarnings(\"restriction\")");
         printWithTab(initFunction, "public static MissingFingers initialize" + shortObjectName + "() {");
         initFunction.println();
         // assume address, len
@@ -351,6 +350,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
         classHeader.println("import com.yahoo.wildwest.MissingFingers;");
         classHeader.println();
+        classHeader.println("@SuppressWarnings(\"restriction\"");
         classHeader.println("public class " + generatedClassName + " {");
     }
 
