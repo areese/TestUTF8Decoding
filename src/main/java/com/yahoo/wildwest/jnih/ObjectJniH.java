@@ -29,12 +29,19 @@ public class ObjectJniH {
         builtFrom.append(" * sun.java.command=").append(System.getProperty("sun.java.command")).append("\n");
         builtFrom.append(" * args:\n");
         builtFrom.append(" * ");
+
+        StringBuilder argsLine = new StringBuilder();
         for (String a : args) {
-            builtFrom.append(a).append(" ");
+            argsLine.append(a).append(" ");
         }
         // remove extra space.
-        builtFrom.deleteCharAt(builtFrom.length() - 1);
-        builtFrom.append("\n");
+        argsLine.deleteCharAt(argsLine.length() - 1);
+        argsLine.append("\n");
+
+        builtFrom.append(argsLine.toString());
+
+        builtFrom.append(generateProbably(System.getProperty("java.class.path"), System.getProperty("sun.java.command"),
+                        argsLine.toString()));
 
         String builtFromString = builtFrom.toString();
 
@@ -95,6 +102,13 @@ public class ObjectJniH {
         // a) a list of getLongs()
         // b) a list of longs assigned from getLong
 
+    }
+
+    private static String generateProbably(String classpath, String command, String argsLine) {
+        StringBuilder probably = new StringBuilder();
+        probably.append(" * you can probably run this command to regenerate it\n");
+        probably.append(" * java -cp ").append(classpath).append(" ").append(command).append(" ").append(argsLine);
+        return probably.toString();
     }
 
 }
