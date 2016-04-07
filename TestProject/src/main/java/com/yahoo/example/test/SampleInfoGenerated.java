@@ -3,6 +3,16 @@ import java.net.InetAddress;
 import com.yahoo.wildwest.MUnsafe;
 import com.yahoo.wildwest.MissingFingers;
 
+
+/*
+ * This code was auto generated from https://github.com/areese/TestUTF8Decoding
+ * Using:
+ * java.class.path=build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/
+ * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ * args:
+ * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ */
+
 @SuppressWarnings("restriction")
 public class SampleInfoGenerated {
     public static final long BYTE_FIELD_SIZE = 8;
