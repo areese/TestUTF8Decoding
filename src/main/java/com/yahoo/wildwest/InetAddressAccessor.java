@@ -190,33 +190,32 @@ public class InetAddressAccessor {
     }
 
     public static InetAddress newAddress(long address, long length) throws UnknownHostException {
-
         if (0 == address) {
             return null;
         }
 
-        if (0 == length || 4 == length) {
-            byte[] bytes = new byte[4];
-
-            if (0 == length) {
-                // hacky ipv4.
-                // no length. ;), so it's just the ipv4 address
-                bytes[0] = (byte) ((address >> 0x18) & 0x0FF);
-                bytes[1] = (byte) ((address >> 0x10) & 0x0FF);
-                bytes[2] = (byte) ((address >> 0x08) & 0x0FF);
-                bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
-
-                return InetAddress.getByAddress(bytes);
-            } else {
-
-            }
-        } else if (16 == length) {
-            // ipv6
-        } else {
+        if (0 != length && 4 != length && 16 != length) {
             throw new IllegalArgumentException("Length must be either 4 (ipv4) or 16 (ipv6), was " + length);
         }
 
-        return null;
+        byte[] bytes;
+
+        if (0 == length) {
+            bytes = new byte[4];
+            // hacky ipv4.
+            // no length. ;), so it's just the ipv4 address
+            bytes[0] = (byte) ((address >> 0x18) & 0x0FF);
+            bytes[1] = (byte) ((address >> 0x10) & 0x0FF);
+            bytes[2] = (byte) ((address >> 0x08) & 0x0FF);
+            bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
+        } else {
+            bytes = new byte[(int) length];
+        }
+
+        // in this case, we just copyMemory out
+        MUnsafe.copyMemory(bytes, address, length);
+
+        return InetAddress.getByAddress(bytes);
     }
 
 

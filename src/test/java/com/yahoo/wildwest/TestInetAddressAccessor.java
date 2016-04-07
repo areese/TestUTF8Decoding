@@ -77,10 +77,24 @@ public class TestInetAddressAccessor {
         };
     }
 
+    @DataProvider
+    public Object[][] badAddresses() {
+        return new Object[][] {//
+                        {1L, 1L}, //
+                        {1L, 5L}, //
+                        {1L, 17L}, //
+        };
+    }
+
     @Test(dataProvider = "addresses")
     public void testNewAddress(long inAddress, long inLength, InetAddress expected) throws UnknownHostException {
         InetAddress actual = InetAddressAccessor.newAddress(inAddress, inLength);
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(dataProvider = "badAddresses", expectedExceptions = IllegalArgumentException.class)
+    public void testNewAddressBadd(long inAddress, long inLength) throws UnknownHostException {
+        InetAddressAccessor.newAddress(inAddress, inLength);
     }
 
     private static void dumpArray(byte[] inet6Address) {
