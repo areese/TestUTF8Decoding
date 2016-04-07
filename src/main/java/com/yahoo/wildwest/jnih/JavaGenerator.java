@@ -256,11 +256,11 @@ public class JavaGenerator extends AbstractGenerator {
      * Java Object.
      */
     public void javaCreateObjectMissingFingers() {
+        createFunctionMissingFingers.println();
         printWithTab(createFunctionMissingFingers,
                         "public static " + objectClassName + " create" + shortObjectName + "(MissingFingers mf) {");
-        createFunctionMissingFingers.println();
-        createFunctionMissingFingers.println("return " + objectClassName + " create" + shortObjectName
-                        + "(mf.getAddress(), mf.getLength());");
+        printWith2Tabs(createFunctionMissingFingers,
+                        "return create" + shortObjectName + "(mf.getAddress(), mf.getLength());");
         printWithTab(createFunctionMissingFingers, "}");
     }
 
@@ -392,6 +392,7 @@ public class JavaGenerator extends AbstractGenerator {
         generateConstants();
         javaCreateInitialize();
         javaCreateObject();
+        javaCreateObjectMissingFingers();
         printClassFooter();
 
         StringBuilder partsBuilder = new StringBuilder();

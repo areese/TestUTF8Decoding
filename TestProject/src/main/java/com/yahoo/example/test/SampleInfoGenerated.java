@@ -13,7 +13,6 @@ import com.yahoo.wildwest.MissingFingers;
  * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  * you can probably run this command to regenerate it
  * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
-
  */
 
 @SuppressWarnings("restriction")
@@ -283,6 +282,10 @@ public class SampleInfoGenerated {
 
         return newObject;
 
+    }
+
+    public static com.yahoo.example.test.SampleInfo createSampleInfo(MissingFingers mf) {
+        return createSampleInfo(mf.getAddress(), mf.getLength());
     }
 }
 
