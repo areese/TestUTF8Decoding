@@ -13,13 +13,28 @@ public abstract class AbstractGenerator implements Closeable {
     protected final String objectClassName;
     protected final String shortObjectName;
     protected final boolean spewDebugging = false;
+    protected final String builtFromString;
 
 
-    public AbstractGenerator(Class<?> classToDump) {
+    public AbstractGenerator(String builtFromString, Class<?> classToDump) {
         this.objectClass = classToDump;
         this.objectClassName = this.objectClass.getName();
         String[] temp = objectClassName.split("\\.");
         this.shortObjectName = temp[temp.length - 1];
+        this.builtFromString = builtFromString;
+    }
+
+    protected void printGeneratedFromHeader(LinePrinter lp) {
+        // FIXME: you should be able to give a file or string that's your copyright here.
+        // lp.println(copyrightString);
+        lp.println();
+        lp.println("/*");
+        lp.println(" * This code was auto generated from https://github.com/areese/TestUTF8Decoding");
+        lp.println(" * Using:");
+        // ends with a newline.
+        lp.print(builtFromString);
+        lp.println(" */");
+        lp.println();
     }
 
     public void printWithTabs(LinePrinter lp, int tabs, String s) {

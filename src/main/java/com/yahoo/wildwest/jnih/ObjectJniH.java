@@ -22,6 +22,23 @@ public class ObjectJniH {
         String cFilename = "generateSample";
         String javaPath = "src/main/java/";
 
+        StringBuilder builtFrom = new StringBuilder();
+
+        // everyone loves c style comments. :)
+        builtFrom.append(" * java.class.path=").append(System.getProperty("java.class.path")).append("\n");
+        builtFrom.append(" * sun.java.command=").append(System.getProperty("sun.java.command")).append("\n");
+        builtFrom.append(" * args:\n");
+        builtFrom.append(" * ");
+        for (String a : args) {
+            builtFrom.append(a).append(" ");
+        }
+        // remove extra space.
+        builtFrom.deleteCharAt(builtFrom.length() - 1);
+        builtFrom.append("\n");
+
+        String builtFromString = builtFrom.toString();
+
+
         if (args.length > 0) {
             classToDump = Class.forName(args[0]);
         } else {
@@ -50,19 +67,19 @@ public class ObjectJniH {
         }
 
         // create the c struct
-        try (HGenerator c = new HGenerator(classToDump, cFilename)) {
+        try (HGenerator c = new HGenerator(builtFromString, classToDump, cFilename)) {
             try (PrintWriter pw = new PrintWriter(new File(cFilename + ".h"))) {
                 pw.println(c.generate());
             }
         }
 
-        try (CGenerator c = new CGenerator(classToDump, cFilename)) {
+        try (CGenerator c = new CGenerator(builtFromString, classToDump, cFilename)) {
             try (PrintWriter pw = new PrintWriter(new File(cFilename + ".cpp"))) {
                 pw.println(c.generate());
             }
         }
 
-        try (JavaGenerator java = new JavaGenerator(javaPath, classToDump)) {
+        try (JavaGenerator java = new JavaGenerator(builtFromString, javaPath, classToDump)) {
             String path = java.getFileName();
             System.err.println("Writing java to " + path);
             try (PrintWriter pw = new PrintWriter(new File(path))) {

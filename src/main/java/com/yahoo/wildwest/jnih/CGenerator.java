@@ -4,8 +4,8 @@ package com.yahoo.wildwest.jnih;
 
 public class CGenerator extends AbstractCGenerator {
 
-    public CGenerator(Class<?> classToDump, String cFilename) {
-        super(classToDump, cFilename);
+    public CGenerator(String builtFromString, Class<?> classToDump, String cFilename) {
+        super(builtFromString, classToDump, cFilename);
     }
 
     private void printIncludes() {
@@ -200,6 +200,8 @@ public class CGenerator extends AbstractCGenerator {
         // for c:
         // first write out the struct definition.
         // then we write the decode function.
+
+        printGeneratedFromHeader(pw);
 
         printIncludes();
 

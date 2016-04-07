@@ -13,8 +13,8 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
     protected StringWriter sw = new StringWriter();
     protected PrintWriterWrapper pw = new PrintWriterWrapper(sw);
 
-    public AbstractCGenerator(Class<?> classToDump, String cFilename) {
-        super(classToDump);
+    public AbstractCGenerator(String builtFromString, Class<?> classToDump, String cFilename) {
+        super(builtFromString, classToDump);
         this.structName = shortObjectName + "Struct";
         this.cFilename = cFilename;
         String[] t = cFilename.split("/");

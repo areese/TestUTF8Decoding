@@ -4,8 +4,8 @@ package com.yahoo.wildwest.jnih;
 
 public class HGenerator extends AbstractCGenerator {
 
-    public HGenerator(Class<?> classToDump, String cFilename) {
-        super(classToDump, cFilename);
+    public HGenerator(String builtFromString, Class<?> classToDump, String cFilename) {
+        super(builtFromString, classToDump, cFilename);
     }
 
     protected void printStartGuard() {
@@ -42,6 +42,8 @@ public class HGenerator extends AbstractCGenerator {
         // for c:
         // first write out the struct definition.
         // then we write the decode function.
+
+        printGeneratedFromHeader(pw);
 
         printStartGuard();
         printHeaderFileIncludes();

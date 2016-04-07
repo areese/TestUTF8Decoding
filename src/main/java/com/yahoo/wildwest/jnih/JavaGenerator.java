@@ -32,8 +32,8 @@ public class JavaGenerator extends AbstractGenerator {
     private final ListPrintWriter[] parts =
                     {classHeader, constants, initFunction, createFunction, createFunctionMissingFingers, classFooter};
 
-    public JavaGenerator(String basePath, Class<?> classToDump) {
-        super(classToDump);
+    public JavaGenerator(String builtFromString, String basePath, Class<?> classToDump) {
+        super(builtFromString, classToDump);
 
         String[] temp = objectClassName.split("\\.");
 
@@ -365,6 +365,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
         classHeader.println("import com.yahoo.wildwest.MissingFingers;");
         classHeader.println();
+        printGeneratedFromHeader(classHeader);
         classHeader.println("@SuppressWarnings(\"restriction\")");
         classHeader.println("public class " + generatedClassName + " {");
     }
