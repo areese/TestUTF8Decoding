@@ -26,9 +26,11 @@ public class JavaGenerator extends AbstractGenerator {
     private final ListPrintWriter constants = new ListPrintWriter();
     private final ListPrintWriter initFunction = new ListPrintWriter();
     private final ListPrintWriter createFunction = new ListPrintWriter();
+    private final ListPrintWriter createFunctionMissingFingers = new ListPrintWriter();
     private final ListPrintWriter classFooter = new ListPrintWriter();
 
-    private final ListPrintWriter[] parts = {classHeader, constants, initFunction, createFunction, classFooter};
+    private final ListPrintWriter[] parts =
+                    {classHeader, constants, initFunction, createFunction, createFunctionMissingFingers, classFooter};
 
     public JavaGenerator(String basePath, Class<?> classToDump) {
         super(classToDump);
@@ -249,6 +251,19 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
 
+    /**
+     * This generates the createObject function which is used to decode the jni representation from address, len into a
+     * Java Object.
+     */
+    public void javaCreateObjectMissingFingers() {
+        printWithTab(createFunctionMissingFingers,
+                        "public static " + objectClassName + " create" + shortObjectName + "(MissingFingers mf) {");
+        createFunctionMissingFingers.println();
+        createFunctionMissingFingers.println("return " + objectClassName + " create" + shortObjectName
+                        + "(mf.getAddress(), mf.getLength());");
+        printWithTab(createFunctionMissingFingers, "}");
+    }
+
     private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, CTYPES ctype,
                     String extra) {
         printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes " + extra);
@@ -350,7 +365,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
         classHeader.println("import com.yahoo.wildwest.MissingFingers;");
         classHeader.println();
-        classHeader.println("@SuppressWarnings(\"restriction\"");
+        classHeader.println("@SuppressWarnings(\"restriction\")");
         classHeader.println("public class " + generatedClassName + " {");
     }
 

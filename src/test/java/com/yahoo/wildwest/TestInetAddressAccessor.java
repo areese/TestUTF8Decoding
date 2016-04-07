@@ -97,6 +97,7 @@ public class TestInetAddressAccessor {
         InetAddressAccessor.newAddress(inAddress, inLength);
     }
 
+    @SuppressWarnings("unused")
     private static void dumpArray(byte[] inet6Address) {
         for (byte b : inet6Address) {
             System.out.print(String.format("%02x", b));

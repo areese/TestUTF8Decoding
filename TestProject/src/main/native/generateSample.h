@@ -43,7 +43,7 @@ typedef struct SampleInfoStruct {
  * everything is 64bit longs with a cast
  * Strings are considered UTF8, and are a tuple of address + length
  * Due to native memory tracking, strings are prealloacted with Unsafe.allocateMemory and assigned an output length
- * Similiar to how a c function would take char *outBuf, size_t bufLen
+ * Similar to how a c function would take char *outBuf, size_t bufLen
  * The length coming in says how large the buffer for address is.
  * The length coming out says how many characters including \0 were written
 **/

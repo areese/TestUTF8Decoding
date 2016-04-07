@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import com.yahoo.wildwest.MUnsafe;
 import com.yahoo.wildwest.MissingFingers;
 
+@SuppressWarnings("restriction")
 public class SampleInfoGenerated {
     public static final long BYTE_FIELD_SIZE = 8;
     public static final long SHORT_FIELD_SIZE = 8;
@@ -20,7 +21,6 @@ public class SampleInfoGenerated {
     public static final long DESC_DATA_SIZE = 1024;
     public static final long SOMEBYTES_DATA_SIZE = 1024;
 
-    @SuppressWarnings("restriction")
     public static MissingFingers initializeSampleInfo() {
 
         long totalLen = 0;
