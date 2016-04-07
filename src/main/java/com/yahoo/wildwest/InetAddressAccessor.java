@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 @SuppressWarnings("restriction")
@@ -184,21 +185,31 @@ public class InetAddressAccessor {
         return new MissingFingers(addressLong, len, (0 != len));
     }
 
-    public static InetAddress newAddress(MissingFingers output) {
+    public static InetAddress newAddress(MissingFingers output) throws UnknownHostException {
         return newAddress(output.getAddress(), output.getLength());
     }
 
-    public static InetAddress newAddress(long address, long length) {
+    public static InetAddress newAddress(long address, long length) throws UnknownHostException {
 
         if (0 == address) {
             return null;
         }
 
-        if (0 == length) {
-            // hacky ipv4.
-            // no length. ;)
-        } else if (4 == length) {
-            // ipv4
+        if (0 == length || 4 == length) {
+            byte[] bytes = new byte[4];
+
+            if (0 == length) {
+                // hacky ipv4.
+                // no length. ;), so it's just the ipv4 address
+                bytes[0] = (byte) ((address >> 0x18) & 0x0FF);
+                bytes[1] = (byte) ((address >> 0x10) & 0x0FF);
+                bytes[2] = (byte) ((address >> 0x08) & 0x0FF);
+                bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
+
+                return InetAddress.getByAddress(bytes);
+            } else {
+
+            }
         } else if (16 == length) {
             // ipv6
         } else {
