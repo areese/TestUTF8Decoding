@@ -90,7 +90,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
 
         if (NULL != orgPtr
                  && NULL != inputData->org.voidPtr
-                 && NULL != orgLenPtr) {
+                 && (*orgLenPtr) >0 ) {
                 memcpy ((void*) orgPtr, inputData->org.voidPtr, (*orgLenPtr));
         }
     }
@@ -107,7 +107,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
 
         if (NULL != locPtr
                  && NULL != inputData->loc.voidPtr
-                 && NULL != locLenPtr) {
+                 && (*locLenPtr) >0 ) {
                 memcpy ((void*) locPtr, inputData->loc.voidPtr, (*locLenPtr));
         }
     }
@@ -124,7 +124,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
 
         if (NULL != ccodePtr
                  && NULL != inputData->ccode.voidPtr
-                 && NULL != ccodeLenPtr) {
+                 && (*ccodeLenPtr) >0 ) {
                 memcpy ((void*) ccodePtr, inputData->ccode.voidPtr, (*ccodeLenPtr));
         }
     }
@@ -141,7 +141,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
 
         if (NULL != descPtr
                  && NULL != inputData->desc.voidPtr
-                 && NULL != descLenPtr) {
+                 && (*descLenPtr) >0 ) {
                 memcpy ((void*) descPtr, inputData->desc.voidPtr, (*descLenPtr));
         }
     }
@@ -158,7 +158,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
 
         if (NULL != someBytesPtr
                  && NULL != inputData->someBytes.voidPtr
-                 && NULL != someBytesLenPtr) {
+                 && (*someBytesLenPtr) >0 ) {
                 memcpy ((void*) someBytesPtr, inputData->someBytes.voidPtr, (*someBytesLenPtr));
         }
     }

@@ -162,7 +162,7 @@ public class CGenerator extends AbstractCGenerator {
 
         printWith2Tabs(pw, "if (NULL != " + dstAddressVariableName);
         printWithTabs(pw, 4, " && NULL != inputData->" + srcAddressVariableName);
-        printWithTabs(pw, 4, " && NULL != " + lenPtrVariableName + ") {");
+        printWithTabs(pw, 4, " && (*" + lenPtrVariableName + ") >0 ) {");
         printWithTabs(pw, 4, "memcpy ((void*) " + dstAddressVariableName + ", inputData->" + srcAddressVariableName
                         + ", " + dereferencedLenPtrVariableName + ");");
         printWith2Tabs(pw, "}");
