@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class JavaGenerator extends AbstractGenerator {
 
-    static final String GET_LONG_VALUE_STRING = "MUnsafe.unsafe.getLong(address + offset);";
+    static final String GET_LONG_VALUE_STRING = "MUnsafe.getLong(address + offset);";
 
     private final Set<String> blacklistedMethods = generateBlackList();
 
@@ -308,7 +308,7 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        printWith2Tabs(initFunction, "long address = MUnsafe.unsafe.allocateMemory(totalLen);");
+        printWith2Tabs(initFunction, "long address = MUnsafe.allocateMemory(totalLen);");
         printDumpAddressDetails(initFunction, "address", "totalLen");
 
         // we need to iterate through and write out the allocates and puts for non primitives.
@@ -347,10 +347,10 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab(constants, generateConstant(fieldSizeConstant, ctype.allocationSize));
 
         printWith2Tabs(lp, "{");
-        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + fieldSizeConstant + ");");
-        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
+        printWithTabs(lp, 3, "long newAddress = MUnsafe.allocateMemory(" + fieldSizeConstant + ");");
+        printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, newAddress);");
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
-        printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
+        printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "offset += LEN_OFFSET;");
         printWith2Tabs(lp, "}");
     }

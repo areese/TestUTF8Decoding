@@ -31,46 +31,46 @@ public class DecodeTest {
 
     private static void testLong() throws Exception {
         long len = 8;
-        long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putLong(address, data);
+        long address = MUnsafe.allocateMemory(len);
+        MUnsafe.putLong(address, data);
         System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
-        MUnsafe.unsafe.freeMemory(address);
+        MUnsafe.freeMemory(address);
     }
 
     private static void testInt() throws Exception {
         long len = 4;
-        long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putInt(address, (int) data);
+        long address = MUnsafe.allocateMemory(len);
+        MUnsafe.putInt(address, (int) data);
         System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
-        MUnsafe.unsafe.freeMemory(address);
+        MUnsafe.freeMemory(address);
     }
 
     private static void testShort() throws Exception {
         long len = 2;
-        long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putShort(address, (short) data);
+        long address = MUnsafe.allocateMemory(len);
+        MUnsafe.putShort(address, (short) data);
         System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
-        MUnsafe.unsafe.freeMemory(address);
+        MUnsafe.freeMemory(address);
     }
 
     private static void testByte() throws Exception {
         long len = 1;
-        long address = MUnsafe.unsafe.allocateMemory(len);
-        MUnsafe.unsafe.putByte(address, (byte) data);
+        long address = MUnsafe.allocateMemory(len);
+        MUnsafe.putByte(address, (byte) data);
         System.err.println("Putting " + Long.toHexString(data));
         if (!dumpEncoded(address, len)) {
             throw new Exception();
         }
-        MUnsafe.unsafe.freeMemory(address);
+        MUnsafe.freeMemory(address);
     }
 
     private static void testLotsOfLongs() throws Exception {
@@ -109,20 +109,20 @@ public class DecodeTest {
 
         };
 
-        long scale = MUnsafe.unsafe.arrayIndexScale(long[].class);
+        long scale = MUnsafe.arrayIndexScale(long[].class);
 
-        long address = MUnsafe.unsafe.allocateMemory(len);
+        long address = MUnsafe.allocateMemory(len);
         for (int i = 0, j = 0; i < longs.length && j < len; i++) {
             // System.err.println("Putting " + longs[i] + " at " + Long.toHexString(address) + j);
             System.err.println("Putting " + Long.toHexString(address + j) + " at " + longs[i]);
-            MUnsafe.unsafe.putLong(address + j, longs[i]);
+            MUnsafe.putLong(address + j, longs[i]);
             j += 8;
         }
 
         if (!dump(address, len)) {
             throw new Exception();
         }
-        MUnsafe.unsafe.freeMemory(address);
+        MUnsafe.freeMemory(address);
 
     }
 }

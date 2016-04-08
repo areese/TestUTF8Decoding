@@ -33,7 +33,7 @@ public class MissingFingers implements Closeable {
      * @param byteArraySize size of array to allocate
      */
     public MissingFingers(long byteArraySize) {
-        this(MUnsafe.allocate(byteArraySize), byteArraySize, true);
+        this(MUnsafe.allocateMemory(byteArraySize), byteArraySize, true);
     }
 
     /**

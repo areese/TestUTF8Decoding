@@ -14,35 +14,30 @@ public class MUnsafe {
     /**
      * The instance of unsafe everyone can use
      */
-    public static final Unsafe unsafe;
+    private static final Unsafe unsafe;
 
     /**
      * This is required by unsafe to access a char array, it's the offset
      */
-    public static final long charArrayBaseOffset;
+    private static final long charArrayBaseOffset;
 
     /**
      * This is required by unsafe to access a char array, it's the scale for indexing.
      */
-    public static final long charArrayIndexScale;
+    private static final long charArrayIndexScale;
 
     /**
      * This is required by unsafe to access a byte array, it's the offset
      */
-    public static final long byteArrayBaseOffset;
+    private static final long byteArrayBaseOffset;
 
     /**
      * This is required by unsafe to access a byte array, it's the scale for indexing.
      */
-    public static final long byteArrayIndexScale;
+    private static final long byteArrayIndexScale;
 
     /**
-     * This is the offset into the {@link InetSocketAddress} which references it's holder field.
-     */
-    // public static final long ISA_HOLDER_OFFSET;
-
-    /**
-     * For convience.
+     * For convenience.
      */
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
@@ -139,7 +134,7 @@ public class MUnsafe {
      */
     // Cribbed from DiretByteBuffer, apparently you need to check if it should
     // be page aligned and allocate enough if it is.
-    public static long allocate(long cap) {
+    public static long allocateMemory(long cap) {
         boolean isDirectMemoryPageAligned = VM.isDirectMemoryPageAligned();
         int pageSize = unsafe.pageSize();
         long size = Math.max(1L, (long) cap + (isDirectMemoryPageAligned ? pageSize : 0));
@@ -447,4 +442,35 @@ public class MUnsafe {
         }
     }
 
+    public static long arrayIndexScale(Class<?> arrayClass) {
+        return unsafe.arrayIndexScale(arrayClass);
+    }
+
+    public static void putLong(long address, long data) {
+        unsafe.putLong(address, data);
+    }
+
+    public static void putInt(long address, int data) {
+        unsafe.putLong(address, data);
+    }
+
+    public static void putShort(long address, short data) {
+        unsafe.putLong(address, data);
+    }
+
+    public static void putByte(long address, byte data) {
+        unsafe.putByte(address, data);
+    }
+    
+    public static void putAddress(long address, long newAddress) {
+        unsafe.putAddress(address, newAddress);
+    }
+
+    public static long getLong(long address) {
+        return unsafe.getLong(address);
+    }
+
+    public static long getAddress(long address) {
+        return unsafe.getAddress(address);
+    }
 }
