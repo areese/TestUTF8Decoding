@@ -101,7 +101,7 @@ public class SampleInfoGenerated {
 
         // ia java.net.InetAddress is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(IA_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(IA_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, IA_DATA_SIZE);
@@ -110,7 +110,7 @@ public class SampleInfoGenerated {
 
         // org java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(ORG_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(ORG_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, ORG_DATA_SIZE);
@@ -119,7 +119,7 @@ public class SampleInfoGenerated {
 
         // loc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(LOC_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(LOC_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, LOC_DATA_SIZE);
@@ -128,7 +128,7 @@ public class SampleInfoGenerated {
 
         // ccode java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(CCODE_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(CCODE_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, CCODE_DATA_SIZE);
@@ -137,7 +137,7 @@ public class SampleInfoGenerated {
 
         // desc java.lang.String is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(DESC_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(DESC_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, DESC_DATA_SIZE);
@@ -146,7 +146,7 @@ public class SampleInfoGenerated {
 
         // someBytes [B is 16 bytes, address + length
         {
-            long newAddress = MUnsafe.unsafe.allocateMemory(SOMEBYTES_DATA_SIZE); 
+            long newAddress = MUnsafe.unsafe.allocateMemory(SOMEBYTES_DATA_SIZE);
             MUnsafe.unsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
             MUnsafe.unsafe.putAddress(address + offset, SOMEBYTES_DATA_SIZE);
@@ -266,18 +266,18 @@ public class SampleInfoGenerated {
 
 
         com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(
-            type, // 
-            attrs, // 
-            status, // 
-            expiration, // 
-            readCount, // 
-            writeCount, // 
-            writeTimestamp, // 
-            ia, // 
-            org, // 
-            loc, // 
-            ccode, // 
-            desc, // 
+            type, //
+            attrs, //
+            status, //
+            expiration, //
+            readCount, //
+            writeCount, //
+            writeTimestamp, //
+            ia, //
+            org, //
+            loc, //
+            ccode, //
+            desc, //
             someBytes);
 
         return newObject;

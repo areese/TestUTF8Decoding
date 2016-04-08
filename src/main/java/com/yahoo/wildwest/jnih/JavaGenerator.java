@@ -150,7 +150,7 @@ public class JavaGenerator extends AbstractGenerator {
                         + objectClassName + "(");
         constructorString.append("\n");
 
-        String trailer = ", // \n";
+        String trailer = ", //\n";
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
@@ -347,7 +347,7 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab(constants, generateConstant(fieldSizeConstant, ctype.allocationSize));
 
         printWith2Tabs(lp, "{");
-        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + fieldSizeConstant + "); ");
+        printWithTabs(lp, 3, "long newAddress = MUnsafe.unsafe.allocateMemory(" + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, newAddress);");
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
         printWithTabs(lp, 3, "MUnsafe.unsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
