@@ -148,6 +148,9 @@ public class CGenerator extends AbstractCGenerator {
 
         printLenAndPointerVariable(name, typeName);
 
+        // we want to zero the contents before we go writing to it for safety.
+        printWith2Tabs(pw, "memset (" + dstAddressVariableName + ", 0, " + dereferencedLenPtrVariableName + ");");
+
         // we need to check len, we want the shorter of the to.
         // and we need to set it when we are done.
         printWith2Tabs(pw, "// use the shortest of buffersize and input size");

@@ -85,6 +85,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         uint64_t *orgLenPtr = (uint64_t*)(address + offset); // java.lang.String
         offset += 8;
 
+        memset (orgPtr, 0, (*orgLenPtr));
         // use the shortest of buffersize and input size
         (*orgLenPtr) = MIN( (*orgLenPtr), inputData->org.len);
 
@@ -102,6 +103,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         uint64_t *locLenPtr = (uint64_t*)(address + offset); // java.lang.String
         offset += 8;
 
+        memset (locPtr, 0, (*locLenPtr));
         // use the shortest of buffersize and input size
         (*locLenPtr) = MIN( (*locLenPtr), inputData->loc.len);
 
@@ -119,6 +121,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         uint64_t *ccodeLenPtr = (uint64_t*)(address + offset); // java.lang.String
         offset += 8;
 
+        memset (ccodePtr, 0, (*ccodeLenPtr));
         // use the shortest of buffersize and input size
         (*ccodeLenPtr) = MIN( (*ccodeLenPtr), inputData->ccode.len);
 
@@ -136,6 +139,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         uint64_t *descLenPtr = (uint64_t*)(address + offset); // java.lang.String
         offset += 8;
 
+        memset (descPtr, 0, (*descLenPtr));
         // use the shortest of buffersize and input size
         (*descLenPtr) = MIN( (*descLenPtr), inputData->desc.len);
 
@@ -153,6 +157,7 @@ void encodeIntoJava_SampleInfo(SampleInfoStruct *inputData, long address, long a
         uint64_t *someBytesLenPtr = (uint64_t*)(address + offset); // [B
         offset += 8;
 
+        memset (someBytesPtr, 0, (*someBytesLenPtr));
         // use the shortest of buffersize and input size
         (*someBytesLenPtr) = MIN( (*someBytesLenPtr), inputData->someBytes.len);
 
