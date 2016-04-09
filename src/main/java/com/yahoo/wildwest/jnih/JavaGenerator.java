@@ -249,8 +249,8 @@ public class JavaGenerator extends AbstractGenerator {
      * Java Object.
      */
     public void javaCreateObject() {
-        printWithTab(createFunction, "public static " + objectClassName + " create" + shortObjectName
-                        + "(NestedMissingFingers nested) {");
+        printWithTab(createFunction,
+                        "public static " + objectClassName + " create" + shortObjectName + "(MissingHand nested) {");
         createFunction.println();
         setupJavaVariablesBlock(createFunction);
         createBitSpitter(createFunction);
@@ -275,7 +275,7 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateInitialize() {
         initFunction.println();
-        printWithTab(initFunction, "public static NestedMissingFingers initialize" + shortObjectName + "() {");
+        printWithTab(initFunction, "public static MissingHand initialize" + shortObjectName + "() {");
         initFunction.println();
         // assume address, len
         printWith2Tabs(initFunction, "long totalLen = 0;");
@@ -307,6 +307,8 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
+        printWith2Tabs(initFunction, "long[] childAllocations = new long[allocatedCount];");
+        printWith2Tabs(initFunction, "int childIndex = 0;");
         printWith2Tabs(initFunction, "long address = MUnsafe.allocateMemory(totalLen);");
         printDumpAddressDetails(initFunction, "address", "totalLen");
 
@@ -324,7 +326,7 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        printWith2Tabs(initFunction, "return new NestedMissingFingers(address, totalLen, allocatedCount);");
+        printWith2Tabs(initFunction, "return new MissingHand(address, totalLen, childAllocations);");
         printWithTab(initFunction, "}");
         initFunction.println();
     }
@@ -351,6 +353,7 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
         printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "offset += LEN_OFFSET;");
+        printWithTabs(lp, 3, "childAllocations[childIndex++] = newAddress;");
         printWith2Tabs(lp, "}");
     }
 
@@ -363,7 +366,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println("import java.net.InetAddress;");
         classHeader.println();
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
-        classHeader.println("import com.yahoo.wildwest.NestedMissingFingers;");
+        classHeader.println("import com.yahoo.wildwest.MissingHand;");
         classHeader.println();
         printGeneratedFromHeader(classHeader);
         classHeader.println("public class " + generatedClassName + " {");

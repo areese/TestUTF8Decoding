@@ -2,7 +2,7 @@ package com.yahoo.example.test;
 import java.net.InetAddress;
 
 import com.yahoo.wildwest.MUnsafe;
-import com.yahoo.wildwest.NestedMissingFingers;
+import com.yahoo.wildwest.MissingHand;
 
 
 /*
@@ -33,7 +33,7 @@ public class SampleInfoGenerated {
     public static final long DESC_DATA_SIZE = 1024;
     public static final long SOMEBYTES_DATA_SIZE = 1024;
 
-    public static NestedMissingFingers initializeSampleInfo() {
+    public static MissingHand initializeSampleInfo() {
 
         long totalLen = 0;
         int allocatedCount = 0;
@@ -82,6 +82,8 @@ public class SampleInfoGenerated {
         totalLen  += BYTEARRAY_FIELD_SIZE;
         allocatedCount++;
 
+        long[] childAllocations = new long[allocatedCount];
+        int childIndex = 0;
         long address = MUnsafe.allocateMemory(totalLen);
 
         long offset = 0;
@@ -113,6 +115,7 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, IA_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
         // org java.lang.String is 16 bytes, address + length
@@ -122,6 +125,7 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, ORG_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
         // loc java.lang.String is 16 bytes, address + length
@@ -131,6 +135,7 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, LOC_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
         // ccode java.lang.String is 16 bytes, address + length
@@ -140,6 +145,7 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, CCODE_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
         // desc java.lang.String is 16 bytes, address + length
@@ -149,6 +155,7 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, DESC_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
         // someBytes [B is 16 bytes, address + length
@@ -158,12 +165,13 @@ public class SampleInfoGenerated {
             offset += ADDRESS_OFFSET;
             MUnsafe.putAddress(address + offset, SOMEBYTES_DATA_SIZE);
             offset += LEN_OFFSET;
+            childAllocations[childIndex++] = newAddress;
         }
 
-        return new NestedMissingFingers(address, totalLen, allocatedCount);
+        return new MissingHand(address, totalLen, childAllocations);
     }
 
-    public static com.yahoo.example.test.SampleInfo createSampleInfo(NestedMissingFingers nested) {
+    public static com.yahoo.example.test.SampleInfo createSampleInfo(MissingHand nested) {
 
         long address = nested.getAddress();
         long len = nested.getLength();

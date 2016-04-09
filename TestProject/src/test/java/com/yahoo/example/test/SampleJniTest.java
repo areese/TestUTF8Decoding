@@ -5,14 +5,14 @@ package com.yahoo.example.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.yahoo.wildwest.NestedMissingFingers;
+import com.yahoo.wildwest.MissingHand;
 
 
 public class SampleJniTest {
     private static final native void nativeSampleInfo(long address, long len);
 
     public static SampleInfo createSampleInfo() {
-        try (NestedMissingFingers sampleInfo = SampleInfoGenerated.initializeSampleInfo()) {
+        try (MissingHand sampleInfo = SampleInfoGenerated.initializeSampleInfo()) {
             nativeSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
             return SampleInfoGenerated.createSampleInfo(sampleInfo);
         }
