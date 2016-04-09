@@ -3,11 +3,11 @@
  * This code was auto generated from https://github.com/areese/TestUTF8Decoding
  * Using:
  * java.class.path=build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/
- * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  * args:
- * com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  * you can probably run this command to regenerate it
- * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  */
 
 #include <sys/param.h>

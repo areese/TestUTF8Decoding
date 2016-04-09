@@ -10,9 +10,7 @@ public class MissingFingers implements Closeable {
     private boolean allocated;
 
     public MissingFingers() {
-        this.address = 0;
-        this.length = 0;
-        this.allocated = false;
+        this(0, 0, false);
     }
 
     public MissingFingers(long address, long length) {
@@ -22,7 +20,11 @@ public class MissingFingers implements Closeable {
     public MissingFingers(long address, long length, boolean allocated) {
         this.address = address;
         this.length = length;
-        this.allocated = allocated;
+        if (0 != address) {
+            this.allocated = allocated;
+        } else {
+            this.allocated = false;
+        }
     }
 
     /**

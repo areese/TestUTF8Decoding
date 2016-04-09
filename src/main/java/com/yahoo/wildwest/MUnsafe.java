@@ -132,7 +132,7 @@ public class MUnsafe {
      * @param cap number of bytes to allocate
      * @return memory that must be free'd with Unsafe.free memory
      */
-    // Cribbed from DiretByteBuffer, apparently you need to check if it should
+    // Cribbed from DirectByteBuffer, apparently you need to check if it should
     // be page aligned and allocate enough if it is.
     public static long allocateMemory(long cap) {
         boolean isDirectMemoryPageAligned = VM.isDirectMemoryPageAligned();

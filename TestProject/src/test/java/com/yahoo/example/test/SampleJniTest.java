@@ -5,16 +5,17 @@ package com.yahoo.example.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.yahoo.wildwest.MissingFingers;
+import com.yahoo.wildwest.NestedMissingFingers;
 
 
 public class SampleJniTest {
     private static final native void nativeSampleInfo(long address, long len);
 
     public static SampleInfo createSampleInfo() {
-        MissingFingers sampleInfo = SampleInfoGenerated.initializeSampleInfo();
-        nativeSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
-        return SampleInfoGenerated.createSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
+        try (NestedMissingFingers sampleInfo = SampleInfoGenerated.initializeSampleInfo()) {
+            nativeSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
+            return SampleInfoGenerated.createSampleInfo(sampleInfo);
+        }
     }
 
     @Test

@@ -17,6 +17,7 @@ public class JavaGenerator extends AbstractGenerator {
     private final String generatedClassName;
     private final String javaPath;
     private final String fileName;
+    private final String packageName;
 
 
     /**
@@ -32,18 +33,23 @@ public class JavaGenerator extends AbstractGenerator {
     private final ListPrintWriter[] parts =
                     {classHeader, constants, initFunction, createFunction, createFunctionMissingFingers, classFooter};
 
+
     public JavaGenerator(String builtFromString, String basePath, Class<?> classToDump) {
         super(builtFromString, classToDump);
 
         String[] temp = objectClassName.split("\\.");
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder pathBuilder = new StringBuilder();
+        StringBuilder packageNameBuilder = new StringBuilder();
         for (int i = 0; i < temp.length - 1; i++) {
-            sb.append(temp[i]).append("/");
+            packageNameBuilder.append(temp[i]).append(".");
+            pathBuilder.append(temp[i]).append("/");
         }
 
-        this.javaPath = basePath + sb.toString();
+        packageNameBuilder.deleteCharAt(packageNameBuilder.length() - 1);
 
+        this.javaPath = basePath + pathBuilder.toString();
+        this.packageName = packageNameBuilder.toString();
         this.generatedClassName = shortObjectName + "Generated";
         this.fileName = javaPath + generatedClassName + ".java";
     }
@@ -123,6 +129,9 @@ public class JavaGenerator extends AbstractGenerator {
         // first we need to find all of it's fields, since we're generating code.
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
+
+        printWith2Tabs(lp, "long address = nested.getAddress();");
+        printWith2Tabs(lp, "long len = nested.getLength();");
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
@@ -215,8 +224,8 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printDecode(LinePrinter lp, String fieldName, Class<?> type) {
-        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(type, false) + "AndFree(" + fieldName
-                        + "Address, " + fieldName + "Len);");
+        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(type, false) + "(" + fieldName + "Address, "
+                        + fieldName + "Len);");
     }
 
     static String shortTypeName(Class<?> type, boolean isTypeDef) {
@@ -241,7 +250,7 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateObject() {
         printWithTab(createFunction, "public static " + objectClassName + " create" + shortObjectName
-                        + "(long address, long len) {");
+                        + "(NestedMissingFingers nested) {");
         createFunction.println();
         setupJavaVariablesBlock(createFunction);
         createBitSpitter(createFunction);
@@ -250,24 +259,13 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab(createFunction, "}");
     }
 
-
-    /**
-     * This generates the createObject function which is used to decode the jni representation from address, len into a
-     * Java Object.
-     */
-    public void javaCreateObjectMissingFingers() {
-        createFunctionMissingFingers.println();
-        printWithTab(createFunctionMissingFingers,
-                        "public static " + objectClassName + " create" + shortObjectName + "(MissingFingers mf) {");
-        printWith2Tabs(createFunctionMissingFingers,
-                        "return create" + shortObjectName + "(mf.getAddress(), mf.getLength());");
-        printWithTab(createFunctionMissingFingers, "}");
-    }
-
     private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, CTYPES ctype,
                     String extra) {
         printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes " + extra);
         printWith2Tabs(lp, varName + " += " + ctype.fieldSizeConstantName + ";");
+        if (!ctype.isSupportedPrimitive()) {
+            printWith2Tabs(lp, "allocatedCount++;");
+        }
     }
 
     /**
@@ -277,10 +275,11 @@ public class JavaGenerator extends AbstractGenerator {
      */
     public void javaCreateInitialize() {
         initFunction.println();
-        printWithTab(initFunction, "public static MissingFingers initialize" + shortObjectName + "() {");
+        printWithTab(initFunction, "public static NestedMissingFingers initialize" + shortObjectName + "() {");
         initFunction.println();
         // assume address, len
         printWith2Tabs(initFunction, "long totalLen = 0;");
+        printWith2Tabs(initFunction, "int allocatedCount = 0;");
 
         // we're going to iterate twice.
         // The first time is to figure out total length of the block.
@@ -325,7 +324,7 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        printWith2Tabs(initFunction, "return new MissingFingers(address, totalLen);");
+        printWith2Tabs(initFunction, "return new NestedMissingFingers(address, totalLen, allocatedCount);");
         printWithTab(initFunction, "}");
         initFunction.println();
     }
@@ -360,13 +359,13 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printClassHeader() {
-        classHeader.println("package com.yahoo.example.test;");
+        classHeader.println("package " + packageName + ";");
         classHeader.println("import java.net.InetAddress;");
+        classHeader.println();
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
-        classHeader.println("import com.yahoo.wildwest.MissingFingers;");
+        classHeader.println("import com.yahoo.wildwest.NestedMissingFingers;");
         classHeader.println();
         printGeneratedFromHeader(classHeader);
-        classHeader.println("@SuppressWarnings(\"restriction\")");
         classHeader.println("public class " + generatedClassName + " {");
     }
 
@@ -392,7 +391,6 @@ public class JavaGenerator extends AbstractGenerator {
         generateConstants();
         javaCreateInitialize();
         javaCreateObject();
-        javaCreateObjectMissingFingers();
         printClassFooter();
 
         StringBuilder partsBuilder = new StringBuilder();

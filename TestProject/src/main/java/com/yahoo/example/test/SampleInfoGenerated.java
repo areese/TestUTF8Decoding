@@ -1,21 +1,21 @@
 package com.yahoo.example.test;
 import java.net.InetAddress;
+
 import com.yahoo.wildwest.MUnsafe;
-import com.yahoo.wildwest.MissingFingers;
+import com.yahoo.wildwest.NestedMissingFingers;
 
 
 /*
  * This code was auto generated from https://github.com/areese/TestUTF8Decoding
  * Using:
  * java.class.path=build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/
- * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  * args:
- * com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  * you can probably run this command to regenerate it
- * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javafile TestProject/src/main/java/com/yahoo/example/test/ -cfile TestProject/src/main/native/generateSample
+ * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
  */
 
-@SuppressWarnings("restriction")
 public class SampleInfoGenerated {
     public static final long BYTE_FIELD_SIZE = 8;
     public static final long SHORT_FIELD_SIZE = 8;
@@ -33,9 +33,10 @@ public class SampleInfoGenerated {
     public static final long DESC_DATA_SIZE = 1024;
     public static final long SOMEBYTES_DATA_SIZE = 1024;
 
-    public static MissingFingers initializeSampleInfo() {
+    public static NestedMissingFingers initializeSampleInfo() {
 
         long totalLen = 0;
+        int allocatedCount = 0;
         // type int is 8 bytes , cast to uint64_t
         totalLen  += INT_FIELD_SIZE;
 
@@ -59,21 +60,27 @@ public class SampleInfoGenerated {
 
         // ia java.net.InetAddress is 16 bytes , address + length
         totalLen  += INETADDRESS_FIELD_SIZE;
+        allocatedCount++;
 
         // org java.lang.String is 16 bytes , address + length
         totalLen  += STRING_FIELD_SIZE;
+        allocatedCount++;
 
         // loc java.lang.String is 16 bytes , address + length
         totalLen  += STRING_FIELD_SIZE;
+        allocatedCount++;
 
         // ccode java.lang.String is 16 bytes , address + length
         totalLen  += STRING_FIELD_SIZE;
+        allocatedCount++;
 
         // desc java.lang.String is 16 bytes , address + length
         totalLen  += STRING_FIELD_SIZE;
+        allocatedCount++;
 
         // someBytes [B is 16 bytes , address + length
         totalLen  += BYTEARRAY_FIELD_SIZE;
+        allocatedCount++;
 
         long address = MUnsafe.allocateMemory(totalLen);
 
@@ -153,11 +160,13 @@ public class SampleInfoGenerated {
             offset += LEN_OFFSET;
         }
 
-        return new MissingFingers(address, totalLen);
+        return new NestedMissingFingers(address, totalLen, allocatedCount);
     }
 
-    public static com.yahoo.example.test.SampleInfo createSampleInfo(long address, long len) {
+    public static com.yahoo.example.test.SampleInfo createSampleInfo(NestedMissingFingers nested) {
 
+        long address = nested.getAddress();
+        long len = nested.getLength();
         int type; // int
         int attrs; // int
         int status; // int
@@ -216,7 +225,7 @@ public class SampleInfoGenerated {
         iaLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read iaLen type java.net.InetAddress
 
-        ia = MUnsafe.decodeInetAddressAndFree(iaAddress, iaLen);
+        ia = MUnsafe.decodeInetAddress(iaAddress, iaLen);
 
 
         orgAddress = MUnsafe.getLong(address + offset);
@@ -225,7 +234,7 @@ public class SampleInfoGenerated {
         orgLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read orgLen type java.lang.String
 
-        org = MUnsafe.decodeStringAndFree(orgAddress, orgLen);
+        org = MUnsafe.decodeString(orgAddress, orgLen);
 
 
         locAddress = MUnsafe.getLong(address + offset);
@@ -234,7 +243,7 @@ public class SampleInfoGenerated {
         locLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read locLen type java.lang.String
 
-        loc = MUnsafe.decodeStringAndFree(locAddress, locLen);
+        loc = MUnsafe.decodeString(locAddress, locLen);
 
 
         ccodeAddress = MUnsafe.getLong(address + offset);
@@ -243,7 +252,7 @@ public class SampleInfoGenerated {
         ccodeLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read ccodeLen type java.lang.String
 
-        ccode = MUnsafe.decodeStringAndFree(ccodeAddress, ccodeLen);
+        ccode = MUnsafe.decodeString(ccodeAddress, ccodeLen);
 
 
         descAddress = MUnsafe.getLong(address + offset);
@@ -252,7 +261,7 @@ public class SampleInfoGenerated {
         descLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read descLen type java.lang.String
 
-        desc = MUnsafe.decodeStringAndFree(descAddress, descLen);
+        desc = MUnsafe.decodeString(descAddress, descLen);
 
 
         someBytesAddress = MUnsafe.getLong(address + offset);
@@ -261,7 +270,7 @@ public class SampleInfoGenerated {
         someBytesLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read someBytesLen type [B
 
-        someBytes = MUnsafe.decodeByteArrayAndFree(someBytesAddress, someBytesLen);
+        someBytes = MUnsafe.decodeByteArray(someBytesAddress, someBytesLen);
 
 
 
@@ -282,10 +291,6 @@ public class SampleInfoGenerated {
 
         return newObject;
 
-    }
-
-    public static com.yahoo.example.test.SampleInfo createSampleInfo(MissingFingers mf) {
-        return createSampleInfo(mf.getAddress(), mf.getLength());
     }
 }
 
