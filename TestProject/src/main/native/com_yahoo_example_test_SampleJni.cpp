@@ -22,6 +22,10 @@
 JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_nativeSampleInfo
 (JNIEnv *jenv, jclass, jlong address, jlong len) {
 
+    if (0 == address || 0 == len) {
+        return;
+    }
+
     SampleInfoStruct data;
 
     data.type = TEST_LONG;
@@ -49,3 +53,22 @@ JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_nativeSampleInfo
 
     encodeIntoJava_SampleInfo(&data, address, len);
 }
+
+/*
+ * Class:     com_yahoo_example_test_SampleJni
+ * Method:    put4Bytes
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_put4Bytes
+(JNIEnv *jenv, jclass, jlong address, jlong len) {
+
+    if (0 == address || 4 != len) {
+        return;
+    }
+
+    char fourBytes[]= {0xDE,0xAD,0xF0,0x0D};
+
+    memcpy((void*)address, fourBytes, len);
+
+}
+

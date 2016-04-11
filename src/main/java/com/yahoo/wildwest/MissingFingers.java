@@ -35,7 +35,9 @@ public class MissingFingers implements Closeable {
      */
     public MissingFingers(byte[] from) {
         this(MUnsafe.byteArraySize(from));
-        MUnsafe.copyMemory(address, length, from);
+        if (isValidAddress()) {
+            MUnsafe.copyMemory(address, length, from);
+        }
     }
 
     public long getAddress() {
@@ -46,10 +48,14 @@ public class MissingFingers implements Closeable {
         return length;
     }
 
+    public boolean isValidAddress() {
+        return 0 != address && 0 != length;
+    }
+
     @Override
     public void close() {
         // only free if allocated
-        if (0 != address && 0 != length) {
+        if (isValidAddress()) {
             MUnsafe.freeMemory(address);
             address = 0;
             length = 0;

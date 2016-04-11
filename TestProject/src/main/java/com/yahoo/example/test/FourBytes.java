@@ -17,6 +17,8 @@ public class FourBytes {
     public static FourBytes fromJni() {
         try (MissingFingers mf = new MissingFingers(4)) {
 
+            SampleJni.put4Bytes(mf);
+
             byte[] decodeByteArray = MUnsafe.decodeByteArray(mf);
 
             return new FourBytes(decodeByteArray);

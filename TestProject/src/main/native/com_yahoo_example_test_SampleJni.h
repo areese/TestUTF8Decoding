@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_nativeSampleInfo
   (JNIEnv *, jclass, jlong, jlong);
 
+/*
+ * Class:     com_yahoo_example_test_SampleJni
+ * Method:    put4Bytes
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_put4Bytes
+  (JNIEnv *, jclass, jlong, jlong);
+
 #ifdef __cplusplus
 }
 #endif
