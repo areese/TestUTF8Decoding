@@ -2,7 +2,7 @@
 // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.
 #include <jni.h>
 #include <stdio.h>
-#include "com_yahoo_example_test_SampleJniTest.h"
+#include "com_yahoo_example_test_SampleJni.h"
 
 #include "generateSample.h"
 
@@ -15,11 +15,11 @@
 //#define TEST_INT  0x7FCAFEF00DBEEFDE
 
 /*
- * Class:     com_yahoo_example_test_SampleJniTest
+ * Class:     com_yahoo_example_test_SampleJni
  * Method:    nativeSampleInfo
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJniTest_nativeSampleInfo
+JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJni_nativeSampleInfo
 (JNIEnv *jenv, jclass, jlong address, jlong len) {
 
     SampleInfoStruct data;
@@ -32,19 +32,19 @@ JNIEXPORT void JNICALL Java_com_yahoo_example_test_SampleJniTest_nativeSampleInf
     data.writeCount = TEST_LONG;
     data.writeTimestamp = TEST_LONG;
 
-    data.ia.constCharPtr =  0;
+    data.ia.constCharPtr = 0;
     data.ia.len = 0;
 
-    data.org.constCharPtr =  SUPER_LONG_STRING;
+    data.org.constCharPtr = SUPER_LONG_STRING;
     data.org.len = strlen(SUPER_LONG_STRING);
 
-    data.loc.constCharPtr =  "locAddress";
+    data.loc.constCharPtr = "locAddress";
     data.loc.len = strlen("locAddress");
 
-    data.ccode.constCharPtr =  "ccodeAddress";
+    data.ccode.constCharPtr = "ccodeAddress";
     data.ccode.len = strlen("ccodeAddress");
 
-    data.desc.constCharPtr =  "descAddress";
+    data.desc.constCharPtr = "descAddress";
     data.desc.len = strlen("descAddress");
 
     encodeIntoJava_SampleInfo(&data, address, len);

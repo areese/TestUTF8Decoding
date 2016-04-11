@@ -5,23 +5,12 @@ package com.yahoo.example.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.yahoo.wildwest.MissingHand;
-
 
 public class SampleJniTest {
-    private static final native void nativeSampleInfo(long address, long len);
-
-    public static SampleInfo createSampleInfo() {
-        try (MissingHand sampleInfo = SampleInfoGenerated.initializeSampleInfo()) {
-            nativeSampleInfo(sampleInfo.getAddress(), sampleInfo.getLength());
-            return SampleInfoGenerated.createSampleInfo(sampleInfo);
-        }
-    }
-
     @Test
     public void simpleTest() {
         JniLibraryLoader.load();
-        SampleInfo si = createSampleInfo();
+        SampleInfo si = SampleJni.createSampleInfo();
         Assert.assertEquals(si.getType(), 230617054);
         Assert.assertEquals(si.getAttrs(), 230617054);
         Assert.assertEquals(si.getExpiration(), 9208452695088623582L);
@@ -36,6 +25,6 @@ public class SampleJniTest {
     }
 
     public static void main(String[] args) {
-        System.err.println(createSampleInfo());
+        System.err.println(SampleJni.createSampleInfo());
     }
 }

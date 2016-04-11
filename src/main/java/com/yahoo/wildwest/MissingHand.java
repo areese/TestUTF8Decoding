@@ -6,6 +6,10 @@ import com.yahoo.wildwest.MissingFingers;
 public class MissingHand extends MissingFingers {
     private long[] childAllocations;
 
+    public MissingHand() {
+        this(0, 0, null);
+    }
+
     public MissingHand(long address, long length, long[] childAllocations) {
         super(address, length);
         this.childAllocations = childAllocations;

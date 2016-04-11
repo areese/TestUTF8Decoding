@@ -8,6 +8,10 @@ public class MissingFingers implements Closeable {
     private long address;
     private long length;
 
+    public MissingFingers() {
+        this(0, 0);
+    }
+
     public MissingFingers(long address, long length) {
         this.address = address;
         this.length = length;
