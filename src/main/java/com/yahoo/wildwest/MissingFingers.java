@@ -7,24 +7,10 @@ import java.io.Closeable;
 public class MissingFingers implements Closeable {
     private long address;
     private long length;
-    private boolean allocated;
-
-    public MissingFingers() {
-        this(0, 0, false);
-    }
 
     public MissingFingers(long address, long length) {
-        this(address, length, true);
-    }
-
-    public MissingFingers(long address, long length, boolean allocated) {
         this.address = address;
         this.length = length;
-        if (0 != address) {
-            this.allocated = allocated;
-        } else {
-            this.allocated = false;
-        }
     }
 
     /**
@@ -35,7 +21,7 @@ public class MissingFingers implements Closeable {
      * @param byteArraySize size of array to allocate
      */
     public MissingFingers(long byteArraySize) {
-        this(MUnsafe.allocateMemory(byteArraySize), byteArraySize, true);
+        this(MUnsafe.allocateMemory(byteArraySize), byteArraySize);
     }
 
     /**
@@ -59,13 +45,11 @@ public class MissingFingers implements Closeable {
     @Override
     public void close() {
         // only free if allocated
-        if (allocated) {
+        if (0 != address && 0 != length) {
             MUnsafe.freeMemory(address);
+            address = 0;
+            length = 0;
         }
-    }
-
-    public boolean getAllocated() {
-        return allocated;
     }
 
 }

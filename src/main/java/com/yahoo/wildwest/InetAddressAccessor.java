@@ -182,7 +182,7 @@ public class InetAddressAccessor {
             MUnsafe.copyMemory(addressLong, len, addressBytes);
         }
 
-        return new MissingFingers(addressLong, len, (0 != len));
+        return new MissingFingers(addressLong, len);
     }
 
     public static InetAddress newAddress(MissingFingers output) throws UnknownHostException {
