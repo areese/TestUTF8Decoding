@@ -4,16 +4,26 @@ import java.net.InetAddress;
 
 import com.yahoo.wildwest.MUnsafe;
 import com.yahoo.wildwest.MissingHand;
+import com.yahoo.wildwest.BoundsCheckException;
+
 
 /*
  * This code was auto generated from https://github.com/areese/TestUTF8Decoding Using:
- * java.class.path=../build/libs/TestUTF8Decoding.jar:build/classes/main/
- * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile
- * src/main/native/generateSample.cpp args: com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile
- * src/main/native/generateSample.cpp you can probably run this command to regenerate it java -cp
- * ../build/libs/TestUTF8Decoding.jar:build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH
- * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample.cpp
- * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample.cpp
+ * java.class.path=/Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/classes/main:/Users/areese/dev/
+ * github/areese/TestUTF8Decoding/TestProject/build/resources/main:/Users/areese/.m2/repository/com/yahoo/example/
+ * codegen/codegen/1.0.0/codegen-1.0.0.jar:/Users/areese/.gradle/caches/modules-2/files-2.1/log4j/log4j/1.2.14/
+ * 3b254c872b95141751f414e353a25c2ac261b51/log4j-1.2.14.jar:/Users/areese/dev/github/areese/TestUTF8Decoding/build/libs/
+ * TestUTF8Decoding.jar:build/classes/main sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH
+ * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample args:
+ * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample you can probably run
+ * this command to regenerate it java -cp
+ * /Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/classes/main:/Users/areese/dev/github/areese/
+ * TestUTF8Decoding/TestProject/build/resources/main:/Users/areese/.m2/repository/com/yahoo/example/codegen/codegen/1.0.
+ * 0/codegen-1.0.0.jar:/Users/areese/.gradle/caches/modules-2/files-2.1/log4j/log4j/1.2.14/
+ * 3b254c872b95141751f414e353a25c2ac261b51/log4j-1.2.14.jar:/Users/areese/dev/github/areese/TestUTF8Decoding/build/libs/
+ * TestUTF8Decoding.jar:build/classes/main com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo
+ * -javapath src/main/java -cfile src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath
+ * src/main/java -cfile src/main/native/generateSample
  */
 
 public class SampleInfoGenerated {
@@ -33,9 +43,9 @@ public class SampleInfoGenerated {
     public static final long DESC_DATA_SIZE = 1024;
     public static final long SOMEBYTES_DATA_SIZE = 1024;
 
-    public static void boundsCheck(long address, long offset, long length) throws RuntimeException {
+    public static void boundsCheck(long address, long offset, long length) throws BoundsCheckException {
         if (offset > length) {
-            throw new RuntimeException(); // address, offset, len);
+            throw new BoundsCheckException(address, offset, length);
         }
     }
 
@@ -192,7 +202,7 @@ public class SampleInfoGenerated {
     public static com.yahoo.example.test.SampleInfo createSampleInfo(MissingHand nested) {
 
         long address = nested.getAddress();
-        long len = nested.getLength();
+        long length = nested.getLength();
         int type; // int
         int attrs; // int
         int status; // int
@@ -226,94 +236,94 @@ public class SampleInfoGenerated {
 
         type = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read type type int
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         attrs = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read attrs type int
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         status = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read status type int
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         expiration = (long) MUnsafe.getLong(address + offset);
         offset += LONG_FIELD_SIZE; // just read expiration type long
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         readCount = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read readCount type int
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         writeCount = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read writeCount type int
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         writeTimestamp = (long) MUnsafe.getLong(address + offset);
         offset += LONG_FIELD_SIZE; // just read writeTimestamp type long
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         iaAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read iaAddress type java.net.InetAddress
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         iaLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read iaLen type java.net.InetAddress
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         ia = MUnsafe.decodeInetAddress(iaAddress, iaLen);
 
 
         orgAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read orgAddress type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         orgLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read orgLen type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         org = MUnsafe.decodeString(orgAddress, orgLen);
 
 
         locAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read locAddress type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         locLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read locLen type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         loc = MUnsafe.decodeString(locAddress, locLen);
 
 
         ccodeAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read ccodeAddress type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         ccodeLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read ccodeLen type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         ccode = MUnsafe.decodeString(ccodeAddress, ccodeLen);
 
 
         descAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read descAddress type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         descLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read descLen type java.lang.String
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         desc = MUnsafe.decodeString(descAddress, descLen);
 
 
         someBytesAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read someBytesAddress type [B
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         someBytesLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read someBytesLen type [B
-        boundsCheck(address, offset, len);
+        boundsCheck(address, offset, length);
 
         someBytes = MUnsafe.decodeByteArray(someBytesAddress, someBytesLen);
 

@@ -5,6 +5,9 @@ package com.yahoo.example.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.yahoo.wildwest.BoundsCheckException;
+import com.yahoo.wildwest.MissingHand;
+
 
 public class SampleJniTest {
     @Test
@@ -22,6 +25,14 @@ public class SampleJniTest {
         Assert.assertEquals(si.getDesc(), "descAddress");
         Assert.assertEquals(si.getOrg(),
                         "// Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.     // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms.     // Licensed under the terms of the New-BSD license. Please see LICENSE file in the project root for terms. ");
+    }
+
+    @Test(expectedExceptions = BoundsCheckException.class)
+    public void testBounds() {
+        try (MissingHand sampleInfo = SampleInfoGenerated.initializeSampleInfo()) {
+            MissingHand mh = new MissingHand(sampleInfo.getAddress(), sampleInfo.getLength() - 10, null);
+            SampleInfoGenerated.createSampleInfo(mh);
+        }
     }
 
     public static void main(String[] args) {
