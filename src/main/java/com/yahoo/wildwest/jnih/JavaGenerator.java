@@ -25,13 +25,14 @@ public class JavaGenerator extends AbstractGenerator {
      */
     private final ListPrintWriter classHeader = new ListPrintWriter();
     private final ListPrintWriter constants = new ListPrintWriter();
+    private final ListPrintWriter boundsCheck = new ListPrintWriter();
     private final ListPrintWriter initFunction = new ListPrintWriter();
     private final ListPrintWriter createFunction = new ListPrintWriter();
     private final ListPrintWriter createFunctionMissingFingers = new ListPrintWriter();
     private final ListPrintWriter classFooter = new ListPrintWriter();
 
-    private final ListPrintWriter[] parts =
-                    {classHeader, constants, initFunction, createFunction, createFunctionMissingFingers, classFooter};
+    private final ListPrintWriter[] parts = {classHeader, constants, boundsCheck, initFunction, createFunction,
+                    createFunctionMissingFingers, classFooter};
 
 
     public JavaGenerator(String builtFromString, String basePath, Class<?> classToDump) {
@@ -131,7 +132,7 @@ public class JavaGenerator extends AbstractGenerator {
         // List<Field> fields = new LinkedList<>();
 
         printWith2Tabs(lp, "long address = nested.getAddress();");
-        printWith2Tabs(lp, "long len = nested.getLength();");
+        printWith2Tabs(lp, "long length = nested.getLength();");
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
@@ -181,6 +182,7 @@ public class JavaGenerator extends AbstractGenerator {
 
     public void printOffset(LinePrinter lp, String fieldSizeConstantName, String fieldName, String typeName) {
         printWith2Tabs(lp, "offset += " + fieldSizeConstantName + "; // just read " + fieldName + " type " + typeName);
+        printWith2Tabs(lp, "boundsCheck(address, offset, length);");
     }
 
     private void createBitSpitter(LinePrinter lp) {
@@ -351,8 +353,10 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTabs(lp, 3, "long newAddress = MUnsafe.allocateMemory(" + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, newAddress);");
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
+        printWithTabs(lp, 3, "boundsCheck(address, offset, totalLen);");
         printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "offset += LEN_OFFSET;");
+        printWithTabs(lp, 2, "boundsCheck(address, offset, totalLen);");
         printWithTabs(lp, 3, "childAllocations[childIndex++] = newAddress;");
         printWith2Tabs(lp, "}");
     }
@@ -367,6 +371,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println();
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
         classHeader.println("import com.yahoo.wildwest.MissingHand;");
+        classHeader.println("import com.yahoo.wildwest.BoundsCheckException;");
         classHeader.println();
         printGeneratedFromHeader(classHeader);
         classHeader.println("public class " + generatedClassName + " {");
@@ -389,9 +394,19 @@ public class JavaGenerator extends AbstractGenerator {
         printWithTab(constants, generateConstant("LEN_OFFSET", 8));
     }
 
+    private void javaCreateBoundsCheck() {
+        printWithTab(boundsCheck,
+                        "public static void boundsCheck (long address, long offset, long length) throws BoundsCheckException {");
+        printWith2Tabs(boundsCheck, "if (offset > length) {");
+        printWithTabs(boundsCheck, 3, "throw new BoundsCheckException(address, offset, length);");
+        printWith2Tabs(boundsCheck, "}");
+        printWithTab(boundsCheck, "}");
+    }
+
     public String generate() {
         printClassHeader();
         generateConstants();
+        javaCreateBoundsCheck();
         javaCreateInitialize();
         javaCreateObject();
         printClassFooter();
@@ -402,7 +417,6 @@ public class JavaGenerator extends AbstractGenerator {
         }
 
         return partsBuilder.toString();
-
     }
 
 }

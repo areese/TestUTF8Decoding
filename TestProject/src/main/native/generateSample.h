@@ -2,12 +2,12 @@
 /*
  * This code was auto generated from https://github.com/areese/TestUTF8Decoding
  * Using:
- * java.class.path=build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/
- * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ * java.class.path=/Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/classes/main:/Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/resources/main:/Users/areese/.m2/repository/com/yahoo/example/codegen/codegen/1.0.0/codegen-1.0.0.jar:/Users/areese/.gradle/caches/modules-2/files-2.1/log4j/log4j/1.2.14/3b254c872b95141751f414e353a25c2ac261b51/log4j-1.2.14.jar:/Users/areese/dev/github/areese/TestUTF8Decoding/build/libs/TestUTF8Decoding.jar:build/classes/main
+ * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample
  * args:
- * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample
  * you can probably run this command to regenerate it
- * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ * java -cp /Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/classes/main:/Users/areese/dev/github/areese/TestUTF8Decoding/TestProject/build/resources/main:/Users/areese/.m2/repository/com/yahoo/example/codegen/codegen/1.0.0/codegen-1.0.0.jar:/Users/areese/.gradle/caches/modules-2/files-2.1/log4j/log4j/1.2.14/3b254c872b95141751f414e353a25c2ac261b51/log4j-1.2.14.jar:/Users/areese/dev/github/areese/TestUTF8Decoding/build/libs/TestUTF8Decoding.jar:build/classes/main com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample
  */
 
 #ifndef _Included_generateSample

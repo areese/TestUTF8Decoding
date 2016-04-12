@@ -1,19 +1,19 @@
 package com.yahoo.example.test;
+
 import java.net.InetAddress;
 
 import com.yahoo.wildwest.MUnsafe;
 import com.yahoo.wildwest.MissingHand;
 
-
 /*
- * This code was auto generated from https://github.com/areese/TestUTF8Decoding
- * Using:
- * java.class.path=build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/
- * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
- * args:
- * com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
- * you can probably run this command to regenerate it
- * java -cp build/libs/TestUTF8Decoding.jar:TestProject/build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample com.yahoo.example.test.SampleInfo -javapath TestProject/src/main/java/ -cfile TestProject/src/main/native/generateSample
+ * This code was auto generated from https://github.com/areese/TestUTF8Decoding Using:
+ * java.class.path=../build/libs/TestUTF8Decoding.jar:build/classes/main/
+ * sun.java.command=com.yahoo.wildwest.jnih.ObjectJniH com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile
+ * src/main/native/generateSample.cpp args: com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile
+ * src/main/native/generateSample.cpp you can probably run this command to regenerate it java -cp
+ * ../build/libs/TestUTF8Decoding.jar:build/classes/main/ com.yahoo.wildwest.jnih.ObjectJniH
+ * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample.cpp
+ * com.yahoo.example.test.SampleInfo -javapath src/main/java -cfile src/main/native/generateSample.cpp
  */
 
 public class SampleInfoGenerated {
@@ -33,53 +33,59 @@ public class SampleInfoGenerated {
     public static final long DESC_DATA_SIZE = 1024;
     public static final long SOMEBYTES_DATA_SIZE = 1024;
 
+    public static void boundsCheck(long address, long offset, long length) throws RuntimeException {
+        if (offset > length) {
+            throw new RuntimeException(); // address, offset, len);
+        }
+    }
+
     public static MissingHand initializeSampleInfo() {
 
         long totalLen = 0;
         int allocatedCount = 0;
         // type int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // attrs int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // status int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // expiration long is 8 bytes , cast to uint64_t
-        totalLen  += LONG_FIELD_SIZE;
+        totalLen += LONG_FIELD_SIZE;
 
         // readCount int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // writeCount int is 8 bytes , cast to uint64_t
-        totalLen  += INT_FIELD_SIZE;
+        totalLen += INT_FIELD_SIZE;
 
         // writeTimestamp long is 8 bytes , cast to uint64_t
-        totalLen  += LONG_FIELD_SIZE;
+        totalLen += LONG_FIELD_SIZE;
 
         // ia java.net.InetAddress is 16 bytes , address + length
-        totalLen  += INETADDRESS_FIELD_SIZE;
+        totalLen += INETADDRESS_FIELD_SIZE;
         allocatedCount++;
 
         // org java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
         allocatedCount++;
 
         // loc java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
         allocatedCount++;
 
         // ccode java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
         allocatedCount++;
 
         // desc java.lang.String is 16 bytes , address + length
-        totalLen  += STRING_FIELD_SIZE;
+        totalLen += STRING_FIELD_SIZE;
         allocatedCount++;
 
         // someBytes [B is 16 bytes , address + length
-        totalLen  += BYTEARRAY_FIELD_SIZE;
+        totalLen += BYTEARRAY_FIELD_SIZE;
         allocatedCount++;
 
         long[] childAllocations = new long[allocatedCount];
@@ -88,33 +94,35 @@ public class SampleInfoGenerated {
 
         long offset = 0;
         // type int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // attrs int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // status int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // expiration long is 8 bytes , cast to uint64_t
-        offset  += LONG_FIELD_SIZE;
+        offset += LONG_FIELD_SIZE;
 
         // readCount int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // writeCount int is 8 bytes , cast to uint64_t
-        offset  += INT_FIELD_SIZE;
+        offset += INT_FIELD_SIZE;
 
         // writeTimestamp long is 8 bytes , cast to uint64_t
-        offset  += LONG_FIELD_SIZE;
+        offset += LONG_FIELD_SIZE;
 
         // ia java.net.InetAddress is 16 bytes, address + length
         {
             long newAddress = MUnsafe.allocateMemory(IA_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, IA_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -123,8 +131,10 @@ public class SampleInfoGenerated {
             long newAddress = MUnsafe.allocateMemory(ORG_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, ORG_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -133,8 +143,10 @@ public class SampleInfoGenerated {
             long newAddress = MUnsafe.allocateMemory(LOC_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, LOC_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -143,8 +155,10 @@ public class SampleInfoGenerated {
             long newAddress = MUnsafe.allocateMemory(CCODE_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, CCODE_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -153,8 +167,10 @@ public class SampleInfoGenerated {
             long newAddress = MUnsafe.allocateMemory(DESC_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, DESC_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -163,8 +179,10 @@ public class SampleInfoGenerated {
             long newAddress = MUnsafe.allocateMemory(SOMEBYTES_DATA_SIZE);
             MUnsafe.putAddress(address + offset, newAddress);
             offset += ADDRESS_OFFSET;
+            boundsCheck(address, offset, totalLen);
             MUnsafe.putAddress(address + offset, SOMEBYTES_DATA_SIZE);
             offset += LEN_OFFSET;
+            boundsCheck(address, offset, totalLen);
             childAllocations[childIndex++] = newAddress;
         }
 
@@ -208,94 +226,112 @@ public class SampleInfoGenerated {
 
         type = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read type type int
+        boundsCheck(address, offset, len);
 
         attrs = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read attrs type int
+        boundsCheck(address, offset, len);
 
         status = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read status type int
+        boundsCheck(address, offset, len);
 
         expiration = (long) MUnsafe.getLong(address + offset);
         offset += LONG_FIELD_SIZE; // just read expiration type long
+        boundsCheck(address, offset, len);
 
         readCount = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read readCount type int
+        boundsCheck(address, offset, len);
 
         writeCount = (int) MUnsafe.getLong(address + offset);
         offset += INT_FIELD_SIZE; // just read writeCount type int
+        boundsCheck(address, offset, len);
 
         writeTimestamp = (long) MUnsafe.getLong(address + offset);
         offset += LONG_FIELD_SIZE; // just read writeTimestamp type long
+        boundsCheck(address, offset, len);
 
         iaAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read iaAddress type java.net.InetAddress
+        boundsCheck(address, offset, len);
 
         iaLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read iaLen type java.net.InetAddress
+        boundsCheck(address, offset, len);
 
         ia = MUnsafe.decodeInetAddress(iaAddress, iaLen);
 
 
         orgAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read orgAddress type java.lang.String
+        boundsCheck(address, offset, len);
 
         orgLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read orgLen type java.lang.String
+        boundsCheck(address, offset, len);
 
         org = MUnsafe.decodeString(orgAddress, orgLen);
 
 
         locAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read locAddress type java.lang.String
+        boundsCheck(address, offset, len);
 
         locLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read locLen type java.lang.String
+        boundsCheck(address, offset, len);
 
         loc = MUnsafe.decodeString(locAddress, locLen);
 
 
         ccodeAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read ccodeAddress type java.lang.String
+        boundsCheck(address, offset, len);
 
         ccodeLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read ccodeLen type java.lang.String
+        boundsCheck(address, offset, len);
 
         ccode = MUnsafe.decodeString(ccodeAddress, ccodeLen);
 
 
         descAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read descAddress type java.lang.String
+        boundsCheck(address, offset, len);
 
         descLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read descLen type java.lang.String
+        boundsCheck(address, offset, len);
 
         desc = MUnsafe.decodeString(descAddress, descLen);
 
 
         someBytesAddress = MUnsafe.getLong(address + offset);
         offset += ADDRESS_OFFSET; // just read someBytesAddress type [B
+        boundsCheck(address, offset, len);
 
         someBytesLen = MUnsafe.getLong(address + offset);
         offset += LEN_OFFSET; // just read someBytesLen type [B
+        boundsCheck(address, offset, len);
 
         someBytes = MUnsafe.decodeByteArray(someBytesAddress, someBytesLen);
 
 
 
-        com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(
-            type, //
-            attrs, //
-            status, //
-            expiration, //
-            readCount, //
-            writeCount, //
-            writeTimestamp, //
-            ia, //
-            org, //
-            loc, //
-            ccode, //
-            desc, //
-            someBytes);
+        com.yahoo.example.test.SampleInfo newObject = new com.yahoo.example.test.SampleInfo(type, //
+                        attrs, //
+                        status, //
+                        expiration, //
+                        readCount, //
+                        writeCount, //
+                        writeTimestamp, //
+                        ia, //
+                        org, //
+                        loc, //
+                        ccode, //
+                        desc, //
+                        someBytes);
 
         return newObject;
 

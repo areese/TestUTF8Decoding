@@ -13,10 +13,26 @@ task buildJni(type:Exec) {
   commandLine 'make'
 }
 
+task generateCode(type: JavaExec) {
+  classpath sourceSets.main.runtimeClasspath
+  classpath '../build/libs/TestUTF8Decoding.jar:build/classes/main/'
+
+  main = 'com.yahoo.wildwest.jnih.ObjectJniH'
+
+  args 'com.yahoo.example.test.SampleInfo'
+  args '-javapath'
+  args 'src/main/java'
+  args '-cfile'
+  args 'src/main/native/generateSample'
+}
+
 // https://docs.gradle.org/current/userguide/java_plugin.html
 buildJni.shouldRunAfter compileJava
+compileJava.shouldRunAfter generateCode
+
 
 build.dependsOn(buildJni)
+build.dependsOn(generateCode)
 
 
 test {
