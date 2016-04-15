@@ -489,6 +489,10 @@ public class MUnsafe {
         return unsafe.getInt(address);
     }
 
+    public static long getLong(long address) {
+        return unsafe.getLong(address);
+    }
+
     public static long getAddress(long address) {
         return unsafe.getAddress(address);
     }
