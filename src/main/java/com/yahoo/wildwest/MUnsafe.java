@@ -156,7 +156,6 @@ public class MUnsafe {
      * Copy the contents of a byte array into native memory
      * 
      * @param destAddress native memory
-     * @param totalSize amount to copy
      * @param from where to copy from
      */
     public static void copyMemory(long destAddress, byte[] from) {

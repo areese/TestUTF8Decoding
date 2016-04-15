@@ -189,7 +189,7 @@ public class InetAddressAccessor {
      * In C, this will map nicely to a sockaddr_storage. You might need some custom code to deal with the copy, as you
      * still need to set family.
      * 
-     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(&sockaddr_storage)
+     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(sockaddr_storage)
      * friendly version but it doesn't.
      * 
      * @param address input address
@@ -240,10 +240,10 @@ public class InetAddressAccessor {
      * In C, this will map nicely to a addrinfo. You might need some custom code to deal with the copy, as you still
      * need to set family.
      * 
-     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(&sockaddr_storage)
+     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(sockaddr_storage)
      * friendly version but it doesn't.
      * 
-     * @param address input address
+     * @param addresses input address
      * @return address/length tuple. For ipv4 the tuple is: address/0 so 192.168.1.111 is returned as the 2 longs:
      *         0xc0a8016f 0x0.
      * @throws UnsupportedAddressTypeException if given a non {@link Inet4Address} or non {@link Inet6Address}
