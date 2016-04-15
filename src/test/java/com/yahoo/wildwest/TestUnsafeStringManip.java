@@ -3,6 +3,7 @@
 package com.yahoo.wildwest;
 
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TestUnsafeStringManip {
@@ -23,5 +24,20 @@ public class TestUnsafeStringManip {
             Assert.assertEquals(decoded1, decoded2);
             Assert.assertEquals(decoded1, simple);
         }
+    }
+
+    @DataProvider
+    public Object[][] lengths() {
+        return new Object[][] { //
+                        {null, 0}, //
+                        {new byte[0], 0}, //
+                        {new byte[10], 0}, //
+                        {new byte[] {(byte) 'y', (byte) 'a', (byte) 'h', (byte) 'o', (byte) 'o', 0, 0, 0}, 5}, //
+        };
+    }
+
+    @Test(dataProvider = "lengths")
+    public void testLength(byte[] b, int expected) {
+        Assert.assertEquals(MUnsafe.getStringLength(b), expected);
     }
 }

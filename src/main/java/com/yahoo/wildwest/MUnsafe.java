@@ -159,6 +159,17 @@ public class MUnsafe {
      * @param totalSize amount to copy
      * @param from where to copy from
      */
+    public static void copyMemory(long destAddress, byte[] from) {
+        copyMemory(destAddress, from.length, from);
+    }
+
+    /**
+     * Copy the contents of a byte array into native memory
+     * 
+     * @param destAddress native memory
+     * @param totalSize amount to copy
+     * @param from where to copy from
+     */
     public static void copyMemory(long destAddress, long totalSize, byte[] from) {
         if (0 == destAddress || 0 == totalSize || null == from || 0 == from.length) {
             return;
@@ -451,26 +462,48 @@ public class MUnsafe {
     }
 
     public static void putInt(long address, int data) {
-        unsafe.putLong(address, data);
+        unsafe.putInt(address, data);
     }
 
     public static void putShort(long address, short data) {
-        unsafe.putLong(address, data);
+        unsafe.putShort(address, data);
     }
 
     public static void putByte(long address, byte data) {
         unsafe.putByte(address, data);
     }
-    
+
     public static void putAddress(long address, long newAddress) {
         unsafe.putAddress(address, newAddress);
     }
 
-    public static long getLong(long address) {
-        return unsafe.getLong(address);
+    public static byte getByte(long address) {
+        return unsafe.getByte(address);
+    }
+
+    public static short getShort(long address) {
+        return unsafe.getShort(address);
+    }
+
+    public static int getInt(long address) {
+        return unsafe.getInt(address);
     }
 
     public static long getAddress(long address) {
         return unsafe.getAddress(address);
+    }
+
+    public static int getStringLength(byte[] b) {
+        if (null == b) {
+            return 0;
+        }
+
+        for (int i = 0; i < b.length; i++) {
+            if (0 == b[i]) {
+                return i;
+            }
+        }
+
+        return b.length;
     }
 }

@@ -10,6 +10,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.Objects;
 
 @SuppressWarnings("restriction")
@@ -55,6 +56,13 @@ public class InetAddressAccessor {
             inet4HolderGetAddressMH = lookup.unreflectGetter(inet4AddressHolderAddressField);
         }
 
+        /**
+         * Calls java.net.InetAddress.InetAddressHolder.getAddress() against address to return the 32bit representation.
+         * This version uses reflection to get access.
+         * 
+         * @param address {@link Inet4Address} to get the representation of.
+         * @return int representing the address
+         */
         int getAddress(Inet4Address address) {
             try {
                 Object inet4AddressHolderObject = inet4AddressHolderField.get(address);
@@ -64,9 +72,18 @@ public class InetAddressAccessor {
             return 0;
         }
 
+        /**
+         * Calls java.net.InetAddress.InetAddressHolder.getAddress() against address to return the 32bit representation.
+         * This version uses MethodHandles to get access.
+         * 
+         * @param address {@link Inet4Address} to get the representation of.
+         * @return int representing the address
+         */
         int getAddressViaMH(Inet4Address address) {
             try {
+                // get the InetAddressHolder object from within address.
                 Object holder = inet4GetHolderMH.invoke(address);
+                // call int java.net.InetAddress.InetAddressHolder.getAddress()
                 return ((Integer) inet4HolderGetAddressMH.invoke(holder)).intValue();
             } catch (Throwable e) {
             }
@@ -156,7 +173,7 @@ public class InetAddressAccessor {
         return inet4Helper.getAddress(address);
     }
 
-    public static long getAddressViaMH(Inet4Address address) {
+    public static int getAddressViaMH(Inet4Address address) {
         return inet4Helper.getAddressViaMH(address);
     }
 
@@ -164,7 +181,22 @@ public class InetAddressAccessor {
         return inet6Helper.getAddressViaMH(address);
     }
 
-
+    /**
+     * Given an InetAddress, get the bytes and store them in an unsafe allocated address If it's ipv4 only use 1 long:
+     * addressbytes. If it's ipv6, then it uses the pointer. 192.168.1.111 is returned as the 2 longs: 0xc0a8016f 0x0.
+     * While ipv6 would be: 0xsomePointer, 0x10 (128 bit ipv6 address).
+     * 
+     * In C, this will map nicely to a sockaddr_storage. You might need some custom code to deal with the copy, as you
+     * still need to set family.
+     * 
+     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(&sockaddr_storage)
+     * friendly version but it doesn't.
+     * 
+     * @param address input address
+     * @return address/length tuple. For ipv4 the tuple is: address/0 so 192.168.1.111 is returned as the 2 longs:
+     *         0xc0a8016f 0x0.
+     * @throws UnsupportedAddressTypeException if given a non {@link Inet4Address} or non {@link Inet6Address}
+     */
     public static MissingFingers powersaw(InetAddress address) {
         Objects.requireNonNull(address);
 
@@ -173,17 +205,112 @@ public class InetAddressAccessor {
 
         if (address instanceof Inet4Address) {
             addressLong = InetAddressAccessor.getAddressViaMH((Inet4Address) address);
-        } else {
+        } else if (address instanceof Inet6Address) {
             byte[] addressBytes = InetAddressAccessor.getAddressViaMH((Inet6Address) address);
             len = addressBytes.length;
 
             // and now we schlep the bytes via Unsafe.
             addressLong = MUnsafe.getUnsafe().allocateMemory(len);
             MUnsafe.copyMemory(addressLong, len, addressBytes);
+        } else {
+            throw new UnsupportedAddressTypeException();
         }
 
         return new MissingFingers(addressLong, len);
     }
+
+    /**
+     * <pre>
+     * /usr/include/bits/socket.h:#define   PF_INET     2   / * IP protocol family.* /  
+     * /usr/include/bits/socket.h:#define  PF_INET6    10  / * IP version 6.  * /
+     * /usr/include/bits/socket.h:#define  AF_INET     PF_INET
+     * /usr/include/bits/socket.h:#define  AF_INET6    PF_INET6
+     * </pre>
+     */
+    public static final byte AF_INET = 2;
+    public static final byte AF_INET6 = 10;
+
+    /**
+     * Given an InetAddress[], get the bytes and store them in an unsafe allocated address. Format is: AF_FAMILY, bytes.
+     * 
+     * 
+     * So: If you pass in Inet4Address,Inet6Address, it will take up 5 + 17 bytes, or 22 total. 1 byte for family, 4/16
+     * bytes for address. 2,4bytes,10,16 bytes.
+     * 
+     * In C, this will map nicely to a addrinfo. You might need some custom code to deal with the copy, as you still
+     * need to set family.
+     * 
+     * Also, this completely ignores scope in ipv6. It probably should actually give you a memcpy(&sockaddr_storage)
+     * friendly version but it doesn't.
+     * 
+     * @param address input address
+     * @return address/length tuple. For ipv4 the tuple is: address/0 so 192.168.1.111 is returned as the 2 longs:
+     *         0xc0a8016f 0x0.
+     * @throws UnsupportedAddressTypeException if given a non {@link Inet4Address} or non {@link Inet6Address}
+     */
+    public static MissingFingers powersaw(InetAddress[] addresses) {
+        Objects.requireNonNull(addresses);
+
+        int totalAddresses = addresses.length;
+        int ipv4count = 0;
+        int ipv6count = 0;
+
+        // address family types.
+        byte[] types = new byte[totalAddresses];
+        // ipv4 addresses
+        int[] ipv4 = new int[totalAddresses];
+        // ipv6 addresses
+        byte[][] ipv6 = new byte[totalAddresses][];
+
+        for (int i = 0; i < totalAddresses; i++) {
+            InetAddress address = addresses[i];
+            if (address instanceof Inet4Address) {
+                types[i] = AF_INET;
+                ipv4[i] = InetAddressAccessor.getAddressViaMH((Inet4Address) address);
+                ipv4count++;
+            } else if (address instanceof Inet6Address) {
+                types[i] = AF_INET6;
+                ipv6[i] = InetAddressAccessor.getAddressViaMH((Inet6Address) address);
+                ipv6count++;
+            } else {
+                throw new UnsupportedAddressTypeException();
+            }
+        }
+
+        // at this point, we should know how many bytes to allocate:
+        // 1 * length for the address families.
+        // ipv4 count * 4 bytes (heh, we're using 4 bytes instead of the hacky longs I abused everywhere else. 32bit
+        // ipv4).
+        // ipv6 count * 16 bytes (128 bit ipv6)
+        long len = totalAddresses + (4 * ipv4count) + (16 * ipv6count);
+
+        long addressLong = 0;
+        // and now we schlep the bytes via Unsafe.
+        addressLong = MUnsafe.getUnsafe().allocateMemory(len);
+
+        long currentAddress = addressLong;
+
+        // we have to iterate and schlep this time.
+        for (int i = 0; i < totalAddresses; i++) {
+            byte type = types[i];
+
+            MUnsafe.putByte(currentAddress, type);
+            currentAddress++;
+
+            if (AF_INET == type) {
+                // we're going to write type,int.
+                MUnsafe.putInt(currentAddress, ipv4[i]);
+                currentAddress += 4;
+            } else if (AF_INET6 == type) {
+                // we're going to write type, byte[].
+                MUnsafe.copyMemory(currentAddress, ipv6[i]);
+                currentAddress += 16;
+            }
+        }
+
+        return new MissingFingers(addressLong, len);
+    }
+
 
     public static InetAddress newAddress(MissingFingers output) throws UnknownHostException {
         return newAddress(output.getAddress(), output.getLength());
@@ -210,10 +337,10 @@ public class InetAddressAccessor {
             bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
         } else {
             bytes = new byte[(int) length];
-        }
 
-        // in this case, we just copyMemory out
-        MUnsafe.copyMemory(bytes, address, length);
+            // in this case, we just copyMemory out
+            MUnsafe.copyMemory(bytes, address, length);
+        }
 
         return InetAddress.getByAddress(bytes);
     }

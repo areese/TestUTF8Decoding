@@ -105,4 +105,41 @@ public class TestInetAddressAccessor {
         System.out.println();
     }
 
+
+    @DataProvider
+    public Object[][] v4v6addresses() {
+        return new Object[][] {//
+                        {ipv4Inet}, //
+                        {ipv6Inet}, //
+        };
+    }
+
+    @Test(dataProvider = "v4v6addresses")
+    public void testPowerSaw(InetAddress address) throws UnknownHostException {
+        // we should be able to:
+        // 1. take an address out.
+        // 2. restore it back.
+
+        try (MissingFingers powersaw = InetAddressAccessor.powersaw(address)) {
+            InetAddress result = InetAddressAccessor.newAddress(powersaw);
+            Assert.assertEquals(result, address);
+        }
+    }
+
+    @Test
+    public void testPowersawArray() {
+        InetAddress[] addresses = new InetAddress[] {ipv4Inet, ipv6Inet};
+        try (MissingFingers powersaw = InetAddressAccessor.powersaw(addresses)) {
+            System.out.println(Long.toHexString(powersaw.getAddress()));
+            // need to make sure that the types are where we expect them.
+            long base = powersaw.getAddress();
+            for (int i = 0; i < powersaw.getLength(); i++) {
+                System.out.print(Integer.toHexString((0x0FF & ((int) MUnsafe.getByte(base + i)))) + " ");
+            }
+            System.out.println();
+
+            byte type1 = MUnsafe.getByte(powersaw.getAddress());
+            Assert.assertEquals(type1, InetAddressAccessor.AF_INET);
+        }
+    }
 }
