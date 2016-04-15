@@ -138,8 +138,19 @@ public class TestInetAddressAccessor {
             }
             System.out.println();
 
-            byte type1 = MUnsafe.getByte(powersaw.getAddress());
+            final int countOffset = 0;
+            final int type1Offset = 1;
+            final int type2Offset = 6;
+
+
+            byte count = MUnsafe.getByte(powersaw.getAddress() + countOffset);
+            Assert.assertEquals(count, 2);
+
+            byte type1 = MUnsafe.getByte(powersaw.getAddress() + type1Offset);
             Assert.assertEquals(type1, InetAddressAccessor.AF_INET);
+
+            byte type2 = MUnsafe.getByte(powersaw.getAddress() + type2Offset);
+            Assert.assertEquals(0x0FF & (int)type2, (int)InetAddressAccessor.AF_INET6);
         }
     }
 }

@@ -234,8 +234,10 @@ public class InetAddressAccessor {
      * Given an InetAddress[], get the bytes and store them in an unsafe allocated address. Format is: AF_FAMILY, bytes.
      * 
      * 
-     * So: If you pass in Inet4Address,Inet6Address, it will take up 5 + 17 bytes, or 22 total. 1 byte for family, 4/16
-     * bytes for address. 2,4bytes,10,16 bytes.
+     * So: If you pass in Inet4Address,Inet6Address, it will take up 1+5 + 17 bytes, or 22 total. 1 byte for family,
+     * 4/16 bytes for address. count,2,4bytes,10,16 bytes.
+     * 
+     * [count],{[type],[address 4/16 bytes]}, {[type],[address 6/16 bytes]},
      * 
      * In C, this will map nicely to a addrinfo. You might need some custom code to deal with the copy, as you still
      * need to set family.
@@ -282,13 +284,16 @@ public class InetAddressAccessor {
         // ipv4 count * 4 bytes (heh, we're using 4 bytes instead of the hacky longs I abused everywhere else. 32bit
         // ipv4).
         // ipv6 count * 16 bytes (128 bit ipv6)
-        long len = totalAddresses + (4 * ipv4count) + (16 * ipv6count);
+        long len = 1 + totalAddresses + (4 * ipv4count) + (16 * ipv6count);
 
         long addressLong = 0;
         // and now we schlep the bytes via Unsafe.
         addressLong = MUnsafe.getUnsafe().allocateMemory(len);
 
         long currentAddress = addressLong;
+
+        MUnsafe.putByte(currentAddress, (byte) totalAddresses);
+        currentAddress++;
 
         // we have to iterate and schlep this time.
         for (int i = 0; i < totalAddresses; i++) {
