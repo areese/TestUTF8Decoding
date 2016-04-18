@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JavaGenerator extends AbstractGenerator {
 
@@ -25,14 +26,15 @@ public class JavaGenerator extends AbstractGenerator {
      */
     private final ListPrintWriter classHeader = new ListPrintWriter();
     private final ListPrintWriter constants = new ListPrintWriter();
+    private final ListPrintWriter allocations = new ListPrintWriter();
     private final ListPrintWriter boundsCheck = new ListPrintWriter();
     private final ListPrintWriter initFunction = new ListPrintWriter();
     private final ListPrintWriter createFunction = new ListPrintWriter();
     private final ListPrintWriter createFunctionMissingFingers = new ListPrintWriter();
     private final ListPrintWriter classFooter = new ListPrintWriter();
 
-    private final ListPrintWriter[] parts = {classHeader, constants, boundsCheck, initFunction, createFunction,
-                    createFunctionMissingFingers, classFooter};
+    private final ListPrintWriter[] parts = {classHeader, constants, allocations, boundsCheck, initFunction,
+                    createFunction, createFunctionMissingFingers, classFooter};
 
 
     public JavaGenerator(String builtFromString, String basePath, Class<?> classToDump) {
@@ -131,16 +133,16 @@ public class JavaGenerator extends AbstractGenerator {
         // I'm only looking for getters. If you don't have getters, it won't be written.
         // List<Field> fields = new LinkedList<>();
 
-        printWith2Tabs(lp, "long address = nested.getAddress();");
-        printWith2Tabs(lp, "long length = nested.getLength();");
+        printWithTabs(lp, 2, "long address = nested.getAddress();");
+        printWithTabs(lp, 2, "long length = nested.getLength();");
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
             if (ctype.isSupportedPrimitive()) {
-                printWith2Tabs(lp, type.getName() + " " + fieldName + "; // " + type.getName());
+                printWithTabs(lp, 2, type.getName() + " " + fieldName + "; // " + type.getName());
             } else {
                 printNonPrimitiveVariable(lp, fieldName);
-                printWith2Tabs(lp, shortTypeName(type, true) + " " + fieldName + "; // " + type.getName());
+                printWithTabs(lp, 2, shortTypeName(type, true) + " " + fieldName + "; // " + type.getName());
             }
         });
 
@@ -148,8 +150,8 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printNonPrimitiveVariable(LinePrinter lp, String fieldName) {
-        printWith2Tabs(lp, "long " + fieldName + "Len;");
-        printWith2Tabs(lp, "long " + fieldName + "Address;");
+        printWithTabs(lp, 2, "long " + fieldName + "Len;");
+        printWithTabs(lp, 2, "long " + fieldName + "Address;");
     }
 
     private void createConstructorInvocation(LinePrinter lp) {
@@ -177,22 +179,23 @@ public class JavaGenerator extends AbstractGenerator {
         constructorString.append(");\n");
 
         lp.println(constructorString.toString());
-        printWith2Tabs(lp, "return newObject;");
+        printWithTabs(lp, 2, "return newObject;");
     }
 
     public void printOffset(LinePrinter lp, String fieldSizeConstantName, String fieldName, String typeName) {
-        printWith2Tabs(lp, "offset += " + fieldSizeConstantName + "; // just read " + fieldName + " type " + typeName);
-        printWith2Tabs(lp, "boundsCheck(address, offset, length);");
+        printWithTabs(lp, 2,
+                        "offset += " + fieldSizeConstantName + "; // just read " + fieldName + " type " + typeName);
+        printWithTabs(lp, 2, "boundsCheck(address, offset, length);");
     }
 
     private void createBitSpitter(LinePrinter lp) {
 
-        printWith2Tabs(lp, "// Now that we've calculated the complete length, and have allocated it.");
-        printWith2Tabs(lp, "// We have to go insert new allocations and lengths for the output buffers");
-        printWith2Tabs(lp, "// Each output buffer has a constant size, which can be tweaked after generation");
+        printWithTabs(lp, 2, "// Now that we've calculated the complete length, and have allocated it.");
+        printWithTabs(lp, 2, "// We have to go insert new allocations and lengths for the output buffers");
+        printWithTabs(lp, 2, "// Each output buffer has a constant size, which can be tweaked after generation");
 
         // assume address, len
-        printWith2Tabs(lp, "long offset = 0;");
+        printWithTabs(lp, 2, "long offset = 0;");
         lp.println();
 
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
@@ -200,7 +203,7 @@ public class JavaGenerator extends AbstractGenerator {
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
             if (ctype.isSupportedPrimitive()) {
-                printWith2Tabs(lp, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
+                printWithTabs(lp, 2, fieldName + " = (" + type.getName() + ") " + GET_LONG_VALUE_STRING);
                 printOffset(lp, ctype.fieldSizeConstantName, fieldName, type.getName());
             } else {
                 printNonPrimitiveReadVariables(lp, fieldName, type.getName());
@@ -216,18 +219,18 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     private void printNonPrimitiveReadVariables(LinePrinter lp, String fieldName, String typeName) {
-        printWith2Tabs(lp, fieldName + "Address = " + GET_LONG_VALUE_STRING);
+        printWithTabs(lp, 2, fieldName + "Address = " + GET_LONG_VALUE_STRING);
         printOffset(lp, "ADDRESS_OFFSET", fieldName + "Address", typeName);
         lp.println();
 
-        printWith2Tabs(lp, fieldName + "Len = " + GET_LONG_VALUE_STRING);
+        printWithTabs(lp, 2, fieldName + "Len = " + GET_LONG_VALUE_STRING);
         printOffset(lp, "LEN_OFFSET", fieldName + "Len", typeName);
         lp.println();
     }
 
     private void printDecode(LinePrinter lp, String fieldName, Class<?> type) {
-        printWith2Tabs(lp, fieldName + " = MUnsafe.decode" + shortTypeName(type, false) + "(" + fieldName + "Address, "
-                        + fieldName + "Len);");
+        printWithTabs(lp, 2, fieldName + " = MUnsafe.decode" + shortTypeName(type, false) + "(" + fieldName
+                        + "Address, " + fieldName + "Len);");
     }
 
     static String shortTypeName(Class<?> type, boolean isTypeDef) {
@@ -263,38 +266,17 @@ public class JavaGenerator extends AbstractGenerator {
 
     private void writeLenCalc(LinePrinter lp, String varName, String fieldName, String typeName, CTYPES ctype,
                     String extra) {
-        printWith2Tabs(lp, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes " + extra);
-        printWith2Tabs(lp, varName + " += " + ctype.fieldSizeConstantName + ";");
+        printWithTabs(lp, 2, "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes " + extra);
+        printWithTabs(lp, 2, varName + " += " + ctype.fieldSizeConstantName + ";");
         if (!ctype.isSupportedPrimitive()) {
-            printWith2Tabs(lp, "allocatedCount++;");
+            printWithTabs(lp, 2, "allocatedCount++;");
         }
     }
 
-    /**
-     * This generates the initializeObject function which creates the memory space the jni will have to write to for
-     * later inflation. This is tricky, because we have to use Unsafe.allocatememory (If we didn't we couldn't use free
-     * in the case NMT was enabled, or weird things would happen)
-     */
-    public void javaCreateInitialize() {
-        initFunction.println();
-        printWithTab(initFunction, "public static MissingHand initialize" + shortObjectName + "() {");
-        initFunction.println();
-        // assume address, len
-        printWith2Tabs(initFunction, "long totalLen = 0;");
-        printWith2Tabs(initFunction, "int allocatedCount = 0;");
-
-        // we're going to iterate twice.
-        // The first time is to figure out total length of the block.
-        // The second time is to write the address and length combo's for each spot.
-        // The problem is, the max length is going to be crap.
-        // We're picking 1k, and maybe ccode is only ever 4 bytes.
-        // We're picking 1k, and maybe desc is always 10k.
-        // So that's a hand edit. Or maybe an annotation we should add.
-        // But this was to boilerplate things and modify, not completely headlessly generate today.
-
-
-        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
-        // wasting bits.
+    public void javaGenerateLengthFunctions() {
+        // we want to collect the length once and bounds check only that.
+        final AtomicLong totalLength = new AtomicLong(0);
+        final AtomicLong allocatedCount = new AtomicLong(0);
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
@@ -305,14 +287,57 @@ public class JavaGenerator extends AbstractGenerator {
                 extra = ", address + length";
             }
 
-            writeLenCalc(initFunction, "totalLen ", fieldName, type.getName(), ctype, extra);
-            initFunction.println();
+
+            // fieldName, type.getName(), ctype
+            totalLength.addAndGet(ctype.fieldOffset);
+            printWithTab(allocations,
+                            "// " + fieldName + " " + type.getName() + " is " + ctype.fieldOffset + " bytes " + extra);
+            printWithTab(allocations, "// offset += " + ctype.fieldSizeConstantName + ";");
+            if (!ctype.isSupportedPrimitive()) {
+                printWithTab(allocations, "// allocatedCount++;");
+                allocatedCount.incrementAndGet();
+            }
+
+            allocations.println();
         });
 
-        printWith2Tabs(initFunction, "long[] childAllocations = new long[allocatedCount];");
+        printWithTab(allocations, "// total size of our allocation, used for boundsChecking");
+        printWithTab(allocations, "static final int ALLOCATED_MEMORY_LENGTH = " + totalLength.get() + ";");
+        printWithTab(allocations, "// count of child allocations used for alloc/free of addresses");
+        printWithTab(allocations, "static final int CHILD_ALLOCATIONS_COUNT = " + allocatedCount.get() + ";");
+        allocations.println();
+    }
+
+    /**
+     * This generates the initializeObject function which creates the memory space the jni will have to write to for
+     * later inflation. This is tricky, because we have to use Unsafe.allocatememory (If we didn't we couldn't use
+     * Unsafe.freeMemory in the case NMT was enabled, or weird things would happen. NMT adds a prefix header to the
+     * allocated memory and subtracts it out. Since this isn't exposed in the jni I can't call the freeMemory that would
+     * be aware of this.)
+     */
+    public void javaCreateInitialize() {
+        initFunction.println();
+        printWithTab(initFunction, "public static MissingHand initialize" + shortObjectName + "() {");
+        initFunction.println();
+
+        // we're going to iterate twice.
+        // The first time is to figure out total length of the block.
+        // The second time is to write the address and length combo's for each spot.
+        // The problem is, the max length is going to be crap.
+        // We're picking 1k, and maybe ccode is only ever 4 bytes.
+        // We're picking 1k, and maybe desc is always 10k.
+
+        // So that's a hand edit. Or maybe an annotation we should add.
+        // But this was to boilerplate things and modify, not completely headlessly generate today.
+
+        // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
+        // wasting bits.
+
+
+        printWith2Tabs(initFunction, "long[] childAllocations = new long[CHILD_ALLOCATIONS_COUNT];");
         printWith2Tabs(initFunction, "int childIndex = 0;");
-        printWith2Tabs(initFunction, "long address = MUnsafe.allocateMemory(totalLen);");
-        printDumpAddressDetails(initFunction, "address", "totalLen");
+        printWith2Tabs(initFunction, "long address = MUnsafe.allocateMemory(ALLOCATED_MEMORY_LENGTH);");
+        printDumpAddressDetails(initFunction, "address", "ALLOCATED_MEMORY_LENGTH");
 
         // we need to iterate through and write out the allocates and puts for non primitives.
         initFunction.println();
@@ -328,20 +353,20 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        printWith2Tabs(initFunction, "return new MissingHand(address, totalLen, childAllocations);");
+        printWith2Tabs(initFunction, "return new MissingHand(address, ALLOCATED_MEMORY_LENGTH, childAllocations);");
         printWithTab(initFunction, "}");
         initFunction.println();
     }
 
     private void printDumpAddressDetails(LinePrinter lp, String address, String totalLen) {
         if (spewDebugging) {
-            printWith2Tabs(lp, "System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
+            printWithTabs(lp, 2, "System.out.println(\"Allocated " + address + " \" + Long.toHexString(" + address
                             + ") + \" of length \" + Long.toHexString(" + totalLen + "));");
         }
     }
 
     private void writePutAddress(ListPrintWriter lp, String fieldName, String typeName, CTYPES ctype) {
-        printWith2Tabs(lp,
+        printWithTabs(lp, 2,
                         "// " + fieldName + " " + typeName + " is " + ctype.fieldOffset + " bytes, address + length");
 
         String fieldSizeConstant = fieldName.toUpperCase() + ctype.dataSizeConstantAppender;
@@ -349,16 +374,16 @@ public class JavaGenerator extends AbstractGenerator {
         // special case write out a constant.
         printWithTab(constants, generateConstant(fieldSizeConstant, ctype.allocationSize));
 
-        printWith2Tabs(lp, "{");
+        printWithTabs(lp, 2, "{");
         printWithTabs(lp, 3, "long newAddress = MUnsafe.allocateMemory(" + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, newAddress);");
         printWithTabs(lp, 3, "offset += ADDRESS_OFFSET;");
-        printWithTabs(lp, 3, "boundsCheck(address, offset, totalLen);");
+        printWithTabs(lp, 3, "boundsCheck(address, offset);");
         printWithTabs(lp, 3, "MUnsafe.putAddress(address + offset, " + fieldSizeConstant + ");");
         printWithTabs(lp, 3, "offset += LEN_OFFSET;");
-        printWithTabs(lp, 2, "boundsCheck(address, offset, totalLen);");
+        printWithTabs(lp, 3, "boundsCheck(address, offset);");
         printWithTabs(lp, 3, "childAllocations[childIndex++] = newAddress;");
-        printWith2Tabs(lp, "}");
+        printWithTabs(lp, 2, "}");
     }
 
     public static String generateConstant(String variable, long value) {
@@ -396,6 +421,14 @@ public class JavaGenerator extends AbstractGenerator {
 
     private void javaCreateBoundsCheck() {
         printWithTab(boundsCheck,
+                        "public static void boundsCheck (long address, long offset) throws BoundsCheckException {");
+        printWith2Tabs(boundsCheck, "if (offset > ALLOCATED_MEMORY_LENGTH) {");
+        printWithTabs(boundsCheck, 3, "throw new BoundsCheckException(address, offset, ALLOCATED_MEMORY_LENGTH);");
+        printWith2Tabs(boundsCheck, "}");
+        printWithTab(boundsCheck, "}");
+        boundsCheck.println();
+
+        printWithTab(boundsCheck,
                         "public static void boundsCheck (long address, long offset, long length) throws BoundsCheckException {");
         printWith2Tabs(boundsCheck, "if (offset > length) {");
         printWithTabs(boundsCheck, 3, "throw new BoundsCheckException(address, offset, length);");
@@ -406,6 +439,7 @@ public class JavaGenerator extends AbstractGenerator {
     public String generate() {
         printClassHeader();
         generateConstants();
+        javaGenerateLengthFunctions();
         javaCreateBoundsCheck();
         javaCreateInitialize();
         javaCreateObject();
