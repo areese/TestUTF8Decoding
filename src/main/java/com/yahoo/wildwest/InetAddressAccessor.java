@@ -339,7 +339,7 @@ public class InetAddressAccessor {
             bytes[0] = (byte) ((address >> 0x18) & 0x0FF);
             bytes[1] = (byte) ((address >> 0x10) & 0x0FF);
             bytes[2] = (byte) ((address >> 0x08) & 0x0FF);
-            bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
+            bytes[3] = (byte) ((address        ) & 0x0FF);
         } else {
             bytes = new byte[(int) length];
 

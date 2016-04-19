@@ -36,6 +36,7 @@ build.dependsOn(generateCode)
 
 
 test {
+  testLogging.showStandardStreams = true
   outputs.upToDateWhen {false}
   
   // enable TestNG support (default is JUnit)

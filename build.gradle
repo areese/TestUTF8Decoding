@@ -4,6 +4,23 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+test {
+  testLogging.showStandardStreams = true
+  outputs.upToDateWhen {false}
+  
+  // enable TestNG support (default is JUnit)
+  useTestNG()
+
+  if (System.properties['os.name'] == "Mac OS X") { 
+    // set a system property for the test JVM(s)
+    systemProperty 'java.library.path','target/native/x86_64-darwin-clang'
+  }
+
+  if (System.properties['os.name'] == "Linux") { 
+    // set a system property for the test JVM(s)
+    systemProperty 'java.library.path','target/native/x86_64-darwin-clang'
+  }
+}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -24,6 +41,7 @@ task buildJni(type:Exec) {
 buildJni.shouldRunAfter compileJava
 
 build.dependsOn(buildJni)
+test.dependsOn(buildJni)
 
 dependencies {
     testCompile group: 'org.testng', name: 'testng', version: '6.8.5'

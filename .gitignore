@@ -8,3 +8,6 @@ build/
 test-output/
 
 bin/
+
+# skip anything in the default package as it's useless
+src/main/java/*.java
