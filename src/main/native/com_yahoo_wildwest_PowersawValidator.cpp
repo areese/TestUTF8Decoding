@@ -9,7 +9,7 @@
 #define EXPECTED_IPV6 "2001:4998:0:1::1007"
 
 int checkAddress(const char *expected, int ai_family,
-        const ipv6_sockaddr *addr) {
+        const ipv6_sockaddr *addr, const char*forwho) {
     if (NULL == expected && NULL == addr) {
         return 0;
     }
@@ -39,11 +39,11 @@ int checkAddress(const char *expected, int ai_family,
         return -3;
     }
 
-    fprintf(stderr, "comparing %s to %s\n", expected, ipstr);
+    fprintf(stderr, "comparing %s to %s for %s\n", expected, ipstr, forwho);
     return strcmp(expected, ipstr);
 }
 
-int checkAddress(const char *expected, const struct addrinfo *addr) {
+int checkAddress(const char *expected, const struct addrinfo *addr, const char *forwho) {
     if (NULL == expected && NULL == addr) {
         return 0;
     }
@@ -57,7 +57,7 @@ int checkAddress(const char *expected, const struct addrinfo *addr) {
     }
 
     return checkAddress(expected, addr->ai_family,
-            (const ipv6_sockaddr*) addr->ai_addr);
+            (const ipv6_sockaddr*) addr->ai_addr, forwho);
 }
 
 /*
@@ -72,7 +72,7 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateIpv4(
     ipv6_sockaddr v6sa;
     memset(&v6sa, 0, sizeof(ipv6_sockaddr));
     unsafeToSockAddr(v6sa, address, length);
-    return checkAddress(EXPECTED_IPV4, AF_INET, &v6sa);
+    return checkAddress(EXPECTED_IPV4, AF_INET, &v6sa,"validateIpv4");
 }
 
 /*
@@ -87,7 +87,7 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateIpv6(
     ipv6_sockaddr v6sa;
     memset(&v6sa, 0, sizeof(ipv6_sockaddr));
     unsafeToSockAddr(v6sa, address, length);
-    return checkAddress(EXPECTED_IPV6, AF_INET6, &v6sa);
+    return checkAddress(EXPECTED_IPV6, AF_INET6, &v6sa,"validateIpv6");
 }
 
 /*
@@ -109,7 +109,7 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateAddress
 
     // check the first address
     ret = checkAddress(EXPECTED_IPV4, aiScope.get()->ai_family,
-            (const ipv6_sockaddr*) aiScope.get()->ai_addr);
+            (const ipv6_sockaddr*) aiScope.get()->ai_addr,"validateAddresses:validateIpv4");
 
     if (0 != ret) {
         return ret;
@@ -120,7 +120,7 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateAddress
     if (NULL != aiScope.get()->ai_next) {
         addrinfo *next = aiScope.get()->ai_next;
         ret = checkAddress(EXPECTED_IPV6, next->ai_family,
-                (const ipv6_sockaddr*) next->ai_addr);
+                (const ipv6_sockaddr*) next->ai_addr,"validateAddresses:validateIpv6");
 
         if (0 != ret) {
             return ret;
