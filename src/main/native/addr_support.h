@@ -30,11 +30,11 @@ public:
 
     virtual ~ScopedAddrInfo() {
         if (_memory) {
-//#ifdef DUMP_DEBUG
+#ifdef DUMP_DEBUG
             fprintf(stderr, "freeing %p and ai_addr %p\n", _memory,
                     _memory->ai_addr);
             fflush (stderr);
-//#endif //DUMP_DEBUG
+#endif //DUMP_DEBUG
             freeaddrinfo(_memory);
             _memory = 0;
         }
@@ -60,9 +60,9 @@ public:
         ret->ai_addr = (struct sockaddr*) (ret + 1);
 #endif // __APPLE__
 
-        //#ifdef DUMP_DEBUG
+#ifdef DUMP_DEBUG
         fprintf(stderr, "allocated %p and ai_addr %p\n", ret, ret->ai_addr);
-        //#endif //DUMP_DEBUG
+#endif //DUMP_DEBUG
 
         ret->ai_addrlen = sizeof(struct sockaddr_storage);
         ret->ai_family = family;
