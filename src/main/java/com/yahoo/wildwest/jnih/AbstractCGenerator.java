@@ -87,9 +87,13 @@ public abstract class AbstractCGenerator extends AbstractGenerator {
 
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         pw.close();
-        sw.close();
+        try {
+            sw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
