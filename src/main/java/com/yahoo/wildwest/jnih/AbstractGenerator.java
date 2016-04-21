@@ -5,6 +5,7 @@ package com.yahoo.wildwest.jnih;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public abstract class AbstractGenerator implements Closeable {
     static final String FOUR_SPACE_TAB = "    ";
@@ -73,6 +74,11 @@ public abstract class AbstractGenerator implements Closeable {
             // continue;
             // }
 
+            // oops, skip transient and static.
+            if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
+                continue;
+            }
+
             CTYPES ctype = CTYPES.getCType(type);
             if (null == ctype) {
                 // rather than a magic check above, let the enum decide what we're doing.
@@ -84,7 +90,7 @@ public abstract class AbstractGenerator implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // pw.close();
         // sw.close();
     }

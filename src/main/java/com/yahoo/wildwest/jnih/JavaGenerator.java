@@ -33,6 +33,10 @@ public class JavaGenerator extends AbstractGenerator {
     private final ListPrintWriter createFunctionMissingFingers = new ListPrintWriter();
     private final ListPrintWriter classFooter = new ListPrintWriter();
 
+    // we want to collect the length once and bounds check only that.
+    private final AtomicLong totalLength = new AtomicLong(0);
+    private final AtomicLong allocatedCount = new AtomicLong(0);
+
     private final ListPrintWriter[] parts = {classHeader, constants, allocations, boundsCheck, initFunction,
                     createFunction, createFunctionMissingFingers, classFooter};
 
@@ -274,9 +278,6 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     public void javaGenerateLengthFunctions() {
-        // we want to collect the length once and bounds check only that.
-        final AtomicLong totalLength = new AtomicLong(0);
-        final AtomicLong allocatedCount = new AtomicLong(0);
 
         parseObject(objectClass, (ctype, field, type) -> {
             String fieldName = field.getName();
@@ -303,8 +304,10 @@ public class JavaGenerator extends AbstractGenerator {
 
         printWithTab(allocations, "// total size of our allocation, used for boundsChecking");
         printWithTab(allocations, "static final int ALLOCATED_MEMORY_LENGTH = " + totalLength.get() + ";");
-        printWithTab(allocations, "// count of child allocations used for alloc/free of addresses");
-        printWithTab(allocations, "static final int CHILD_ALLOCATIONS_COUNT = " + allocatedCount.get() + ";");
+        if (allocatedCount.get() > 0) {
+            printWithTab(allocations, "// count of child allocations used for alloc/free of addresses");
+            printWithTab(allocations, "static final int CHILD_ALLOCATIONS_COUNT = " + allocatedCount.get() + ";");
+        }
         allocations.println();
     }
 
@@ -316,10 +319,27 @@ public class JavaGenerator extends AbstractGenerator {
      * be aware of this.)
      */
     public void javaCreateInitialize() {
-        initFunction.println();
-        printWithTab(initFunction, "public static MissingHand initialize" + shortObjectName + "() {");
-        initFunction.println();
 
+        boolean childAllocations = (allocatedCount.get() > 0);
+        String returnType;
+        if (childAllocations) {
+            returnType = "MissingHand";
+        } else {
+            returnType = "MissingFingers";
+        }
+
+        initFunction.println();
+        printWithTab(initFunction, "public static " + returnType + " initialize" + shortObjectName + "() {");
+
+        if (!childAllocations) {
+            // without child allocations, we can just bail.
+            printWith2Tabs(initFunction, "return new MissingFingers(ALLOCATED_MEMORY_LENGTH);");
+            printWithTab(initFunction, "}");
+            initFunction.println();
+            return;
+        }
+
+        initFunction.println();
         // we're going to iterate twice.
         // The first time is to figure out total length of the block.
         // The second time is to write the address and length combo's for each spot.
@@ -333,9 +353,9 @@ public class JavaGenerator extends AbstractGenerator {
         // how many bytes do we skip? Strings are long,long so 16, everything else is 8 byte longs until we stop
         // wasting bits.
 
-
         printWith2Tabs(initFunction, "long[] childAllocations = new long[CHILD_ALLOCATIONS_COUNT];");
         printWith2Tabs(initFunction, "int childIndex = 0;");
+
         printWith2Tabs(initFunction, "long address = MUnsafe.allocateMemory(ALLOCATED_MEMORY_LENGTH);");
         printDumpAddressDetails(initFunction, "address", "ALLOCATED_MEMORY_LENGTH");
 
@@ -353,7 +373,9 @@ public class JavaGenerator extends AbstractGenerator {
             initFunction.println();
         });
 
-        printWith2Tabs(initFunction, "return new MissingHand(address, ALLOCATED_MEMORY_LENGTH, childAllocations);");
+        printWith2Tabs(initFunction,
+                        "return new " + returnType + "(address, ALLOCATED_MEMORY_LENGTH, childAllocations);");
+
         printWithTab(initFunction, "}");
         initFunction.println();
     }
@@ -395,6 +417,7 @@ public class JavaGenerator extends AbstractGenerator {
         classHeader.println("import java.net.InetAddress;");
         classHeader.println();
         classHeader.println("import com.yahoo.wildwest.MUnsafe;");
+        classHeader.println("import com.yahoo.wildwest.MissingFingers;");
         classHeader.println("import com.yahoo.wildwest.MissingHand;");
         classHeader.println("import com.yahoo.wildwest.BoundsCheckException;");
         classHeader.println();
@@ -451,6 +474,67 @@ public class JavaGenerator extends AbstractGenerator {
         }
 
         return partsBuilder.toString();
+    }
+
+    // for testing:
+    Set<String> getBlacklistedMethods() {
+        return blacklistedMethods;
+    }
+
+    String getGeneratedClassName() {
+        return generatedClassName;
+    }
+
+    String getJavaPath() {
+        return javaPath;
+    }
+
+    String getPackageName() {
+        return packageName;
+    }
+
+    ListPrintWriter getClassHeader() {
+        return classHeader;
+    }
+
+    ListPrintWriter getConstants() {
+        return constants;
+    }
+
+    ListPrintWriter getAllocations() {
+        return allocations;
+    }
+
+    ListPrintWriter getBoundsCheck() {
+        return boundsCheck;
+    }
+
+    ListPrintWriter getInitFunction() {
+        return initFunction;
+    }
+
+    ListPrintWriter getCreateFunction() {
+        return createFunction;
+    }
+
+    ListPrintWriter getCreateFunctionMissingFingers() {
+        return createFunctionMissingFingers;
+    }
+
+    ListPrintWriter getClassFooter() {
+        return classFooter;
+    }
+
+    AtomicLong getTotalLength() {
+        return totalLength;
+    }
+
+    AtomicLong getAllocatedCount() {
+        return allocatedCount;
+    }
+
+    ListPrintWriter[] getParts() {
+        return parts;
     }
 
 }
