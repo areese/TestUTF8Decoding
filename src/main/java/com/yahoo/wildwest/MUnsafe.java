@@ -509,4 +509,19 @@ public class MUnsafe {
 
         return b.length;
     }
+
+    public static String decodeStringWithLength(long address) {
+        if (0 == address) {
+            return null;
+        }
+
+        // first int is the length.
+        int len = getInt(address);
+        if (0 == len) {
+            return "";
+        }
+
+        // then we can just decode from there. we add 32 bits for the length.
+        return decodeString(address + 4, len);
+    }
 }

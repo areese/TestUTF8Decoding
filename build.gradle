@@ -3,6 +3,7 @@
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
+apply plugin: 'eclipse'
 
 test {
   testLogging.showStandardStreams = true
@@ -47,6 +48,10 @@ dependencies {
     testCompile group: 'org.testng', name: 'testng', version: '6.8.5'
     runtime group: 'log4j', name: 'log4j', version: '1.2.14'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.7'
+    testCompile group: 'org.openjdk.jmh', name: 'jmh-core', version: 1.12
+    runtime group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: 1.12
+    testCompile group: 'org.openjdk.jol', name: 'jol-core', version: 0.5
+    testCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.16'
 }
 
 publishing {
