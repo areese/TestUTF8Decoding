@@ -19,7 +19,7 @@ test {
 
   if (System.properties['os.name'] == "Linux") { 
     // set a system property for the test JVM(s)
-    systemProperty 'java.library.path','target/native/x86_64-darwin-clang'
+    systemProperty 'java.library.path','target/native/x86_64-linux-gcc'
   }
 }
 
