@@ -5,10 +5,23 @@ import com.yahoo.wildwest.MissingFingers;
 
 public class JNIStrings {
     // 0,1,2,3 == 1,10,100,1000 chars
-    static final int[] ids = new int[] {1, 10, 100, 100};
-    static final String[] strings = new String[] {"1", "0123456789",
-                    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789012345678901234567890123456789",
-                    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789012345678901234567890123456789"};
+    static final int[] ids = new int[] {1, 10, 100, 1000};
+    static final String[] strings = new String[] {"1", // 0
+                    "0123456789", // 1
+                    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789012345678901234567890123456789", // 2
+                    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789012345678901234567890123456789", // 3
+    };
+
+    static {
+        // i'm so not copying a 1k character string in here.
+        StringBuilder sb = new StringBuilder(100);
+        for (int i = 0; i < 10; i++) {
+            sb.append(strings[2]);
+        }
+
+        strings[3] = sb.substring(0, 1000);
+    }
+
 
     static final native String jniString(int id);
 
