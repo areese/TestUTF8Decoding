@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 
 import sun.misc.Unsafe;
-import sun.misc.VM;
 
 @SuppressWarnings("restriction")
 public class MUnsafe {
@@ -132,22 +131,10 @@ public class MUnsafe {
      * @param cap number of bytes to allocate
      * @return memory that must be free'd with Unsafe.free memory
      */
-    // Cribbed from DirectByteBuffer, apparently you need to check if it should
-    // be page aligned and allocate enough if it is.
-    public static long allocateMemory(long cap) {
-        boolean isDirectMemoryPageAligned = VM.isDirectMemoryPageAligned();
-        int pageSize = unsafe.pageSize();
-        long size = Math.max(1L, (long) cap + (isDirectMemoryPageAligned ? pageSize : 0));
-        long base = unsafe.allocateMemory(size);
-        unsafe.setMemory(base, size, (byte) 0);
-
-        long address = 0;
-        if (isDirectMemoryPageAligned && (base % pageSize != 0)) {
-            // Round up to page boundary
-            address = base + pageSize - (base & (pageSize - 1));
-        } else {
-            address = base;
-        }
+    public static long allocateMemory(long size) {
+        // http://bugs.java.com/view_bug.do?bug_id=4837564, remove page alignment as that could explode in our faces. =)
+        long address = unsafe.allocateMemory(size);
+        unsafe.setMemory(address, size, (byte) 0);
 
         return address;
     }
