@@ -339,7 +339,7 @@ public class InetAddressAccessor {
             bytes[0] = (byte) ((address >> 0x18) & 0x0FF);
             bytes[1] = (byte) ((address >> 0x10) & 0x0FF);
             bytes[2] = (byte) ((address >> 0x08) & 0x0FF);
-            bytes[3] = (byte) ((address        ) & 0x0FF);
+            bytes[3] = (byte) ((address >> 0x00) & 0x0FF);
         } else {
             bytes = new byte[(int) length];
 
@@ -350,5 +350,54 @@ public class InetAddressAccessor {
         return InetAddress.getByAddress(bytes);
     }
 
+
+    public static InetAddress[] newAddresses(MissingFingers output) throws UnknownHostException {
+        return newAddresses(output.getAddress(), output.getLength());
+    }
+
+    /**
+     * Given address, which was encoded to from addrinfo *, decode it. Encoding is: byte length, byte type
+     * (AF_INET/AF_INET6), 4 bytes ipv4/16 bytes ipv6
+     * 
+     * @param address data was written to.
+     * @param length length of data written.
+     * @return Array if {@link InetAddress}
+     * @throws UnknownHostException on failure
+     */
+    public static InetAddress[] newAddresses(long address, long length) throws UnknownHostException {
+        if (0 == address || 0 == length) {
+            return null;
+        }
+
+        long currentAddress = address;
+
+        byte totalAddresses = MUnsafe.getByte(currentAddress++);
+        if (0 == totalAddresses) {
+            return new InetAddress[] {};
+        }
+
+        InetAddress[] addresses = new InetAddress[totalAddresses];
+
+        for (int i = 0; i < totalAddresses; i++) {
+            byte type = MUnsafe.getByte(currentAddress++);
+            byte[] bytes;
+
+            int len = 0;
+            if (AF_INET == type) {
+                len = 4;
+            } else if (AF_INET6 == type) {
+                len = 16;
+            } else {
+                throw new UnknownHostException("Unknown type " + type + " found");
+            }
+
+            bytes = new byte[len];
+            // in this case, we just copyMemory out
+            MUnsafe.copyMemory(bytes, currentAddress, len);
+            addresses[i] = InetAddress.getByAddress(bytes);
+        }
+
+        return addresses;
+    }
 
 }

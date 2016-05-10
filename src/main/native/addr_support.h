@@ -129,10 +129,10 @@ inline void unsafeToSockAddr(ipv6_sockaddr &v6sa, jlong unsafeMemory,
         const char *src = (const char *) unsafeMemory;
 
         v6sa.sin.sin_addr.s_addr = 0;
-        v6sa.sin.sin_addr.s_addr |= ((int)src[0] & 0x00ff) << 0x18;
-        v6sa.sin.sin_addr.s_addr |= ((int)src[1] & 0x00ff) << 0x10;
-        v6sa.sin.sin_addr.s_addr |= ((int)src[2] & 0x00ff) << 0x08;
-        v6sa.sin.sin_addr.s_addr |= ((int)src[3] & 0x00ff);
+        v6sa.sin.sin_addr.s_addr |= ((int) src[0] & 0x00ff) << 0x18;
+        v6sa.sin.sin_addr.s_addr |= ((int) src[1] & 0x00ff) << 0x10;
+        v6sa.sin.sin_addr.s_addr |= ((int) src[2] & 0x00ff) << 0x08;
+        v6sa.sin.sin_addr.s_addr |= ((int) src[3] & 0x00ff);
     } else if (16 == length) {
         // must be ipv6
         v6sa.sa.sa_family = AF_INET6;
@@ -142,6 +142,9 @@ inline void unsafeToSockAddr(ipv6_sockaddr &v6sa, jlong unsafeMemory,
     }
 }
 
+/**
+ * Take the bytes in unsafeAddress, and decode it into an addrInfo structure inside addrInfo
+ */
 inline int allocAddrInfo(ScopedAddrInfo &addrInfo, long unsafeAddress,
         long length) {
     /* we need at least 6 bytes (1,2,0xc0a8016f) for the shortest thing.
@@ -204,6 +207,85 @@ inline int allocAddrInfo(ScopedAddrInfo &addrInfo, long unsafeAddress,
     }
 
     return 1;
+}
+
+/**
+ * Take the bytes in an addrinfo structure, and encode it into an unsafe address
+ * The unsafe format is:
+ * byte totalAddresses
+ * byte type  (AF_INET/AF_INET6) (2/10)
+ * IPV4:
+ *  4 bytes / 32 bits of address.
+ * IPV6:
+ * 16 bytes / 128 bits of address
+ * It returns the total length used.
+ */
+inline jlong encodeAddrInfoToUnsafe(addrinfo *addrInfo, long unsafeAddress,
+        long length) {
+    if (NULL == addrInfo || 0 == unsafeAddress || 0 == length) {
+        return -1;
+    }
+
+    // first we need to iterate all of them and count the size.
+    jlong totalLength = 1;
+
+    addrinfo *current = addrInfo;
+    while (NULL != current) {
+        if (AF_INET == current->ai_family) {
+            totalLength += 5;
+        } else if (AF_INET6 == current->ai_family) {
+            totalLength += 17;
+        }
+        current = current->ai_next;
+    }
+
+    if (totalLength == 1) {
+        // no work done.
+        return 0;
+    }
+
+    if (totalLength > length) {
+        // doesn't fit
+        //fprintf(stderr, "totalLength %d > length %d\n", totalLength, length);
+        return -2;
+    }
+
+    if (totalLength > 255) {
+        // doesn't fit
+        return -3;
+    }
+
+    // now we need to walk and encode.
+    uint8_t *pointer = (uint8_t*) unsafeAddress;
+
+    // set length
+    *pointer = (uint8_t) totalLength;
+
+    size_t index = 1;
+    current = addrInfo;
+    while (NULL != current) {
+        ipv6_sockaddr *storage = (ipv6_sockaddr *) (current->ai_addr);
+        if (AF_INET == current->ai_family) {
+            pointer[index++] = AF_INET;
+            // 0
+            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x18) & 0x00ff;
+            // 1
+            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x10) & 0x00ff;
+            // 2
+            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x08) & 0x00ff;
+            // 3
+            pointer[index++] = (storage->sin.sin_addr.s_addr) & 0x00ff;
+        } else if (AF_INET6 == current->ai_family) {
+            pointer[index++] = AF_INET6;
+            memcpy(pointer, &(storage->sin6.sin6_addr.s6_addr), in6len);
+            // we need the current 16 bytes.
+            pointer += 16;
+            index += 16;
+        }
+        current = current->ai_next;
+    }
+
+    return index;
 }
 
 #endif //_Included_addr_support_h

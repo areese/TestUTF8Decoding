@@ -31,6 +31,14 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateIpv6
 JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateAddresses
   (JNIEnv *, jclass, jlong, jlong);
 
+/*
+ * Class:     com_yahoo_wildwest_PowersawValidator
+ * Method:    copyAddresses
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_yahoo_wildwest_PowersawValidator_copyAddresses
+  (JNIEnv *, jclass, jlong, jlong);
+
 #ifdef __cplusplus
 }
 #endif

@@ -150,7 +150,19 @@ public class TestInetAddressAccessor {
             Assert.assertEquals(type1, InetAddressAccessor.AF_INET);
 
             byte type2 = MUnsafe.getByte(powersaw.getAddress() + type2Offset);
-            Assert.assertEquals(0x0FF & (int)type2, (int)InetAddressAccessor.AF_INET6);
+            Assert.assertEquals(0x0FF & (int) type2, (int) InetAddressAccessor.AF_INET6);
         }
+    }
+
+    @Test
+    public static void testCopyOut() {
+        try (MissingFingers mf = new MissingFingers(128)) {
+            long retLength = PowersawValidator.copyAddresses(mf.getAddress(), mf.getLength());
+            Assert.assertEquals(retLength, 1 + 5 + 17);
+        }
+    }
+    
+    public static void main(String[] args) {
+        testCopyOut();
     }
 }

@@ -39,4 +39,16 @@ public class TestPowersawVariations {
             Assert.assertEquals(ret, 0);
         }
     }
+
+    @Test
+    public void testencodeAddrInfoToUnsafe() throws UnknownHostException {
+        long expected = 1 + 2 + 4 + 16;
+        try (MissingFingers mf = new MissingFingers(expected)) {
+            long ret = PowersawValidator.copyAddresses(mf.getAddress(), mf.getLength());
+
+            // check we got the right bits back.
+            Assert.assertEquals(ret, expected);
+            InetAddress[] addresses = InetAddressAccessor.newAddresses(mf);
+        }
+    }
 }

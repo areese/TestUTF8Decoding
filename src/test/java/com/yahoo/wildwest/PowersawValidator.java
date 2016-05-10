@@ -34,4 +34,12 @@ class PowersawValidator {
      */
     static final native int validateAddresses(long address, long length);
 
+    /**
+     * validates that encodeAddrInfoToUnsafe works. encodes 192.168.1.111, [2001:4998:0:1::1007]
+     * 
+     * @param address address
+     * @param length length
+     * @return 0 if valid.
+     */
+    static final native long copyAddresses(long address, long length);
 }
