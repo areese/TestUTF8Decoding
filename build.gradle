@@ -27,6 +27,10 @@ test {
     // set a system property for the test JVM(s)
     systemProperty 'java.library.path','target/native/x86_64-linux-gcc'
   }
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -78,6 +82,7 @@ publishing {
 
 task printClasspath {
     doLast {
-        configurations.testRuntime.each { println it }
+        configurations.testRuntime.each { print it; print ":" }
+        print "build/main/classes:build/test/classes"
     }
 }
