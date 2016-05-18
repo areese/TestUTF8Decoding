@@ -9,7 +9,7 @@
 #define EXPECTED_IPV6 "2001:4998:0:1::1007"
 
 int checkAddress(const char *expected, int ai_family, const ipv6_sockaddr *addr,
-        const char*forwho) {
+        const char *forwho) {
     if (NULL == expected && NULL == addr) {
         return 0;
     }
@@ -141,7 +141,7 @@ JNIEXPORT jint JNICALL Java_com_yahoo_wildwest_PowersawValidator_validateAddress
 JNIEXPORT jlong JNICALL Java_com_yahoo_wildwest_PowersawValidator_copyAddresses(
         JNIEnv *, jclass, jlong address, jlong length) {
 
-    fprintf(stderr, "calling copyAddresses: %p %d\n", address, length);
+    fprintf(stderr, "calling copyAddresses: 0x%lx %ld\n", (unsigned long)address, (unsigned long)length);
 
     ScopedAddrInfo aiScope;
 

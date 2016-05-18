@@ -94,6 +94,7 @@ private:
     addrinfo *_memory;
 };
 
+#ifndef HAS_IPV6_SOCKADDR
 /* multi family IPv4 and IPv6 sockaddr structure */
 typedef union {
     struct sockaddr_storage ss;
@@ -101,6 +102,7 @@ typedef union {
     struct sockaddr_in sin;
     struct sockaddr_in6 sin6;
 } ipv6_sockaddr;
+#endif //HAS_IPV6_SOCKADDR
 
 static const size_t in6len = sizeof(in6_addr);
 static const size_t in4len = sizeof(in_addr);
@@ -220,21 +222,26 @@ inline int allocAddrInfo(ScopedAddrInfo &addrInfo, long unsafeAddress,
  * 16 bytes / 128 bits of address
  * It returns the total length used.
  */
-inline jlong encodeAddrInfoToUnsafe(addrinfo *addrInfo, long unsafeAddress,
-        long length) {
+inline jlong encodeAddrInfoToUnsafe(const addrinfo *addrInfo,
+        long unsafeAddress, long length) {
     if (NULL == addrInfo || 0 == unsafeAddress || 0 == length) {
+//        fprintf(stderr, "null addrInfo=%p address=0x%lx len=%ld\n", addrInfo,
+//                unsafeAddress, length);
         return -1;
     }
 
     // first we need to iterate all of them and count the size.
     jlong totalLength = 1;
+    jlong totalAddresses = 0;
 
-    addrinfo *current = addrInfo;
+    const addrinfo *current = addrInfo;
     while (NULL != current) {
         if (AF_INET == current->ai_family) {
             totalLength += 5;
+            totalAddresses++;
         } else if (AF_INET6 == current->ai_family) {
             totalLength += 17;
+            totalAddresses++;
         }
         current = current->ai_next;
     }
@@ -258,28 +265,26 @@ inline jlong encodeAddrInfoToUnsafe(addrinfo *addrInfo, long unsafeAddress,
     // now we need to walk and encode.
     uint8_t *pointer = (uint8_t*) unsafeAddress;
 
-    // set length
-    *pointer = (uint8_t) totalLength;
+    size_t index = 0;
 
-    size_t index = 1;
+    // set length
+    pointer[index++] = (uint8_t) totalLength;
+
+    // set addresses
+    pointer[index++] = (uint8_t) totalAddresses;
+
     current = addrInfo;
     while (NULL != current) {
         ipv6_sockaddr *storage = (ipv6_sockaddr *) (current->ai_addr);
         if (AF_INET == current->ai_family) {
             pointer[index++] = AF_INET;
-            // 0
-            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x18) & 0x00ff;
-            // 1
-            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x10) & 0x00ff;
-            // 2
-            pointer[index++] = (storage->sin.sin_addr.s_addr >> 0x08) & 0x00ff;
-            // 3
-            pointer[index++] = (storage->sin.sin_addr.s_addr) & 0x00ff;
+            memcpy(&(pointer[index]), &(storage->sin.sin_addr.s_addr), in4len);
+            index += 4;
         } else if (AF_INET6 == current->ai_family) {
             pointer[index++] = AF_INET6;
-            memcpy(pointer, &(storage->sin6.sin6_addr.s6_addr), in6len);
+            memcpy(&(pointer[index]), &(storage->sin6.sin6_addr.s6_addr),
+                    in6len);
             // we need the current 16 bytes.
-            pointer += 16;
             index += 16;
         }
         current = current->ai_next;

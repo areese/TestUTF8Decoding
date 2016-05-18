@@ -128,7 +128,7 @@ public class MUnsafe {
     /**
      * Allocate memory from unsafe of cap bytes
      * 
-     * @param cap number of bytes to allocate
+     * @param size number of bytes to allocate
      * @return memory that must be free'd with Unsafe.free memory
      */
     public static long allocateMemory(long size) {

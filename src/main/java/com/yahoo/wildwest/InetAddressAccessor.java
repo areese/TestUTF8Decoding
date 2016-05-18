@@ -371,8 +371,13 @@ public class InetAddressAccessor {
 
         long currentAddress = address;
 
+        byte totalLength = MUnsafe.getByte(currentAddress++);
         byte totalAddresses = MUnsafe.getByte(currentAddress++);
-        if (0 == totalAddresses) {
+
+        byte[] allTheBytes = new byte[(int) length];
+        MUnsafe.copyMemory(allTheBytes, address, length);
+        
+        if (totalLength < 6 || 0 == totalAddresses) {
             return new InetAddress[] {};
         }
 
@@ -395,6 +400,8 @@ public class InetAddressAccessor {
             // in this case, we just copyMemory out
             MUnsafe.copyMemory(bytes, currentAddress, len);
             addresses[i] = InetAddress.getByAddress(bytes);
+
+            currentAddress += len;
         }
 
         return addresses;

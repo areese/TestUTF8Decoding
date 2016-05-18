@@ -158,10 +158,10 @@ public class TestInetAddressAccessor {
     public static void testCopyOut() {
         try (MissingFingers mf = new MissingFingers(128)) {
             long retLength = PowersawValidator.copyAddresses(mf.getAddress(), mf.getLength());
-            Assert.assertEquals(retLength, 1 + 5 + 17);
+            Assert.assertEquals(retLength, 2 + 1 + 4 + 1 + 16);
         }
     }
-    
+
     public static void main(String[] args) {
         testCopyOut();
     }

@@ -42,7 +42,7 @@ public class TestPowersawVariations {
 
     @Test
     public void testencodeAddrInfoToUnsafe() throws UnknownHostException {
-        long expected = 1 + 2 + 4 + 16;
+        long expected = 2 + 1 + 4 + 1 + 16;
         try (MissingFingers mf = new MissingFingers(expected)) {
             long ret = PowersawValidator.copyAddresses(mf.getAddress(), mf.getLength());
 
